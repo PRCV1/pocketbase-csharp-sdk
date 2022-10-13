@@ -8,13 +8,7 @@ namespace pocketbase_csharp_sdk.Models
 {
     public class AdminAuthModel
     {
-        private readonly string token;
-        private readonly AdminModel admin;
-
-        public AdminAuthModel(string token, AdminModel admin)
-        {
-            this.token = token;
-            this.admin = admin;
-        }
+        public string? Token { get; set; }
+        public AdminModel? Admin { get; set; }
     }
 }

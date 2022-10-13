@@ -1,15 +1,22 @@
-﻿using pocketbase_csharp_sdk.Models;
+﻿using pocketbase_csharp_sdk.Json;
+using pocketbase_csharp_sdk.Models;
+using pocketbase_csharp_sdk.Services;
 using System.Collections;
 using System.Collections.Specialized;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Net.Mime;
+using System.Text.Json;
 using System.Web;
 
 namespace pocketbase_csharp_sdk
 {
     public class PocketBase
     {
+        public AuthStore AuthStore { private set; get; }
+        public AdminService Admin { private set; get; }
+        public UserService User { private set; get; }
+
         private readonly string _baseUrl;
         private readonly string _language;
         private readonly AuthStore _authStore;
@@ -22,9 +29,13 @@ namespace pocketbase_csharp_sdk
             this._authStore = authStore ?? new AuthStore();
 
             this._httpClient = httpClient ?? new HttpClient();
+
+            AuthStore = authStore ?? new AuthStore();
+            Admin = new AdminService(this);
+            User = new UserService(this);
         }
 
-        public async Task<T> SendAsync<T>(string path, HttpMethod method, IDictionary<string, string>? headers = null, IDictionary<string, object>? query = null, IDictionary<string, object>? body = null, IEnumerable<FileContentWrapper>? files = null)
+        public async Task<T?> SendAsync<T>(string path, HttpMethod method, IDictionary<string, string>? headers = null, IDictionary<string, object?>? query = null, IDictionary<string, object>? body = null, IEnumerable<FileContentWrapper>? files = null)
         {
             Uri url = BuildUrl(path, query);
 
@@ -58,7 +69,6 @@ namespace pocketbase_csharp_sdk
             try
             {
                 var response = await _httpClient.SendAsync(request);
-                var responseStream = await response.Content.ReadAsStringAsync();
 
                 if ((int)response.StatusCode >= 400)
                 {
@@ -66,14 +76,26 @@ namespace pocketbase_csharp_sdk
                     throw new ClientException(url.ToString(), statusCode: (int)response.StatusCode);
                 }
 
+                var responseStream = await response.Content.ReadAsStringAsync();
+                var options = new JsonSerializerOptions();
+                options.Converters.Add(new DateTimeConverter());
+                return await response.Content.ReadFromJsonAsync<T>(options);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
-                throw;
+                if (ex is ClientException)
+                {
+                    throw ex;
+                }
+                else if (ex is HttpRequestException)
+                {
+                    throw new ClientException(url: url.ToString(), originalError: ex, isAbort: true);
+                }
+                else
+                {
+                    throw new ClientException(url: url.ToString(), originalError: ex);
+                }
             }
-
-            return default;
         }
 
         public Uri BuildUrl(string path, IDictionary<string, object?>? queryParameters = null)
