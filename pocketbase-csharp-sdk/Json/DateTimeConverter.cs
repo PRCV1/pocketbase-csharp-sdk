@@ -1,4 +1,5 @@
-﻿using System;
+﻿using pocketbase_csharp_sdk.Models;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -9,17 +10,28 @@ using System.Threading.Tasks;
 
 namespace pocketbase_csharp_sdk.Json
 {
-    public class DateTimeConverter : JsonConverter<DateTime>
+    public class DateTimeConverter : JsonConverter<DateTime?>
     {
-        public override DateTime Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        public override DateTime? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-            Debug.Assert(typeToConvert == typeof(DateTime));
-            return DateTime.Parse(reader.GetString());
+            var value = reader.GetString();
+            if (DateTime.TryParse(value, out var dt))
+            {
+                return dt;
+            }
+            return null;
         }
 
-        public override void Write(Utf8JsonWriter writer, DateTime value, JsonSerializerOptions options)
+        public override void Write(Utf8JsonWriter writer, DateTime? value, JsonSerializerOptions options)
         {
-            writer.WriteStringValue(value.ToUniversalTime().ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ssZ"));
+            if (value is null)
+            {
+                writer.WriteNullValue();
+            }
+            else
+            {
+                writer.WriteStringValue(value?.ToString());
+            }
         }
     }
 }

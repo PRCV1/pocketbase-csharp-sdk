@@ -31,7 +31,8 @@ namespace pocketbase_csharp_sdk
                 return false;
             }
 
-            string payload = Encoding.UTF8.GetString(Convert.FromBase64String(parts[1]));
+            string rawPayload = parts[1];
+            string payload = Encoding.UTF8.GetString(ParsePayload(rawPayload));
             var encoded = JsonSerializer.Deserialize<IDictionary<string, object>>(payload)!;
 
             if (encoded["exp"] is JsonElement jsonElement && jsonElement.ValueKind == JsonValueKind.Number)
@@ -42,6 +43,19 @@ namespace pocketbase_csharp_sdk
             }
 
             return false;
+        }
+
+        private byte[] ParsePayload(string payload)
+        {
+            if (payload.Length % 4 == 2)
+            {
+                payload += "==";
+            }
+            else if (payload.Length % 4 == 3)
+            {
+                payload += "=";
+            }
+            return Convert.FromBase64String(payload);
         }
 
         public void Save(string? token, BaseModel? model)

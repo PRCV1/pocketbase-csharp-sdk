@@ -7,6 +7,7 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Net.Mime;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Web;
 
 namespace pocketbase_csharp_sdk
@@ -19,15 +20,12 @@ namespace pocketbase_csharp_sdk
 
         private readonly string _baseUrl;
         private readonly string _language;
-        private readonly AuthStore _authStore;
         private readonly HttpClient _httpClient;
 
         public PocketBase(string baseUrl, AuthStore? authStore = null, string language = "en-US", HttpClient? httpClient = null)
         {
             this._baseUrl = baseUrl;
             this._language = language;
-            this._authStore = authStore ?? new AuthStore();
-
             this._httpClient = httpClient ?? new HttpClient();
 
             AuthStore = authStore ?? new AuthStore();
@@ -37,10 +35,15 @@ namespace pocketbase_csharp_sdk
 
         public async Task<T?> SendAsync<T>(string path, HttpMethod method, IDictionary<string, string>? headers = null, IDictionary<string, object?>? query = null, IDictionary<string, object>? body = null, IEnumerable<FileContentWrapper>? files = null)
         {
+            headers ??= new Dictionary<string, string>();
+            query ??= new Dictionary<string, object?>();
+            body ??= new Dictionary<string, object>();
+            files ??= new List<FileContentWrapper>();
+
             Uri url = BuildUrl(path, query);
 
             HttpRequestMessage request;
-            if (files is not null && files.Count() > 0)
+            if (files.Count() > 0)
             {
                 request = BuildFileRequest(method, url, headers, body, files);
             }
@@ -49,19 +52,19 @@ namespace pocketbase_csharp_sdk
                 request = BuildJsonRequest(method, url, headers, body);
             }
 
-            if (headers is not null && !headers.ContainsKey("Authorization") && _authStore.IsValid)
+            if (!headers.ContainsKey("Authorization") && AuthStore.IsValid)
             {
-                if (_authStore.Model is AdminModel)
+                if (AuthStore.Model is AdminModel)
                 {
-                    request.Headers.Add("Authorization", $"Admin {_authStore.Token}");
+                    request.Headers.Add("Authorization", $"Admin {AuthStore.Token}");
                 }
                 else
                 {
-                    request.Headers.Add("Authorization", $"User {_authStore.Token}");
+                    request.Headers.Add("Authorization", $"User {AuthStore.Token}");
                 }
             }
 
-            if (headers is not null && !headers.ContainsKey("Accept-Language"))
+            if (!headers.ContainsKey("Accept-Language"))
             {
                 request.Headers.Add("Accept-Language", _language);
             }
@@ -76,16 +79,19 @@ namespace pocketbase_csharp_sdk
                     throw new ClientException(url.ToString(), statusCode: (int)response.StatusCode);
                 }
 
-                var responseStream = await response.Content.ReadAsStringAsync();
-                var options = new JsonSerializerOptions();
-                options.Converters.Add(new DateTimeConverter());
-                return await response.Content.ReadFromJsonAsync<T>(options);
+                //if we dont care about the response, for example 204
+                if (typeof(T) == typeof(object))
+                {
+                    return default;
+                }
+
+                return await response.Content.ReadFromJsonAsync<T>();
             }
             catch (Exception ex)
             {
                 if (ex is ClientException)
                 {
-                    throw ex;
+                    throw;
                 }
                 else if (ex is HttpRequestException)
                 {
