@@ -27,14 +27,14 @@ namespace pocketbase_csharp_sdk
         /// <summary>
         /// Contains the JSON API error response
         /// </summary>
-        public IDictionary<string, object>? Response { get; }
+        public IDictionary<string, object?>? Response { get; }
 
         /// <summary>
         /// The original response error
         /// </summary>
         public Exception? OriginalError { get; }
 
-        public ClientException(string url, bool isAbort = false, int statusCode = 500, IDictionary<string, object>? response = null, Exception? originalError = null)
+        public ClientException(string url, bool isAbort = false, int statusCode = 500, IDictionary<string, object?>? response = null, Exception? originalError = null)
         {
             Url = url;
             IsAbort = isAbort;
@@ -47,7 +47,7 @@ namespace pocketbase_csharp_sdk
 
         private string FormatMessage()
         {
-            Dictionary<string, object> result = new()
+            Dictionary<string, object?> result = new()
             {
                 {"url", Url },
                 {"isAbort", IsAbort },

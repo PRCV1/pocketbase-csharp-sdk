@@ -72,10 +72,13 @@ namespace pocketbase_csharp_sdk
             try
             {
                 var response = await _httpClient.SendAsync(request);
+                //var responseData = await response.Content.ReadAsStringAsync();
 
                 if ((int)response.StatusCode >= 400)
                 {
-                    //TODO ResponseData nicht vergessen
+                    //TODO
+                    //var dic = GetResponseAsDictionary(responseData);
+                    //throw new ClientException(url.ToString(), statusCode: (int)response.StatusCode, response: dic);
                     throw new ClientException(url.ToString(), statusCode: (int)response.StatusCode);
                 }
 
@@ -102,6 +105,21 @@ namespace pocketbase_csharp_sdk
                     throw new ClientException(url: url.ToString(), originalError: ex);
                 }
             }
+        }
+
+        private IDictionary<string, object?>? GetResponseAsDictionary(string response)
+        {
+            if (string.IsNullOrWhiteSpace(response))
+            {
+                return null;
+            }
+            var dic = new Dictionary<string, object?>();
+            var obj = JsonDocument.Parse(response);
+            foreach (var item in obj.RootElement.EnumerateObject())
+            {
+                
+            }
+            return dic;
         }
 
         public Uri BuildUrl(string path, IDictionary<string, object?>? queryParameters = null)

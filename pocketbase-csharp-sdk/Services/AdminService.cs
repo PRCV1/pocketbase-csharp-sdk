@@ -1,4 +1,5 @@
 ﻿using pocketbase_csharp_sdk.Models;
+using pocketbase_csharp_sdk.Models.Auth;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,14 +21,12 @@ namespace pocketbase_csharp_sdk.Services
 
         public async Task<AdminAuthModel?> AuthenticateViaEmail(string email, string password, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null)
         {
-            var enrichedBody = body ?? new Dictionary<string, object>();
-            enrichedBody.Add("email", email);
-            enrichedBody.Add("password", password);
-
-            var enrichedHeaders = headers ?? new Dictionary<string, string>();
+            body ??= new Dictionary<string, object>();
+            body.Add("email", email);
+            body.Add("password", password);
 
             var url = $"{BasePath}/auth-via-email";
-            var result = await client.SendAsync<AdminAuthModel>(url, HttpMethod.Post, headers: enrichedHeaders, query: query, body: enrichedBody);
+            var result = await client.SendAsync<AdminAuthModel>(url, HttpMethod.Post, headers: headers, query: query, body: body);
 
             SaveAuthentication(result);
 
