@@ -1,4 +1,5 @@
 ﻿using pocketbase_csharp_sdk.Json;
+using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 
 namespace pocketbase_csharp_sdk.Models
@@ -10,6 +11,9 @@ namespace pocketbase_csharp_sdk.Models
 
         [JsonPropertyName("@collectionName")]
         public string? CollectionName { get; set; }
+
+        [JsonPropertyName("@expand")]
+        public JsonObject? Expand { get; set; }
 
         public string? Id { get; set; }
 
