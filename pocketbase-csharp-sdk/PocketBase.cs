@@ -17,6 +17,7 @@ namespace pocketbase_csharp_sdk
         public AuthStore AuthStore { private set; get; }
         public AdminService Admin { private set; get; }
         public UserService User { private set; get; }
+        public LogService Log { private set; get; }
 
         private readonly string _baseUrl;
         private readonly string _language;
@@ -31,6 +32,7 @@ namespace pocketbase_csharp_sdk
             AuthStore = authStore ?? new AuthStore();
             Admin = new AdminService(this);
             User = new UserService(this);
+            Log = new LogService(this);
         }
 
         public async Task<T?> SendAsync<T>(string path, HttpMethod method, IDictionary<string, string>? headers = null, IDictionary<string, object?>? query = null, IDictionary<string, object>? body = null, IEnumerable<FileContentWrapper>? files = null)

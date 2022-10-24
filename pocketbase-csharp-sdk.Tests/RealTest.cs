@@ -21,13 +21,13 @@ namespace pocketbase_csharp_sdk.Tests
                 var lel = e.Token;
             };
 
-            //var test = await client.Admin.AuthenticateViaEmail("test@test.de", "0123456789");
+            var test = await client.Admin.AuthenticateViaEmail("test@test.de", "0123456789");
             //var refresh = await client.Admin.RefreshAsync();
             //await client.Admin.RequestPasswordResetAsync("test@test.de");
             //await client.Admin.ConfirmPasswordResetAsync("token", "0123456789", "0123456789");
 
-            var ttest = await client.User.GetAuthenticationMethodsAsync();
-            var test = await client.User.AuthenticateViaEmail("kekw@kekw.com", "0123456789");
+            //var ttest = await client.User.GetAuthenticationMethodsAsync();
+            //var test = await client.User.AuthenticateViaEmail("kekw@kekw.com", "0123456789");
             //var test2 = await client.User.AuthenticateViaOAuth2("twitter", "0123456789", "twitter", "google.de");
             //var test3 = await client.User.RefreshAsync();
             //await client.User.RequestPasswordResetAsync("kekw@kekw.com");
@@ -37,6 +37,10 @@ namespace pocketbase_csharp_sdk.Tests
             //await client.User.ConfirmEmailChangeAsync("token", "0123456789");
             //await client.User.GetExternalAuthenticationMethods("ay9v60tj4rlb4nf");
             //await client.User.UnlinkExternalAuthentication("ay9v60tj4rlb4nf", "twitter");
+
+            await client.Log.GetRequestAsync("b1iobsf91w7byd9");
+            await client.Log.GetRequestsAsync();
+            await client.Log.GetRequestsStatisticsAsync();
         }
     }
 }
