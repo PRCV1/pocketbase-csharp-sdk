@@ -38,9 +38,12 @@ namespace pocketbase_csharp_sdk.Tests
             //await client.User.GetExternalAuthenticationMethods("ay9v60tj4rlb4nf");
             //await client.User.UnlinkExternalAuthentication("ay9v60tj4rlb4nf", "twitter");
 
-            await client.Log.GetRequestAsync("b1iobsf91w7byd9");
-            await client.Log.GetRequestsAsync();
-            await client.Log.GetRequestsStatisticsAsync();
+            //await client.Log.GetRequestAsync("b1iobsf91w7byd9");
+            //await client.Log.GetRequestsAsync();
+            //await client.Log.GetRequestsStatisticsAsync();
+
+            //await client.Settings.GetAllAsync();
+            
         }
     }
 }
