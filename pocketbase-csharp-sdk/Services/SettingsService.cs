@@ -33,7 +33,7 @@ namespace pocketbase_csharp_sdk.Services
         public async Task TestS3Async(IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null)
         {
             var url = "api/settings/test/s3";
-            await client.SendAsync<object>(url, HttpMethod.Post, headers: headers, body: body, query: query);
+            await client.SendAsync(url, HttpMethod.Post, headers: headers, body: body, query: query);
         }
 
         public async Task TestEmailAsync(string toEmail, string template, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null)
@@ -43,7 +43,7 @@ namespace pocketbase_csharp_sdk.Services
             query.Add("template", template);
 
             var url = "api/settings/test/email";
-            await client.SendAsync<object>(url, HttpMethod.Post, headers: headers, body: body, query: query);
+            await client.SendAsync(url, HttpMethod.Post, headers: headers, body: body, query: query);
         }
 
     }

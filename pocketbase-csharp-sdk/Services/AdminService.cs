@@ -49,7 +49,7 @@ namespace pocketbase_csharp_sdk.Services
             body.Add("email", email);
 
             var url = $"{BasePath}/request-password-reset";
-            await client.SendAsync<object>(url, HttpMethod.Post, headers: headers, query: query, body: body);
+            await client.SendAsync(url, HttpMethod.Post, headers: headers, query: query, body: body);
         }
 
         public async Task<AdminAuthModel?> ConfirmPasswordResetAsync(string passwordResetToken, string password, string passwordConfirm, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null)

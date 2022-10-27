@@ -73,7 +73,7 @@ namespace pocketbase_csharp_sdk.Services
             body.Add("email", email);
 
             var url = $"{BasePath}/request-password-reset";
-            await client.SendAsync<object>(url, HttpMethod.Post, headers: headers, query: query, body: body);
+            await client.SendAsync(url, HttpMethod.Post, headers: headers, query: query, body: body);
         }
 
         public async Task<UserAuthModel?> ConfirmPasswordResetAsync(string passwordResetToken, string password, string passwordConfirm, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null)
@@ -97,7 +97,7 @@ namespace pocketbase_csharp_sdk.Services
             body.Add("email", email);
 
             var url = $"{BasePath}/request-verification";
-            await client.SendAsync<object>(url, HttpMethod.Post, headers: headers, query: query, body: body);
+            await client.SendAsync(url, HttpMethod.Post, headers: headers, query: query, body: body);
         }
 
         public async Task<UserAuthModel?> ConfirmVerificationAsync(string token, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null)
@@ -119,7 +119,7 @@ namespace pocketbase_csharp_sdk.Services
             body.Add("newEmail", newEmail);
 
             var url = $"{BasePath}/request-email-change";
-            await client.SendAsync<object>(url, HttpMethod.Post, headers: headers, query: query, body: body);
+            await client.SendAsync(url, HttpMethod.Post, headers: headers, query: query, body: body);
         }
 
         public async Task<UserAuthModel?> ConfirmEmailChangeAsync(string emailChangeToken, string userPassword, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null)
@@ -146,7 +146,7 @@ namespace pocketbase_csharp_sdk.Services
         public async Task UnlinkExternalAuthentication(string userId, string provider, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null)
         {
             var url = $"{BasePath}/{HttpUtility.HtmlEncode(userId)}/external-auths/{HttpUtility.HtmlEncode(provider)}";
-            await client.SendAsync<object>(url, HttpMethod.Delete, headers: headers, query: query, body: body);
+            await client.SendAsync(url, HttpMethod.Delete, headers: headers, query: query, body: body);
         }
 
         private void SaveAuthentication(UserAuthModel? adminAuthModel)

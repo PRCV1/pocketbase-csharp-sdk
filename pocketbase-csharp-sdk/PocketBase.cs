@@ -1,6 +1,7 @@
 ﻿using pocketbase_csharp_sdk.Json;
 using pocketbase_csharp_sdk.Models;
 using pocketbase_csharp_sdk.Services;
+using System;
 using System.Collections;
 using System.Collections.Specialized;
 using System.Net.Http.Headers;
@@ -37,6 +38,46 @@ namespace pocketbase_csharp_sdk
             Settings = new SettingsService(this);
         }
 
+        public async Task SendAsync(string path, HttpMethod method, IDictionary<string, string>? headers = null, IDictionary<string, object?>? query = null, IDictionary<string, object>? body = null, IEnumerable<FileContentWrapper>? files = null)
+        {
+            headers ??= new Dictionary<string, string>();
+            query ??= new Dictionary<string, object?>();
+            body ??= new Dictionary<string, object>();
+            files ??= new List<FileContentWrapper>();
+
+            Uri url = BuildUrl(path, query);
+
+            HttpRequestMessage request = CreateRequest(url, method, headers: headers, query: query, body: body, files: files);
+
+            try
+            {
+                var response = await _httpClient.SendAsync(request);
+
+                if ((int)response.StatusCode >= 400)
+                {
+                    //TODO
+                    //var dic = GetResponseAsDictionary(responseData);
+                    //throw new ClientException(url.ToString(), statusCode: (int)response.StatusCode, response: dic);
+                    throw new ClientException(url.ToString(), statusCode: (int)response.StatusCode);
+                }
+            }
+            catch (Exception ex)
+            {
+                if (ex is ClientException)
+                {
+                    throw;
+                }
+                else if (ex is HttpRequestException)
+                {
+                    throw new ClientException(url: url.ToString(), originalError: ex, isAbort: true);
+                }
+                else
+                {
+                    throw new ClientException(url: url.ToString(), originalError: ex);
+                }
+            }
+        }
+
         public async Task<T?> SendAsync<T>(string path, HttpMethod method, IDictionary<string, string>? headers = null, IDictionary<string, object?>? query = null, IDictionary<string, object>? body = null, IEnumerable<FileContentWrapper>? files = null)
         {
             headers ??= new Dictionary<string, string>();
@@ -46,32 +87,7 @@ namespace pocketbase_csharp_sdk
 
             Uri url = BuildUrl(path, query);
 
-            HttpRequestMessage request;
-            if (files.Count() > 0)
-            {
-                request = BuildFileRequest(method, url, headers, body, files);
-            }
-            else
-            {
-                request = BuildJsonRequest(method, url, headers, body);
-            }
-
-            if (!headers.ContainsKey("Authorization") && AuthStore.IsValid)
-            {
-                if (AuthStore.Model is AdminModel)
-                {
-                    request.Headers.Add("Authorization", $"Admin {AuthStore.Token}");
-                }
-                else
-                {
-                    request.Headers.Add("Authorization", $"User {AuthStore.Token}");
-                }
-            }
-
-            if (!headers.ContainsKey("Accept-Language"))
-            {
-                request.Headers.Add("Accept-Language", _language);
-            }
+            HttpRequestMessage request = CreateRequest(url, method, headers: headers, query: query, body: body, files: files);
 
             try
             {
@@ -109,6 +125,39 @@ namespace pocketbase_csharp_sdk
                     throw new ClientException(url: url.ToString(), originalError: ex);
                 }
             }
+        }
+
+        private HttpRequestMessage CreateRequest(Uri url, HttpMethod method, IDictionary<string, string> headers, IDictionary<string, object?> query, IDictionary<string, object> body, IEnumerable<FileContentWrapper> files)
+        {
+            HttpRequestMessage request;
+
+            if (files.Count() > 0)
+            {
+                request = BuildFileRequest(method, url, headers, body, files);
+            }
+            else
+            {
+                request = BuildJsonRequest(method, url, headers, body);
+            }
+
+            if (!headers.ContainsKey("Authorization") && AuthStore.IsValid)
+            {
+                if (AuthStore.Model is AdminModel)
+                {
+                    request.Headers.Add("Authorization", $"Admin {AuthStore.Token}");
+                }
+                else
+                {
+                    request.Headers.Add("Authorization", $"User {AuthStore.Token}");
+                }
+            }
+
+            if (!headers.ContainsKey("Accept-Language"))
+            {
+                request.Headers.Add("Accept-Language", _language);
+            }
+
+            return request;
         }
 
         private IDictionary<string, object?>? GetResponseAsDictionary(string response)
