@@ -20,6 +20,7 @@ namespace pocketbase_csharp_sdk
         public UserService User { private set; get; }
         public LogService Log { private set; get; }
         public SettingsService Settings { private set; get; }
+        public CollectionService Collections { private set; get; }
 
         private readonly string _baseUrl;
         private readonly string _language;
@@ -36,6 +37,7 @@ namespace pocketbase_csharp_sdk
             User = new UserService(this);
             Log = new LogService(this);
             Settings = new SettingsService(this);
+            Collections = new CollectionService(this);
         }
 
         public async Task SendAsync(string path, HttpMethod method, IDictionary<string, string>? headers = null, IDictionary<string, object?>? query = null, IDictionary<string, object>? body = null, IEnumerable<FileContentWrapper>? files = null)

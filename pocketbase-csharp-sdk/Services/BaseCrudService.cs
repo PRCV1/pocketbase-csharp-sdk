@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace pocketbase_csharp_sdk.Services
 {
-    public abstract class BaseCrudService<T> : BaseService where T : class
+    public abstract class BaseCrudService : BaseService
     {
         private readonly PocketBase client;
         private readonly string[] itemProperties;
@@ -18,7 +18,7 @@ namespace pocketbase_csharp_sdk.Services
             this.itemProperties = this.GetPropertyNames().ToArray();
         }
 
-        public async Task<PagedCollectionModel<T>> ListAsync(
+        public async Task<PagedCollectionModel<T>> ListAsync<T>(
             int? page = null,
             int? perPage = null,
             string? sort = null,
@@ -45,7 +45,7 @@ namespace pocketbase_csharp_sdk.Services
             return pagedCollection;
         }
 
-        public async Task<T> CreateAsync(
+        public async Task<T> CreateAsync<T>(
             T item,
             string? expand = null,
             IDictionary<string, string>? headers = null)
@@ -67,7 +67,7 @@ namespace pocketbase_csharp_sdk.Services
             return ret;
         }
 
-        public async Task<T> UpdateAsync(
+        public async Task<T> UpdateAsync<T>(
             string id,
             T item,
             string? expand = null,
@@ -94,7 +94,7 @@ namespace pocketbase_csharp_sdk.Services
             => from prop in typeof(ItemBaseModel).GetProperties()
                select prop.Name;
 
-        private Dictionary<string, object> ConstructBody(T item)
+        private Dictionary<string, object> ConstructBody<T>(T item)
         {
             var body = new Dictionary<string, object>();
 
