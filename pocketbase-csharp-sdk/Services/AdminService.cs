@@ -8,13 +8,13 @@ using System.Threading.Tasks;
 
 namespace pocketbase_csharp_sdk.Services
 {
-    public class AdminService : BaseService<AdminModel>
+    public class AdminService : BaseService
     {
 
         protected override string BasePath => "/api/admins";
 
         private readonly PocketBase client;
-        public AdminService(PocketBase client) : base(client)
+        public AdminService(PocketBase client)
         {
             this.client = client;
         }

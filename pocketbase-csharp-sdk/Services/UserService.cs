@@ -9,13 +9,13 @@ using System.Web;
 
 namespace pocketbase_csharp_sdk.Services
 {
-    public class UserService : BaseService<UserModel>
+    public class UserService : BaseService
     {
         protected override string BasePath => "/api/users";
 
         private readonly PocketBase client;
 
-        public UserService(PocketBase client) : base(client)
+        public UserService(PocketBase client)
         {
             this.client = client;
         }
