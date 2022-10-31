@@ -44,7 +44,7 @@ namespace pocketbase_csharp_sdk.Tests
 
             //await client.Settings.GetAllAsync();
 
-            var lel = await client.Collections.ListAsync<object>("");
+            var lel = await client.Collections.ListAsync<object>();
         }
     }
 }
