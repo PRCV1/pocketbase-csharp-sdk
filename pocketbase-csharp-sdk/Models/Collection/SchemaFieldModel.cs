@@ -1,4 +1,4 @@
-﻿namespace pocketbase_csharp_sdk.Models
+﻿namespace pocketbase_csharp_sdk.Models.Collection
 {
     public class SchemaFieldModel
     {

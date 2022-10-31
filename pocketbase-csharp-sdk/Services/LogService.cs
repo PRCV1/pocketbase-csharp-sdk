@@ -1,4 +1,5 @@
 ﻿using pocketbase_csharp_sdk.Models;
+using pocketbase_csharp_sdk.Models.Log;
 using System;
 using System.Collections.Generic;
 using System.Linq;
