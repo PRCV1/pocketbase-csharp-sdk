@@ -8,6 +8,7 @@ namespace pocketbase_csharp_sdk.Services
 {
     public abstract class BaseService
     {
-        protected abstract string BasePath { get; }
+        protected abstract string BasePath(string? path = null);
+
     }
 }

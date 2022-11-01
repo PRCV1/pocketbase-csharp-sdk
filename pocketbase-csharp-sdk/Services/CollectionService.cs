@@ -11,7 +11,7 @@ namespace pocketbase_csharp_sdk.Services
     {
         private readonly PocketBase client;
 
-        protected override string BasePath => "/api/collections";
+        protected override string BasePath(string? url = null) => "/api/collections";
 
         public CollectionService(PocketBase client) : base(client)
         {
@@ -24,7 +24,7 @@ namespace pocketbase_csharp_sdk.Services
             body.Add("collections", collections);
             body.Add("deleteMissing", deleteMissing);
 
-            var url = $"{BasePath}/import";
+            var url = $"{BasePath()}/import";
             await client.SendAsync(url, HttpMethod.Put, headers: headers, query: query, body: body);
         }
 

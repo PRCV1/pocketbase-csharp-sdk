@@ -19,12 +19,13 @@ namespace pocketbase_csharp_sdk.Services
         }
 
         public async Task<PagedCollectionModel<T>> ListAsync<T>(
+            string sub,
             int? page = null,
             int? perPage = null,
             string? sort = null,
             string? filter = null,
             string? expand = null,
-            IDictionary<string, string>? headers = null)
+            IDictionary<string, string>? headers = null) where T : ItemBaseModel
         {
             var query = new Dictionary<string, object?>()
             {
@@ -34,7 +35,7 @@ namespace pocketbase_csharp_sdk.Services
                 { "sort", sort },
                 { "expand", expand },
             };
-            var url = this.BasePath + "/records";
+            var url = this.BasePath(sub);
             var pagedCollection = await client.SendAsync<PagedCollectionModel<T>>(
                 url,
                 HttpMethod.Get,
@@ -46,16 +47,17 @@ namespace pocketbase_csharp_sdk.Services
         }
 
         public async Task<T> CreateAsync<T>(
+            string sub,
             T item,
             string? expand = null,
-            IDictionary<string, string>? headers = null)
+            IDictionary<string, string>? headers = null) where T : ItemBaseModel
         {
             var query = new Dictionary<string, object?>()
             {
                 { "expand", expand },
             };
             var body = ConstructBody(item);
-            var url = this.BasePath + "/records";
+            var url = this.BasePath(sub);
             var ret = await client.SendAsync<T>(
                 url,
                 HttpMethod.Post,
@@ -68,17 +70,18 @@ namespace pocketbase_csharp_sdk.Services
         }
 
         public async Task<T> UpdateAsync<T>(
+            string sub,
             string id,
             T item,
             string? expand = null,
-            IDictionary<string, string>? headers = null)
+            IDictionary<string, string>? headers = null) where T : ItemBaseModel
         {
             var query = new Dictionary<string, object?>()
             {
                 { "expand", expand },
             };
             var body = ConstructBody(item);
-            var url = this.BasePath + "/records/" + id;
+            var url = this.BasePath(sub) + id;
             var pagedCollection = await client.SendAsync<T>(
                 url,
                 HttpMethod.Patch,

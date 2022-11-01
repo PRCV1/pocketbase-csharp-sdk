@@ -64,6 +64,11 @@ namespace pocketbase_csharp_sdk
                     //throw new ClientException(url.ToString(), statusCode: (int)response.StatusCode, response: dic);
                     throw new ClientException(url.ToString(), statusCode: (int)response.StatusCode);
                 }
+
+#if DEBUG
+                var json = await response.Content.ReadAsStringAsync();
+#endif
+
             }
             catch (Exception ex)
             {
@@ -106,11 +111,9 @@ namespace pocketbase_csharp_sdk
                     throw new ClientException(url.ToString(), statusCode: (int)response.StatusCode);
                 }
 
-                //if we dont care about the response, for example 204
-                if (typeof(T) == typeof(object))
-                {
-                    return default;
-                }
+#if DEBUG
+                var json = await response.Content.ReadAsStringAsync();
+#endif
 
                 return await response.Content.ReadFromJsonAsync<T>();
             }

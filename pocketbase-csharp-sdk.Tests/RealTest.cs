@@ -1,4 +1,5 @@
-﻿using System;
+﻿using pocketbase_csharp_sdk.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -38,13 +39,19 @@ namespace pocketbase_csharp_sdk.Tests
             //await client.User.GetExternalAuthenticationMethods("ay9v60tj4rlb4nf");
             //await client.User.UnlinkExternalAuthentication("ay9v60tj4rlb4nf", "twitter");
 
-            //await client.Log.GetRequestAsync("b1iobsf91w7byd9");
+            //await client.Log.GetRequestAsync("07s3a8j0s2957og");
             //await client.Log.GetRequestsAsync();
             //await client.Log.GetRequestsStatisticsAsync();
 
             //await client.Settings.GetAllAsync();
 
-            var lel = await client.Collections.ListAsync<object>();
+            var lel = await client.Records.ListAsync<Restaurant>("restaurants");
         }
     }
+
+    class Restaurant : ItemBaseModel
+    {
+        public string? Name { get; set; }
+    }
+
 }

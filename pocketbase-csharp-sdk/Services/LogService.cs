@@ -9,8 +9,11 @@ using System.Web;
 
 namespace pocketbase_csharp_sdk.Services
 {
-    public class LogService
+    public class LogService : BaseService
     {
+
+        protected override string BasePath(string? path = null) => "api/logs/requests";
+
         private readonly PocketBase client;
 
         public LogService(PocketBase client)
@@ -20,7 +23,7 @@ namespace pocketbase_csharp_sdk.Services
 
         public async Task<LogRequestModel?> GetRequestAsync(string id, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null)
         {
-            var url = $"api/logs/requests/{HttpUtility.HtmlEncode(id)}";
+            var url = $"{BasePath()}/{HttpUtility.HtmlEncode(id)}";
             var response = await client.SendAsync<LogRequestModel>(url, HttpMethod.Get, headers: headers, query: query, body: body);
             return response;
         }
@@ -33,19 +36,19 @@ namespace pocketbase_csharp_sdk.Services
             query.Add("filter", filter);
             query.Add("sort", sort);
 
-            var url = "api/logs/requests/";
-            var response = await client.SendAsync<ResultList<LogRequestModel>>(url, HttpMethod.Get, headers: headers, query: query, body: body);
+            var response = await client.SendAsync<ResultList<LogRequestModel>>(BasePath(), HttpMethod.Get, headers: headers, query: query, body: body);
 
             return response;
         }
 
         public async Task<IEnumerable<LogRequestStatistic>?> GetRequestsStatisticsAsync(IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null)
         {
-            var url = "/api/logs/requests/stats";
+            var url = $"{BasePath()}/stats";
             var response = await client.SendAsync<IEnumerable<LogRequestStatistic>>(url, HttpMethod.Get, headers: headers, query: query);
 
             return response;
         }
 
+        
     }
 }
