@@ -1,19 +1,31 @@
-# pocketbase-csharp-sdk
-C# SDK for [pocketbase](https://github.com/pocketbase/pocketbase)
-inspired by [pocketbase/js-sdk](https://github.com/pocketbase/js-sdk) and [pocketbase/dart-sdk](https://github.com/pocketbase/dart-sdk)
+PocketBase C# SDK
+======================================================================
 
-## What is PocketBase?
+Community-developed C# SDK (Multiplatform) for interacting with the [PocketBase API](https://pocketbase.io/docs)
 
-[Click here](https://github.com/pocketbase/pocketbase) for more information about PocketBase.
+- [Installation](#installation)
+    - [Nuget](#installation_nuget)
+- [Usage](#usage)
+- [Development](#development)
 
+# Installation
 
-## Credits
+## Nuget
 
-This project is strongly inspired by [pocketbase/js-sdk] and [pocketbase/dart-sdk].
+Coming soon
 
-[pocketbase/js-sdk]: https://github.com/pocketbase/js-sdk
-[pocketbase/dart-sdk]: https://github.com/pocketbase/dart-sdk
+# Usage
+Coming soon
 
-## License
+# Development
 
-This project is open sourced under MIT license, see the [LICENSE](LICENSE) file for more details.
+## Requirements
+- Visual Studio (Community Edition should work just fine)
+- .NET 6 SDK
+
+## Steps
+1. Clone this repository
+```cmd
+git clone https://github.com/PRCV1/pocketbase-csharp-sdk
+```
+2. Open the [pocketbase-csharp-sdk.sln](pocketbase-csharp-sdk.sln) with Visual Studio (Community Edition should work fine)

@@ -5,6 +5,12 @@
     <RootNamespace>pocketbase_csharp_sdk</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <PackageProjectUrl>https://github.com/PRCV1/pocketbase-csharp-sdk</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/PRCV1/pocketbase-csharp-sdk</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <Title>PocketBase C# SDK</Title>
+    <Authors>Lukas Müller</Authors>
+    <Description>Multiplatform C# SDK for PocketBase</Description>
   </PropertyGroup>
 
 </Project>
