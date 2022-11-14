@@ -45,7 +45,14 @@ namespace pocketbase_csharp_sdk.Tests
 
             //await client.Settings.GetAllAsync();
 
+            var nr = new Restaurant()
+            {
+                Name = "Pepega Neu"
+            };
+
             var lel = await client.Records.ListAsync<Restaurant>("restaurants");
+            //var lelo = await client.Records.CreateAsync<Restaurant>("restaurants", nr);
+            await client.Records.UpdateAsync<Restaurant>("restaurants", "y65ltbn18v5u4cu", nr);
         }
     }
 

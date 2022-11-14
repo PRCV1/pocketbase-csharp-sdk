@@ -1,9 +1,11 @@
 ﻿using pocketbase_csharp_sdk.Models;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web;
 
 namespace pocketbase_csharp_sdk.Services
 {
@@ -81,7 +83,7 @@ namespace pocketbase_csharp_sdk.Services
                 { "expand", expand },
             };
             var body = ConstructBody(item);
-            var url = this.BasePath(sub) + id;
+            var url = this.BasePath(sub) + "/" + HttpUtility.UrlEncode(id);
             var pagedCollection = await client.SendAsync<T>(
                 url,
                 HttpMethod.Patch,

@@ -258,7 +258,10 @@ namespace pocketbase_csharp_sdk
         private HttpRequestMessage BuildJsonRequest(HttpMethod method, Uri url, IDictionary<string, string>? headers = null, IDictionary<string, object>? body = null)
         {
             var request = new HttpRequestMessage(method, url);
-            request.Content = JsonContent.Create(body);
+            if (body is not null && body.Count > 0)
+            {
+                request.Content = JsonContent.Create(body);
+            }
 
             if (headers is not null)
             {
