@@ -35,7 +35,7 @@ namespace pocketbase_csharp_sdk.Services
 
         public async Task<AdminAuthModel?> RefreshAsync(IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null)
         {
-            var url = $"{BasePath()}/refresh";
+            var url = $"{BasePath()}/auth-refresh";
             var result = await client.SendAsync<AdminAuthModel>(url, HttpMethod.Post, body: body, query: query, headers: headers);
 
             SaveAuthentication(result);

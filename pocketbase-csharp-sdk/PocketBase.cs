@@ -148,14 +148,7 @@ namespace pocketbase_csharp_sdk
 
             if (!headers.ContainsKey("Authorization") && AuthStore.IsValid)
             {
-                if (AuthStore.Model is AdminModel)
-                {
-                    request.Headers.Add("Authorization", $"Admin {AuthStore.Token}");
-                }
-                else
-                {
-                    request.Headers.Add("Authorization", $"User {AuthStore.Token}");
-                }
+                request.Headers.Add("Authorization", AuthStore.Token);
             }
 
             if (!headers.ContainsKey("Accept-Language"))
