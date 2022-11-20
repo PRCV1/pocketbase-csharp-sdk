@@ -10,15 +10,92 @@ using System.Web;
 
 namespace pocketbase_csharp_sdk.Services
 {
-    public class UserService : BaseService
+    public class UserService : BaseCrudService<UserModel>
     {
         protected override string BasePath(string? url = null) => "/api/users";
 
         private readonly PocketBase client;
 
-        public UserService(PocketBase client)
+        public UserService(PocketBase client) : base(client)
         {
             this.client = client;
+        }
+
+        public async Task<UserModel> CreateAsync(string email, string password, string passwordConfirm)
+        {
+            Dictionary<string, object> body = new()
+            {
+                { "email", email },
+                { "password", password },
+                { "passwordConfirm", passwordConfirm },
+            };
+
+            var response = await client.SendAsync<UserModel>(BasePath(), HttpMethod.Post, body: body);
+            if (response is null)
+            {
+                throw new ClientException(BasePath());
+            }
+
+            return response;
+        }
+
+        public async Task<IEnumerable<UserModel>> GetFullListAsync(int batch = 100, string? filter = null, string? sort = null)
+        {
+            List<UserModel> result = new();
+
+            int currentPage = 1;
+            PagedCollectionModel<UserModel> lastResponse;
+            do
+            {
+                lastResponse = await ListAsync(currentPage, perPage: batch, filter: filter, sort: sort);
+                if (lastResponse is not null && lastResponse.Items is not null)
+                {
+                    result.AddRange(lastResponse.Items);
+                }
+                currentPage++;
+            } while (lastResponse?.Items?.Length > 0 && lastResponse?.TotalItems > result.Count);
+
+            return result;
+
+            //var query = new Dictionary<string, object?>()
+            //{
+            //    { "filter", filter },
+            //    { "page", page },
+            //    { "perPage", perPage },
+            //    { "sort", sort }
+            //};
+        }
+
+        public async Task<PagedCollectionModel<UserModel>> ListAsync(int page = 1, int perPage = 30, string? filter = null, string? sort = null)
+        {
+            var query = new Dictionary<string, object?>()
+            {
+                { "filter", filter },
+                { "page", page },
+                { "perPage", perPage },
+                { "sort", sort }
+            };
+
+            var response = await client.SendAsync<PagedCollectionModel<UserModel>>(BasePath(), HttpMethod.Get, query: query);
+            if (response is null)
+            {
+                throw new ClientException(BasePath());
+            }
+
+            return response;
+        }
+
+        public async Task<UserModel> GetOne(string id)
+        {
+            string url = $"{BasePath()}/{HttpUtility.UrlEncode(id)}";
+            var result = await client.SendAsync<UserModel>(url, HttpMethod.Get);
+            return result;
+        }
+
+        public async Task<UserModel> UpdateAsync()
+        {
+            //TODO
+            return default;
         }
 
         public async Task<AuthMethodsList?> GetAuthenticationMethodsAsync(IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null)
@@ -27,7 +104,7 @@ namespace pocketbase_csharp_sdk.Services
             var response = await client.SendAsync<AuthMethodsList>(url, HttpMethod.Get, headers: headers, query: query, body: body);
             return response;
         }
-        
+
         public async Task<UserAuthModel?> AuthenticateViaEmail(string email, string password, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null)
         {
             body ??= new Dictionary<string, object>();

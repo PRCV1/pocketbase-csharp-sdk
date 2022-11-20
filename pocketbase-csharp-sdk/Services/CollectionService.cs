@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace pocketbase_csharp_sdk.Services
 {
-    public class CollectionService : BaseCrudService
+    public class CollectionService : BaseCrudService<CollectionModel>
     {
         private readonly PocketBase client;
 

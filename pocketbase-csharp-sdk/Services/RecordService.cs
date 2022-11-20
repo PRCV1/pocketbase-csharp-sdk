@@ -8,7 +8,7 @@ using System.Web;
 
 namespace pocketbase_csharp_sdk.Services
 {
-    public class RecordService : BaseCrudService
+    public class RecordService : BaseSubCrudService
     {
 
         protected override string BasePath(string? path = null)

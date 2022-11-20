@@ -45,6 +45,11 @@ namespace pocketbase_csharp_sdk.Tests
 
             //await client.Settings.GetAllAsync();
 
+            await client.User.GetFullListAsync(5);
+            //var lol = await client.User.CreateAsync("pepega@test.de", "0123456789", "0123456789");
+
+            var erster = await client.User.GetOne("5fw837ksugnnt36");
+
             var nr = new Restaurant()
             {
                 Name = "Pepega Neu"

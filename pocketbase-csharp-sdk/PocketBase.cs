@@ -101,7 +101,10 @@ namespace pocketbase_csharp_sdk
             try
             {
                 var response = await _httpClient.SendAsync(request);
-                //var responseData = await response.Content.ReadAsStringAsync();
+
+#if DEBUG
+                var json = await response.Content.ReadAsStringAsync();
+#endif
 
                 if ((int)response.StatusCode >= 400)
                 {
@@ -110,10 +113,6 @@ namespace pocketbase_csharp_sdk
                     //throw new ClientException(url.ToString(), statusCode: (int)response.StatusCode, response: dic);
                     throw new ClientException(url.ToString(), statusCode: (int)response.StatusCode);
                 }
-
-#if DEBUG
-                var json = await response.Content.ReadAsStringAsync();
-#endif
 
                 return await response.Content.ReadFromJsonAsync<T>();
             }
