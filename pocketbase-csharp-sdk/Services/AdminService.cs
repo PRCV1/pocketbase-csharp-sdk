@@ -19,14 +19,14 @@ namespace pocketbase_csharp_sdk.Services
             this.client = client;
         }
 
-        public async Task<AdminAuthModel?> AuthenticateViaEmail(string email, string password, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null)
+        public async Task<AdminAuthModel?> AuthenticateWithPassword(string email, string password)
         {
-            body ??= new Dictionary<string, object>();
-            body.Add("email", email);
+            Dictionary<string, object> body = new();
+            body.Add("identity", email);
             body.Add("password", password);
 
-            var url = $"{BasePath()}/auth-via-email";
-            var result = await client.SendAsync<AdminAuthModel>(url, HttpMethod.Post, headers: headers, query: query, body: body);
+            var url = $"{BasePath()}/auth-with-password";
+            var result = await client.SendAsync<AdminAuthModel>(url, HttpMethod.Post, body: body);
 
             SaveAuthentication(result);
 
