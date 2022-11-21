@@ -12,7 +12,7 @@ namespace pocketbase_csharp_sdk.Services
 {
     public class UserService : BaseCrudService<UserModel>
     {
-        protected override string BasePath(string? url = null) => "/api/users";
+        protected override string BasePath(string? url = null) => "/api/collections/users";
 
         private readonly PocketBase client;
 
@@ -105,13 +105,13 @@ namespace pocketbase_csharp_sdk.Services
             return response;
         }
 
-        public async Task<UserAuthModel?> AuthenticateViaEmail(string email, string password, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null)
+        public async Task<UserAuthModel?> AuthenticateWithPassword(string email, string password, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null)
         {
             body ??= new Dictionary<string, object>();
-            body.Add("email", email);
+            body.Add("identity", email);
             body.Add("password", password);
 
-            var url = $"{BasePath()}/auth-via-email";
+            var url = $"{BasePath()}/auth-with-password";
             var result = await client.SendAsync<UserAuthModel>(url, HttpMethod.Post, headers: headers, body: body, query: query);
 
             SaveAuthentication(result);
