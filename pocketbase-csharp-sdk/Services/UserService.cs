@@ -214,16 +214,16 @@ namespace pocketbase_csharp_sdk.Services
             return result;
         }
 
-        public async Task<IEnumerable<ExternalAuthModel>?> GetExternalAuthenticationMethods(string userId, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null)
+        public async Task<IEnumerable<ExternalAuthModel>?> GetExternalAuthenticationMethods(string userId, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null)
         {
-            var url = $"{BasePath()}/{HttpUtility.HtmlEncode(userId)}/confirm-email-change";
-            var result = await client.SendAsync<IEnumerable<ExternalAuthModel>>(url, HttpMethod.Get, headers: headers, query: query, body: body);
+            var url = $"{BasePath()}/records/{HttpUtility.HtmlEncode(userId)}/external-auths";
+            var result = await client.SendAsync<IEnumerable<ExternalAuthModel>>(url, HttpMethod.Get, headers: headers, query: query);
             return result;
         }
 
         public async Task UnlinkExternalAuthentication(string userId, string provider, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null)
         {
-            var url = $"{BasePath()}/{HttpUtility.HtmlEncode(userId)}/external-auths/{HttpUtility.HtmlEncode(provider)}";
+            var url = $"{BasePath()}/records/{HttpUtility.HtmlEncode(userId)}/external-auths/{HttpUtility.HtmlEncode(provider)}";
             await client.SendAsync(url, HttpMethod.Delete, headers: headers, query: query, body: body);
         }
 
