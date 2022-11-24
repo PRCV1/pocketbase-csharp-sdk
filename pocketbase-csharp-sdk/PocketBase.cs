@@ -49,6 +49,10 @@ namespace pocketbase_csharp_sdk
             body ??= new Dictionary<string, object>();
             files ??= new List<FileContentWrapper>();
 
+            // Set Authorization Token if not set and is known
+            if (!headers.ContainsKey("Authorization") && AuthStore.IsValid && AuthStore.Token != null)
+                headers["Authorization"] = AuthStore.Token;
+
             Uri url = BuildUrl(path, query);
 
             HttpRequestMessage request = CreateRequest(url, method, headers: headers, query: query, body: body, files: files);
@@ -92,6 +96,11 @@ namespace pocketbase_csharp_sdk
             query ??= new Dictionary<string, object?>();
             body ??= new Dictionary<string, object>();
             files ??= new List<FileContentWrapper>();
+
+            // Set Authorization Token if not set and is known
+            if (!headers.ContainsKey("Authorization") && AuthStore.IsValid && AuthStore.Token != null)
+                headers["Authorization"] = AuthStore.Token;
+
 
             Uri url = BuildUrl(path, query);
 
