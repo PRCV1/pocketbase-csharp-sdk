@@ -37,14 +37,14 @@ namespace pocketbase_csharp_sdk.Services
                 { "expand", expand },
             };
             var url = this.BasePath(sub);
-            var pagedCollection = await client.SendAsync<PagedCollectionModel<T>>(
+            var pagedResponse = await client.SendAsync<PagedCollectionModel<T>>(
                 url,
                 HttpMethod.Get,
                 headers: headers,
                 query: query);
-            if (pagedCollection is null) throw new ClientException(url);
+            if (pagedResponse is null) throw new ClientException(url);
 
-            return pagedCollection;
+            return pagedResponse;
         }
 
         public async Task<T> CreateAsync<T>(
@@ -59,15 +59,15 @@ namespace pocketbase_csharp_sdk.Services
             };
             var body = ConstructBody(item);
             var url = this.BasePath(sub);
-            var ret = await client.SendAsync<T>(
+            var response = await client.SendAsync<T>(
                 url,
                 HttpMethod.Post,
                 body: body,
                 headers: headers,
                 query: query);
-            if (ret is null) throw new ClientException(url);
+            if (response is null) throw new ClientException(url);
 
-            return ret;
+            return response;
         }
 
         public async Task<T> UpdateAsync<T>(
@@ -83,15 +83,15 @@ namespace pocketbase_csharp_sdk.Services
             };
             var body = ConstructBody(item);
             var url = this.BasePath(sub) + "/" + HttpUtility.UrlEncode(id);
-            var pagedCollection = await client.SendAsync<T>(
+            var response = await client.SendAsync<T>(
                 url,
                 HttpMethod.Patch,
                 body: body,
                 headers: headers,
                 query: query);
-            if (pagedCollection is null) throw new ClientException(url);
+            if (response is null) throw new ClientException(url);
 
-            return pagedCollection;
+            return response;
         }
 
         private IEnumerable<string> GetPropertyNames()
@@ -109,12 +109,13 @@ namespace pocketbase_csharp_sdk.Services
                 if (propValue is not null) body.Add(toCamelCase(prop.Name), propValue);
             }
 
-            string toCamelCase(string str)
-            {
-                return char.ToLowerInvariant(str[0]) + str.Substring(1);
-            }
-
             return body;
         }
+
+        private string toCamelCase(string str)
+        {
+            return char.ToLowerInvariant(str[0]) + str.Substring(1);
+        }
+
     }
 }
