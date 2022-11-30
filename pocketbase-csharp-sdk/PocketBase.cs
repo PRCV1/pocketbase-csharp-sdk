@@ -25,7 +25,7 @@ namespace pocketbase_csharp_sdk
 
         private readonly string _baseUrl;
         private readonly string _language;
-        private readonly HttpClient _httpClient;
+        internal readonly HttpClient _httpClient;
 
         public PocketBase(string baseUrl, AuthStore? authStore = null, string language = "en-US", HttpClient? httpClient = null)
         {
@@ -199,7 +199,10 @@ namespace pocketbase_csharp_sdk
 
                 var queryString = string.Join("&", urlSegments);
 
-                url = url + "?" + queryString;
+                if (!string.IsNullOrWhiteSpace(queryString))
+                {
+                     url = url + "?" + queryString;
+                }
             }
 
             return new Uri(url, UriKind.RelativeOrAbsolute);
@@ -282,9 +285,10 @@ namespace pocketbase_csharp_sdk
             var form = new MultipartFormDataContent();
             foreach (var file in files)
             {
+                var name = Guid.NewGuid().ToString();
                 var fileContent = new StreamContent(file.Stream);
                 fileContent.Headers.ContentType = MediaTypeHeaderValue.Parse("multipart/form-data");
-                form.Add(fileContent, file.FileName);
+                form.Add(fileContent, name, file.FileName);
             }
 
             return request;

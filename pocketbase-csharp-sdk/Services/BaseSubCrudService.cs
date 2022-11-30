@@ -51,7 +51,8 @@ namespace pocketbase_csharp_sdk.Services
             string sub,
             T item,
             string? expand = null,
-            IDictionary<string, string>? headers = null) where T : ItemBaseModel
+            IDictionary<string, string>? headers = null,
+            IEnumerable<FileContentWrapper>? files = null) where T : ItemBaseModel
         {
             var query = new Dictionary<string, object?>()
             {
@@ -59,12 +60,7 @@ namespace pocketbase_csharp_sdk.Services
             };
             var body = ConstructBody(item);
             var url = this.BasePath(sub);
-            var ret = await client.SendAsync<T>(
-                url,
-                HttpMethod.Post,
-                body: body,
-                headers: headers,
-                query: query);
+            var ret = await client.SendAsync<T>(url, HttpMethod.Post, body: body, headers: headers, query: query, files: files);
             if (ret is null) throw new ClientException(url);
 
             return ret;
@@ -92,6 +88,34 @@ namespace pocketbase_csharp_sdk.Services
             if (pagedCollection is null) throw new ClientException(url);
 
             return pagedCollection;
+        }
+
+        public Task UploadFileAsync(string sub, string filePath)
+        {
+            if (File.Exists(filePath))
+            {
+                return Task.CompletedTask;
+            }
+
+            var fileName = Path.GetFileName(filePath);
+            var readStream = File.OpenRead(filePath);
+
+            return UploadFileAsync(sub, fileName, readStream);
+        }
+
+        public async Task UploadFileAsync(string sub, string fileName, Stream stream)
+        {
+            string fieldName = "file1";
+            var file = new FileContentWrapper()
+            {
+                FileName = fileName,
+                Stream = stream,
+            };
+            var body = new Dictionary<string, object>()
+            {
+                { fieldName, file }, 
+            };
+            await client.SendAsync(sub, HttpMethod.Post, body: body, files: new[] { file });
         }
 
         private IEnumerable<string> GetPropertyNames()
