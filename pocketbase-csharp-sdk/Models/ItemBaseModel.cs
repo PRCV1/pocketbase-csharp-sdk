@@ -6,10 +6,8 @@ namespace pocketbase_csharp_sdk.Models
 {
     public class ItemBaseModel
     {
-        [JsonPropertyName("@collectionId")]
         public string? CollectionId { get; set; }
 
-        [JsonPropertyName("@collectionName")]
         public string? CollectionName { get; set; }
 
         [JsonPropertyName("@expand")]
