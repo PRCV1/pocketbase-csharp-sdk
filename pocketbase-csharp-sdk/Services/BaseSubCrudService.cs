@@ -60,13 +60,13 @@ namespace pocketbase_csharp_sdk.Services
             };
             var body = ConstructBody(item);
             var url = this.BasePath(sub);
-            var ret = await client.SendAsync<T>(
+            var response = await client.SendAsync<T>(
                 url,
                 HttpMethod.Post,
                 body: body,
                 headers: headers,
                 query: query);
-            if (ret is null) throw new ClientException(url);
+            if (response is null) throw new ClientException(url);
 
             return response;
         }
