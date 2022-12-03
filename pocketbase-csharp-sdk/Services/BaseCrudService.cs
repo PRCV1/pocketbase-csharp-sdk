@@ -82,7 +82,7 @@ namespace pocketbase_csharp_sdk.Services
         }
 
         private IEnumerable<string> GetPropertyNames()
-            => from prop in typeof(ItemBaseModel).GetProperties()
+            => from prop in typeof(BaseModel).GetProperties()
                select prop.Name;
 
         private Dictionary<string, object> ConstructBody(T item)

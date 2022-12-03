@@ -18,8 +18,7 @@ namespace pocketbase_csharp_sdk.Json
             if (!DateTime.TryParse(value, out var dt))
                 return null;
 
-            DateTime.SpecifyKind(dt, DateTimeKind.Utc);
-            return dt;
+            return DateTime.SpecifyKind(dt, DateTimeKind.Utc); ;
         }
 
         public override void Write(Utf8JsonWriter writer, DateTime? value, JsonSerializerOptions options)

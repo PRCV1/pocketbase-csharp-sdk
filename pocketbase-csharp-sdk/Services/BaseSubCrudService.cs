@@ -26,7 +26,7 @@ namespace pocketbase_csharp_sdk.Services
             string? sort = null,
             string? filter = null,
             string? expand = null,
-            IDictionary<string, string>? headers = null) where T : ItemBaseModel
+            IDictionary<string, string>? headers = null) where T : BaseModel
         {
             var query = new Dictionary<string, object?>()
             {
@@ -52,7 +52,7 @@ namespace pocketbase_csharp_sdk.Services
             T item,
             string? expand = null,
             IDictionary<string, string>? headers = null,
-            IEnumerable<FileContentWrapper>? files = null) where T : ItemBaseModel
+            IEnumerable<FileContentWrapper>? files = null) where T : BaseModel
         {
             var query = new Dictionary<string, object?>()
             {
@@ -76,7 +76,7 @@ namespace pocketbase_csharp_sdk.Services
             string id,
             T item,
             string? expand = null,
-            IDictionary<string, string>? headers = null) where T : ItemBaseModel
+            IDictionary<string, string>? headers = null) where T : BaseModel
         {
             var query = new Dictionary<string, object?>()
             {
@@ -124,7 +124,7 @@ namespace pocketbase_csharp_sdk.Services
         }
 
         private IEnumerable<string> GetPropertyNames()
-            => from prop in typeof(ItemBaseModel).GetProperties()
+            => from prop in typeof(BaseModel).GetProperties()
                select prop.Name;
 
         private Dictionary<string, object> ConstructBody<T>(T item)
