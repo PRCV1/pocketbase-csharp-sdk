@@ -10,15 +10,21 @@ namespace pocketbase_csharp_sdk.Models
 {
     public abstract class BaseModel
     {
-        public string? Id { get; set; }
+        [JsonPropertyName("id")]
+        public virtual string? Id { get; set; }
 
+        [JsonPropertyName("created")]
         [JsonConverter(typeof(DateTimeConverter))]
-        public DateTime? Created { get; set; }
+        public virtual DateTime? Created { get; set; }
 
+        [JsonPropertyName("updated")]
         [JsonConverter(typeof(DateTimeConverter))]
-        public DateTime? Updated { get; set; }
+        public virtual DateTime? Updated { get; set; }
 
-        public string? CollectionId { get; set; }
-        public string? CollectionName { get; set; }
+        [JsonPropertyName("collectionId")]
+        public virtual string? CollectionId { get; set; }
+
+        [JsonPropertyName("collectionName")]
+        public virtual string? CollectionName { get; set; }
     }
 }

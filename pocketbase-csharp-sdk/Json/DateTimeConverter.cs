@@ -15,11 +15,11 @@ namespace pocketbase_csharp_sdk.Json
         public override DateTime? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             var value = reader.GetString();
-            if (DateTime.TryParse(value, out var dt))
-            {
-                return dt;
-            }
-            return null;
+            if (!DateTime.TryParse(value, out var dt))
+                return null;
+
+            DateTime.SpecifyKind(dt, DateTimeKind.Utc);
+            return dt;
         }
 
         public override void Write(Utf8JsonWriter writer, DateTime? value, JsonSerializerOptions options)
