@@ -11,12 +11,10 @@ namespace pocketbase_csharp_sdk.Services
     public abstract class BaseSubCrudService : BaseService
     {
         private readonly PocketBase client;
-        private readonly string[] itemProperties;
 
         public BaseSubCrudService(PocketBase client)
         {
             this.client = client;
-            this.itemProperties = this.GetPropertyNames().ToArray();
         }
 
         public async Task<PagedCollectionModel<T>> ListAsync<T>(
@@ -121,29 +119,6 @@ namespace pocketbase_csharp_sdk.Services
                 { fieldName, file }, 
             };
             await client.SendAsync(sub, HttpMethod.Post, body: body, files: new[] { file });
-        }
-
-        private IEnumerable<string> GetPropertyNames()
-            => from prop in typeof(BaseModel).GetProperties()
-               select prop.Name;
-
-        private Dictionary<string, object> ConstructBody<T>(T item)
-        {
-            var body = new Dictionary<string, object>();
-
-            foreach (var prop in typeof(T).GetProperties())
-            {
-                if (this.itemProperties.Contains(prop.Name)) continue;
-                var propValue = prop.GetValue(item, null);
-                if (propValue is not null) body.Add(toCamelCase(prop.Name), propValue);
-            }
-
-            return body;
-        }
-
-        private string toCamelCase(string str)
-        {
-            return char.ToLowerInvariant(str[0]) + str.Substring(1);
         }
 
     }
