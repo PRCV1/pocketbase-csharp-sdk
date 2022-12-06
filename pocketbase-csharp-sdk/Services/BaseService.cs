@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web;
 
 namespace pocketbase_csharp_sdk.Services
 {
@@ -26,13 +27,13 @@ namespace pocketbase_csharp_sdk.Services
             {
                 if (this.itemProperties.Contains(prop.Name)) continue;
                 var propValue = prop.GetValue(item, null);
-                if (propValue is not null) body.Add(toCamelCase(prop.Name), propValue);
+                if (propValue is not null) body.Add(ToCamelCase(prop.Name), propValue);
             }
 
             return body;
         }
 
-        private string toCamelCase(string str)
+        private string ToCamelCase(string str)
         {
             return char.ToLowerInvariant(str[0]) + str.Substring(1);
         }
@@ -40,6 +41,11 @@ namespace pocketbase_csharp_sdk.Services
         private IEnumerable<string> GetPropertyNames()
             => from prop in typeof(BaseModel).GetProperties()
                select prop.Name;
+
+        protected string UrlEncode(string param)
+        {
+            return HttpUtility.UrlEncode(param);
+        }
 
     }
 }

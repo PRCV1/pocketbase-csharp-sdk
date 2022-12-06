@@ -39,10 +39,29 @@ namespace pocketbase_csharp_sdk.Services
             return response;
         }
 
-        public async Task<IEnumerable<UserModel>> GetFullListAsync(int batch = 100, string? filter = null, string? sort = null)
+        public override async Task<PagedCollectionModel<UserModel>> ListAsync(int page = 1, int perPage = 30, string? filter = null, string? sort = null)
+        {
+            var query = new Dictionary<string, object?>()
+            {
+                { "filter", filter },
+                { "page", page },
+                { "perPage", perPage },
+                { "sort", sort }
+            };
+
+            var url = $"{BasePath()}/records";
+            var response = await client.SendAsync<PagedCollectionModel<UserModel>>(url, HttpMethod.Get, query: query);
+            if (response is null)
+            {
+                throw new ClientException(BasePath());
+            }
+
+            return response;
+        }
+
+        public override async Task<IEnumerable<UserModel>> GetFullListAsync(int batch = 100, string? filter = null, string? sort = null)
         {
             List<UserModel> result = new();
-
             int currentPage = 1;
             PagedCollectionModel<UserModel> lastResponse;
             do
@@ -56,34 +75,45 @@ namespace pocketbase_csharp_sdk.Services
             } while (lastResponse?.Items?.Length > 0 && lastResponse?.TotalItems > result.Count);
 
             return result;
-
-            //var query = new Dictionary<string, object?>()
-            //{
-            //    { "filter", filter },
-            //    { "page", page },
-            //    { "perPage", perPage },
-            //    { "sort", sort }
-            //};
         }
 
-        public async Task<PagedCollectionModel<UserModel>> ListAsync(int page = 1, int perPage = 30, string? filter = null, string? sort = null)
-        {
-            var query = new Dictionary<string, object?>()
-            {
-                { "filter", filter },
-                { "page", page },
-                { "perPage", perPage },
-                { "sort", sort }
-            };
+        //public async Task<IEnumerable<UserModel>> GetFullListAsync2(int batch = 100, string? filter = null, string? sort = null)
+        //{
+        //    List<UserModel> result = new();
 
-            var response = await client.SendAsync<PagedCollectionModel<UserModel>>(BasePath(), HttpMethod.Get, query: query);
-            if (response is null)
-            {
-                throw new ClientException(BasePath());
-            }
+        //    int currentPage = 1;
+        //    PagedCollectionModel<UserModel> lastResponse;
+        //    do
+        //    {
+        //        lastResponse = await ListAsync2(currentPage, perPage: batch, filter: filter, sort: sort);
+        //        if (lastResponse is not null && lastResponse.Items is not null)
+        //        {
+        //            result.AddRange(lastResponse.Items);
+        //        }
+        //        currentPage++;
+        //    } while (lastResponse?.Items?.Length > 0 && lastResponse?.TotalItems > result.Count);
 
-            return response;
-        }
+        //    return result;
+        //}
+
+        //public async Task<PagedCollectionModel<UserModel>> ListAsync2(int page = 1, int perPage = 30, string? filter = null, string? sort = null)
+        //{
+        //    var query = new Dictionary<string, object?>()
+        //    {
+        //        { "filter", filter },
+        //        { "page", page },
+        //        { "perPage", perPage },
+        //        { "sort", sort }
+        //    };
+
+        //    var response = await client.SendAsync<PagedCollectionModel<UserModel>>(BasePath(), HttpMethod.Get, query: query);
+        //    if (response is null)
+        //    {
+        //        throw new ClientException(BasePath());
+        //    }
+
+        //    return response;
+        //}
 
         public async Task<UserModel> GetOne(string id)
         {

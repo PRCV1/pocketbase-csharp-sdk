@@ -1,4 +1,5 @@
 ﻿using pocketbase_csharp_sdk.Models;
+using pocketbase_csharp_sdk.Models.Collection;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -12,72 +13,47 @@ namespace pocketbase_csharp_sdk.Services
     public abstract class BaseCrudService<T> : BaseService
     {
         private readonly PocketBase client;
-        
 
         public BaseCrudService(PocketBase client)
         {
             this.client = client;
         }
 
-        //public async Task<PagedCollectionModel<T>> ListAsync(
-        //    int? page = null,
-        //    int? perPage = null,
-        //    string? sort = null,
-        //    string? filter = null,
-        //    string? expand = null,
-        //    IDictionary<string, string>? headers = null)
-        //{
-        //    var query = new Dictionary<string, object?>()
-        //    {
-        //        { "filter", filter },
-        //        { "page", page },
-        //        { "perPage", perPage },
-        //        { "sort", sort },
-        //        { "expand", expand },
-        //    };
-        //    var pagedCollection = await client.SendAsync<PagedCollectionModel<T>>(
-        //        BasePath(),
-        //        HttpMethod.Get,
-        //        headers: headers,
-        //        query: query);
-        //    if (pagedCollection is null) throw new ClientException(BasePath());
-
-        //    return pagedCollection;
-        //}
-
-        //public async Task<T> CreateAsync(
-        //    IDictionary<string, object>? body)
-        //{
-        //    var ret = await client.SendAsync<T>(
-        //        BasePath(),
-        //        HttpMethod.Post,
-        //        body: body);
-        //    if (ret is null) throw new ClientException(BasePath());
-
-        //    return ret;
-        //}
-
-        public async Task<T> UpdateAsync(
-            string id,
-            T item,
-            string? expand = null,
-            IDictionary<string, string>? headers = null)
+        public virtual async Task<PagedCollectionModel<T>> ListAsync(int page = 1, int perPage = 30, string? filter = null, string? sort = null)
         {
             var query = new Dictionary<string, object?>()
             {
-                { "expand", expand },
+                { "filter", filter },
+                { "page", page },
+                { "perPage", perPage },
+                { "sort", sort }
             };
-            var body = ConstructBody(item);
-            //var url = this.BasePath(sub) + "/" + HttpUtility.UrlEncode(id);
-            var pagedCollection = await client.SendAsync<T>(
-                BasePath(),
-                HttpMethod.Patch,
-                body: body,
-                headers: headers,
-                query: query);
-            if (pagedCollection is null) throw new ClientException(BasePath());
 
-            return pagedCollection;
+            var response = await client.SendAsync<PagedCollectionModel<T>>(BasePath(), HttpMethod.Get, query: query);
+            if (response is null)
+            {
+                throw new ClientException(BasePath());
+            }
+
+            return response;
+        }
+
+        public virtual async Task<IEnumerable<T>> GetFullListAsync(int batch = 100, string? filter = null, string? sort = null)
+        {
+            List<T> result = new();
+            int currentPage = 1;
+            PagedCollectionModel<T> lastResponse;
+            do
+            {
+                lastResponse = await ListAsync(currentPage, perPage: batch, filter: filter, sort: sort);
+                if (lastResponse is not null && lastResponse.Items is not null)
+                {
+                    result.AddRange(lastResponse.Items);
+                }
+                currentPage++;
+            } while (lastResponse?.Items?.Length > 0 && lastResponse?.TotalItems > result.Count);
+
+            return result;
         }
 
     }

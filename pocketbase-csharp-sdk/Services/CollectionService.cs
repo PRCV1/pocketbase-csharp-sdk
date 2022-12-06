@@ -28,5 +28,17 @@ namespace pocketbase_csharp_sdk.Services
             await client.SendAsync(url, HttpMethod.Put, headers: headers, query: query, body: body);
         }
 
+        public Task<CollectionModel?> GetByNameAsync(string name)
+        {
+            var url = $"{BasePath()}/{UrlEncode(name)}";
+            return client.SendAsync<CollectionModel>(url, HttpMethod.Get);
+        }
+
+        public Task DeleteAsync(string name)
+        {
+            var url = $"{BasePath()}/{UrlEncode(name)}";
+            return client.SendAsync(url, HttpMethod.Delete);
+        }
+
     }
 }
