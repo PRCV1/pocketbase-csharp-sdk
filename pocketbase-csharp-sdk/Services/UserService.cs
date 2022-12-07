@@ -1,4 +1,5 @@
-﻿using pocketbase_csharp_sdk.Models;
+﻿using pocketbase_csharp_sdk.Helper.Extensions;
+using pocketbase_csharp_sdk.Models;
 using pocketbase_csharp_sdk.Models.Auth;
 using pocketbase_csharp_sdk.Models.Log;
 using System;
@@ -77,44 +78,6 @@ namespace pocketbase_csharp_sdk.Services
             return result;
         }
 
-        //public async Task<IEnumerable<UserModel>> GetFullListAsync2(int batch = 100, string? filter = null, string? sort = null)
-        //{
-        //    List<UserModel> result = new();
-
-        //    int currentPage = 1;
-        //    PagedCollectionModel<UserModel> lastResponse;
-        //    do
-        //    {
-        //        lastResponse = await ListAsync2(currentPage, perPage: batch, filter: filter, sort: sort);
-        //        if (lastResponse is not null && lastResponse.Items is not null)
-        //        {
-        //            result.AddRange(lastResponse.Items);
-        //        }
-        //        currentPage++;
-        //    } while (lastResponse?.Items?.Length > 0 && lastResponse?.TotalItems > result.Count);
-
-        //    return result;
-        //}
-
-        //public async Task<PagedCollectionModel<UserModel>> ListAsync2(int page = 1, int perPage = 30, string? filter = null, string? sort = null)
-        //{
-        //    var query = new Dictionary<string, object?>()
-        //    {
-        //        { "filter", filter },
-        //        { "page", page },
-        //        { "perPage", perPage },
-        //        { "sort", sort }
-        //    };
-
-        //    var response = await client.SendAsync<PagedCollectionModel<UserModel>>(BasePath(), HttpMethod.Get, query: query);
-        //    if (response is null)
-        //    {
-        //        throw new ClientException(BasePath());
-        //    }
-
-        //    return response;
-        //}
-
         public async Task<UserModel> GetOne(string id)
         {
             string url = $"{BasePath()}/{HttpUtility.UrlEncode(id)}";
@@ -122,10 +85,22 @@ namespace pocketbase_csharp_sdk.Services
             return result;
         }
 
-        public async Task<UserModel> UpdateAsync()
+        public async Task<UserModel> UpdateAsync(string id, string? username = null, string? email = null, bool? emailVisibility = null, string? oldPassword = null, string? password = null, string? passwordConfirm = null, bool? verified = null, string? name = null, object? file = null)
         {
-            //TODO
-            return default;
+            //TODO File
+            Dictionary<string, object> body = new Dictionary<string, object>();
+            body.AddIfNotNull("username", username);
+            body.AddIfNotNull("email", email);
+            body.AddIfNotNull("emailVisibility", emailVisibility);
+            body.AddIfNotNull("oldPassword", oldPassword);
+            body.AddIfNotNull("password", password);
+            body.AddIfNotNull("passwordConfirm", passwordConfirm);
+            body.AddIfNotNull("verified", verified);
+            body.AddIfNotNull("name", name);
+
+            string url = $"{BasePath()}/records/{UrlEncode(id)}";
+            var result = await client.SendAsync<UserModel>(url, HttpMethod.Patch, body: body);
+            return result;
         }
 
         public async Task<AuthMethodsList?> GetAuthenticationMethodsAsync(IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null)
