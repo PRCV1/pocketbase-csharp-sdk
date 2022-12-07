@@ -81,7 +81,7 @@ namespace pocketbase_csharp_sdk.Services
                 { "expand", expand },
             };
             var body = ConstructBody(item);
-            var url = this.BasePath(sub) + "/" + HttpUtility.UrlEncode(id);
+            var url = this.BasePath(sub) + "/" + UrlEncode(id);
             var response = await client.SendAsync<T>(
                 url,
                 HttpMethod.Patch,

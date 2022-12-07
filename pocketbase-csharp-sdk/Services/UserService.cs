@@ -80,7 +80,7 @@ namespace pocketbase_csharp_sdk.Services
 
         public async Task<UserModel> GetOne(string id)
         {
-            string url = $"{BasePath()}/{HttpUtility.UrlEncode(id)}";
+            string url = $"{BasePath()}/{UrlEncode(id)}";
             var result = await client.SendAsync<UserModel>(url, HttpMethod.Get);
             return result;
         }

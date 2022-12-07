@@ -14,7 +14,7 @@ namespace pocketbase_csharp_sdk.Services
 
         protected override string BasePath(string? path = null)
         {
-            var encoded = HttpUtility.UrlEncode(path);
+            var encoded = UrlEncode(path);
             return $"/api/collections/{encoded}/records";
         }
 
@@ -27,7 +27,7 @@ namespace pocketbase_csharp_sdk.Services
 
         private Uri GetFileUrl(string sub, string recordId, string fileName, IDictionary<string, object?>? query = null)
         {
-            var url = $"api/files/{sub}/{HttpUtility.UrlEncode(recordId)}/{fileName}";
+            var url = $"api/files/{sub}/{UrlEncode(recordId)}/{fileName}";
             return client.BuildUrl(url, query);
         }
 
