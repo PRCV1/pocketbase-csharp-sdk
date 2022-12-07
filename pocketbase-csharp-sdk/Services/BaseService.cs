@@ -44,7 +44,7 @@ namespace pocketbase_csharp_sdk.Services
 
         protected string UrlEncode(string param)
         {
-            return UrlEncode(param);
+            return HttpUtility.UrlEncode(param);
         }
 
     }
