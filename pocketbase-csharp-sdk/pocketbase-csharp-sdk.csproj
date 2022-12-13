@@ -1,16 +1,34 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
-    <RootNamespace>pocketbase_csharp_sdk</RootNamespace>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-    <PackageProjectUrl>https://github.com/PRCV1/pocketbase-csharp-sdk</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/PRCV1/pocketbase-csharp-sdk</RepositoryUrl>
-    <RepositoryType>git</RepositoryType>
-    <Title>PocketBase C# SDK</Title>
-    <Authors>Lukas Müller</Authors>
-    <Description>Multiplatform C# SDK for PocketBase</Description>
-  </PropertyGroup>
+	<PropertyGroup>
+		<PackageVersion>1.0.0-prerelease</PackageVersion>
+		<TargetFramework>net6.0</TargetFramework>
+		<RootNamespace>pocketbase_csharp_sdk</RootNamespace>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<PackageProjectUrl>https://github.com/PRCV1/pocketbase-csharp-sdk</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/PRCV1/pocketbase-csharp-sdk</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
+		<Title>PocketBase C# SDK</Title>
+		<Authors>Lukas Müller</Authors>
+		<Description>Multiplatform C# SDK for PocketBase</Description>
+		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<IncludeSymbols>True</IncludeSymbols>
+		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+		<PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
+		<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<None Include="..\LICENSE.txt">
+		  <Pack>True</Pack>
+		  <PackagePath>\</PackagePath>
+		</None>
+		<None Include="..\README.md">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+	</ItemGroup>
 
 </Project>

@@ -1,4 +1,5 @@
-﻿using pocketbase_csharp_sdk.Json;
+﻿using pocketbase_csharp_sdk.Event;
+using pocketbase_csharp_sdk.Json;
 using pocketbase_csharp_sdk.Models;
 using pocketbase_csharp_sdk.Services;
 using System;
@@ -15,6 +16,12 @@ namespace pocketbase_csharp_sdk
 {
     public class PocketBase
     {
+        public delegate HttpRequestMessage BeforeSendEventHandler(object sender, RequestEventArgs e);
+        public event BeforeSendEventHandler? BeforeSend;
+
+        public delegate void AfterSendEventHandler(object sender, ResponseEventArgs e);
+        public event AfterSendEventHandler? AfterSend;
+
         public AuthStore AuthStore { private set; get; }
         public AdminService Admin { private set; get; }
         public UserService User { private set; get; }
@@ -55,7 +62,17 @@ namespace pocketbase_csharp_sdk
 
             try
             {
+                if (BeforeSend is not null)
+                {
+                    request = BeforeSend.Invoke(this, new RequestEventArgs(url, request));
+                }
+
                 var response = await _httpClient.SendAsync(request);
+
+                if (AfterSend is not null)
+                {
+                    AfterSend.Invoke(this, new ResponseEventArgs(url, response));
+                }
 
 #if DEBUG
                 var json = await response.Content.ReadAsStringAsync();
@@ -99,7 +116,17 @@ namespace pocketbase_csharp_sdk
 
             try
             {
+                if (BeforeSend is not null)
+                {
+                    request = BeforeSend.Invoke(this, new RequestEventArgs(url, request));
+                }
+
                 var response = await _httpClient.SendAsync(request);
+
+                if (AfterSend is not null)
+                {
+                    AfterSend.Invoke(this, new ResponseEventArgs(url, response));
+                }
 
 #if DEBUG
                 var json = await response.Content.ReadAsStringAsync();
@@ -287,8 +314,7 @@ namespace pocketbase_csharp_sdk
             {
                 var name = Guid.NewGuid().ToString();
                 var fileContent = new StreamContent(file.Stream);
-                fileContent.Headers.ContentType = MediaTypeHeaderValue.Parse("multipart/form-data");
-                form.Add(fileContent, name, file.FileName);
+                form.Add(fileContent);
             }
 
             return request;
