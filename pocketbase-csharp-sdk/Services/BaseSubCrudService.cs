@@ -1,8 +1,11 @@
-﻿using pocketbase_csharp_sdk.Models;
+﻿using pocketbase_csharp_sdk.Helper.Convert;
+using pocketbase_csharp_sdk.Models;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Web;
 
@@ -93,9 +96,80 @@ namespace pocketbase_csharp_sdk.Services
             return response;
         }
 
+        //TODO REALTIME
+        public void Subscribe(string sub, string recordId, Action<SseMessage> callback)
+        {
+            Task.Run(async () =>
+            {
+                string subscribeTo = recordId != "*"
+                    ? $"{sub}/{recordId}"
+                    : sub;
+                
+                try
+                {
+                    var url = client.BuildUrl("/api/realtime").ToString();
+                    var response = await client._httpClient.GetStreamAsync(url);
+
+                    using StreamReader reader = new StreamReader(response);
+                    SseMessage message = new SseMessage();
+                    while (!reader.EndOfStream)
+                    {
+                        var line = await reader.ReadLineAsync();
+                        
+                        if (ProcessMessage(line, message))
+                        {
+                            callback(message);
+                            message = new SseMessage();
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+
+                    throw;
+                }
+            });
+        }
+
+        private bool ProcessMessage(string? line, SseMessage message)
+        {
+            Regex regex = new Regex("^(\\w+)[\\s\\:]+(.*)?$");
+            if (string.IsNullOrWhiteSpace(line))
+            {
+                return true;
+            }
+
+            var match = regex.Match(line);
+            if (match is null)
+            {
+                return false;
+            }
+
+            var field = match.Groups[1].Value ?? "";
+            var value = match.Groups[2].Value ?? "";
+
+            switch (field)
+            {
+                case "id":
+                    message.Id = value;
+                    break;
+                case "event":
+                    message.Event = value;
+                    break;
+                case "retry":
+                    message.Retry = SafeConvert.ToInt(value, 0);
+                    break;
+                case "data":
+                    message.Data = value;
+                    break;
+            }
+
+            return false;
+        }
+
         public Task UploadFileAsync(string sub, string filePath)
         {
-            if (File.Exists(filePath))
+            if (!File.Exists(filePath))
             {
                 return Task.CompletedTask;
             }
@@ -108,17 +182,12 @@ namespace pocketbase_csharp_sdk.Services
 
         public async Task UploadFileAsync(string sub, string fileName, Stream stream)
         {
-            string fieldName = "file1";
             var file = new FileContentWrapper()
             {
                 FileName = fileName,
                 Stream = stream,
             };
-            var body = new Dictionary<string, object>()
-            {
-                { fieldName, file }, 
-            };
-            await client.SendAsync(sub, HttpMethod.Post, body: body, files: new[] { file });
+            await client.SendAsync(sub, HttpMethod.Post, files: new[] { file });
         }
 
     }
