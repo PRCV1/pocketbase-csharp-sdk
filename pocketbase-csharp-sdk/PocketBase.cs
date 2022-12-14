@@ -299,7 +299,10 @@ namespace pocketbase_csharp_sdk
         {
             var request = new HttpRequestMessage(method, url);
 
-            //TODO Body beachten
+            if (body is not null && body.Count > 0)
+            {
+                request.Content = JsonContent.Create(body);
+            }
 
             if (headers is not null)
             {
@@ -312,10 +315,16 @@ namespace pocketbase_csharp_sdk
             var form = new MultipartFormDataContent();
             foreach (var file in files)
             {
-                var name = Guid.NewGuid().ToString();
+                if (file.Stream is null || string.IsNullOrWhiteSpace(file.FieldName) || string.IsNullOrWhiteSpace(file.FileName))
+                {
+                    continue;
+                }
+
                 var fileContent = new StreamContent(file.Stream);
-                form.Add(fileContent);
+                form.Add(fileContent, file.FieldName);
             }
+
+            request.Content = form;
 
             return request;
         }

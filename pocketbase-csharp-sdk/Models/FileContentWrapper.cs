@@ -8,6 +8,7 @@ namespace pocketbase_csharp_sdk.Models
 {
     public class FileContentWrapper
     {
+        public string? FieldName { get; set; }
         public Stream? Stream { get; set; }
         public string? FileName { get; set; }
     }

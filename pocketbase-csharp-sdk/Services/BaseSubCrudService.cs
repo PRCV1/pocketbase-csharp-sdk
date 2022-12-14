@@ -167,7 +167,7 @@ namespace pocketbase_csharp_sdk.Services
             return false;
         }
 
-        public Task UploadFileAsync(string sub, string filePath)
+        public Task UploadFileAsync(string sub, string field, string filePath)
         {
             if (!File.Exists(filePath))
             {
@@ -177,17 +177,19 @@ namespace pocketbase_csharp_sdk.Services
             var fileName = Path.GetFileName(filePath);
             var readStream = File.OpenRead(filePath);
 
-            return UploadFileAsync(sub, fileName, readStream);
+            return UploadFileAsync(sub, field, fileName, readStream);
         }
 
-        public async Task UploadFileAsync(string sub, string fileName, Stream stream)
+        public async Task UploadFileAsync(string sub, string field, string fileName, Stream stream)
         {
             var file = new FileContentWrapper()
             {
+                FieldName = field,
                 FileName = fileName,
                 Stream = stream,
             };
-            await client.SendAsync(sub, HttpMethod.Post, files: new[] { file });
+            var url = this.BasePath(sub);
+            await client.SendAsync(url, HttpMethod.Post, files: new[] { file });
         }
 
     }
