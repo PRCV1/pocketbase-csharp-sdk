@@ -1,5 +1,6 @@
 ﻿using pocketbase_csharp_sdk.Helper.Convert;
 using pocketbase_csharp_sdk.Models;
+using pocketbase_csharp_sdk.Models.Files;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -53,7 +54,7 @@ namespace pocketbase_csharp_sdk.Services
             T item,
             string? expand = null,
             IDictionary<string, string>? headers = null,
-            IEnumerable<FileContentWrapper>? files = null) where T : BaseModel
+            IEnumerable<IFile>? files = null) where T : BaseModel
         {
             var query = new Dictionary<string, object?>()
             {
@@ -66,7 +67,8 @@ namespace pocketbase_csharp_sdk.Services
                 HttpMethod.Post,
                 body: body,
                 headers: headers,
-                query: query);
+                query: query,
+                files: files);
             if (response is null) throw new ClientException(url);
 
             return response;
@@ -167,26 +169,12 @@ namespace pocketbase_csharp_sdk.Services
             return false;
         }
 
-        public Task UploadFileAsync(string sub, string field, string filePath)
-        {
-            if (!File.Exists(filePath))
-            {
-                return Task.CompletedTask;
-            }
-
-            var fileName = Path.GetFileName(filePath);
-            var readStream = File.OpenRead(filePath);
-
-            return UploadFileAsync(sub, field, fileName, readStream);
-        }
-
         public async Task UploadFileAsync(string sub, string field, string fileName, Stream stream)
         {
-            var file = new FileContentWrapper()
+            var file = new StreamFile()
             {
                 FieldName = field,
-                FileName = fileName,
-                Stream = stream,
+                Stream = stream
             };
             var url = this.BasePath(sub);
             await client.SendAsync(url, HttpMethod.Post, files: new[] { file });

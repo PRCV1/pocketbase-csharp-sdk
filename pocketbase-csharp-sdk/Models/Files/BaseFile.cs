@@ -4,12 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace pocketbase_csharp_sdk.Models
+namespace pocketbase_csharp_sdk.Models.Files
 {
-    public class FileContentWrapper
+    public abstract class BaseFile
     {
         public string? FieldName { get; set; }
-        public Stream? Stream { get; set; }
-        public string? FileName { get; set; }
     }
 }

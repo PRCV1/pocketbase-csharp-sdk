@@ -1,6 +1,7 @@
 ﻿using pocketbase_csharp_sdk.Event;
 using pocketbase_csharp_sdk.Json;
 using pocketbase_csharp_sdk.Models;
+using pocketbase_csharp_sdk.Models.Files;
 using pocketbase_csharp_sdk.Services;
 using System;
 using System.Collections;
@@ -49,12 +50,12 @@ namespace pocketbase_csharp_sdk
             Records = new RecordService(this);
         }
 
-        public async Task SendAsync(string path, HttpMethod method, IDictionary<string, string>? headers = null, IDictionary<string, object?>? query = null, IDictionary<string, object>? body = null, IEnumerable<FileContentWrapper>? files = null)
+        public async Task SendAsync(string path, HttpMethod method, IDictionary<string, string>? headers = null, IDictionary<string, object?>? query = null, IDictionary<string, object>? body = null, IEnumerable<IFile>? files = null)
         {
             headers ??= new Dictionary<string, string>();
             query ??= new Dictionary<string, object?>();
             body ??= new Dictionary<string, object>();
-            files ??= new List<FileContentWrapper>();
+            files ??= new List<IFile>();
 
             Uri url = BuildUrl(path, query);
 
@@ -103,12 +104,12 @@ namespace pocketbase_csharp_sdk
             }
         }
 
-        public async Task<T?> SendAsync<T>(string path, HttpMethod method, IDictionary<string, string>? headers = null, IDictionary<string, object?>? query = null, IDictionary<string, object>? body = null, IEnumerable<FileContentWrapper>? files = null)
+        public async Task<T?> SendAsync<T>(string path, HttpMethod method, IDictionary<string, string>? headers = null, IDictionary<string, object?>? query = null, IDictionary<string, object>? body = null, IEnumerable<IFile>? files = null)
         {
             headers ??= new Dictionary<string, string>();
             query ??= new Dictionary<string, object?>();
             body ??= new Dictionary<string, object>();
-            files ??= new List<FileContentWrapper>();
+            files ??= new List<IFile>();
 
             Uri url = BuildUrl(path, query);
 
@@ -159,7 +160,7 @@ namespace pocketbase_csharp_sdk
             }
         }
 
-        private HttpRequestMessage CreateRequest(Uri url, HttpMethod method, IDictionary<string, string> headers, IDictionary<string, object?> query, IDictionary<string, object> body, IEnumerable<FileContentWrapper> files)
+        private HttpRequestMessage CreateRequest(Uri url, HttpMethod method, IDictionary<string, string> headers, IDictionary<string, object?> query, IDictionary<string, object> body, IEnumerable<IFile> files)
         {
             HttpRequestMessage request;
 
@@ -195,7 +196,7 @@ namespace pocketbase_csharp_sdk
             var obj = JsonDocument.Parse(response);
             foreach (var item in obj.RootElement.EnumerateObject())
             {
-                
+
             }
             return dic;
         }
@@ -228,7 +229,7 @@ namespace pocketbase_csharp_sdk
 
                 if (!string.IsNullOrWhiteSpace(queryString))
                 {
-                     url = url + "?" + queryString;
+                    url = url + "?" + queryString;
                 }
             }
 
@@ -295,14 +296,9 @@ namespace pocketbase_csharp_sdk
             return request;
         }
 
-        private HttpRequestMessage BuildFileRequest(HttpMethod method, Uri url, IDictionary<string, string>? headers, IDictionary<string, object>? body, IEnumerable<FileContentWrapper> files)
+        private HttpRequestMessage BuildFileRequest(HttpMethod method, Uri url, IDictionary<string, string>? headers, IDictionary<string, object>? body, IEnumerable<IFile> files)
         {
             var request = new HttpRequestMessage(method, url);
-
-            if (body is not null && body.Count > 0)
-            {
-                request.Content = JsonContent.Create(body);
-            }
 
             if (headers is not null)
             {
@@ -315,17 +311,53 @@ namespace pocketbase_csharp_sdk
             var form = new MultipartFormDataContent();
             foreach (var file in files)
             {
-                if (file.Stream is null || string.IsNullOrWhiteSpace(file.FieldName) || string.IsNullOrWhiteSpace(file.FileName))
+                var stream = file.GetStream();
+                if (stream is null || string.IsNullOrWhiteSpace(file.FieldName))
                 {
                     continue;
                 }
 
-                var fileContent = new StreamContent(file.Stream);
+                var fileContent = new StreamContent(stream);
                 form.Add(fileContent, file.FieldName);
             }
 
-            request.Content = form;
+            
+            if (body is not null && body.Count > 0)
+            {
+                Dictionary<string, string> additionalBody = new Dictionary<string, string>();
+                foreach (var item in body)
+                {
+                    if (item.Value is IList valueAsList && item.Value is not string)
+                    {
+                        for (int i = 0; i < valueAsList.Count; i++)
+                        {
+                            var listValue = valueAsList[i]?.ToString();
+                            if (string.IsNullOrWhiteSpace(listValue))
+                            {
+                                continue;
+                            }
+                            additionalBody[$"{item.Key}{i}"] = listValue;
+                        }
+                    }
+                    else
+                    {
+                        var value = item.Value?.ToString();
+                        if (string.IsNullOrWhiteSpace(value))
+                        {
+                            continue;
+                        }
+                        additionalBody[item.Key] = value;
+                    }
+                }
 
+                foreach (var item in additionalBody)
+                {
+                    var content = new StringContent(item.Value);
+                    form.Add(content, item.Key);
+                }
+            }
+
+            request.Content = form;
             return request;
         }
 
