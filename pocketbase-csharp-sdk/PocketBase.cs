@@ -312,13 +312,15 @@ namespace pocketbase_csharp_sdk
             foreach (var file in files)
             {
                 var stream = file.GetStream();
-                if (stream is null || string.IsNullOrWhiteSpace(file.FieldName))
+                if (stream is null || string.IsNullOrWhiteSpace(file.FieldName) || string.IsNullOrWhiteSpace(file.FileName))
                 {
                     continue;
                 }
 
                 var fileContent = new StreamContent(stream);
-                form.Add(fileContent, file.FieldName);
+                var mimeType = GetMimeType(file);
+                fileContent.Headers.ContentType = new MediaTypeHeaderValue(mimeType);
+                form.Add(fileContent, file.FieldName, file.FileName);
             }
 
             
@@ -359,6 +361,16 @@ namespace pocketbase_csharp_sdk
 
             request.Content = form;
             return request;
+        }
+
+        private string GetMimeType(IFile file)
+        {
+            if (file is FilepathFile filePath)
+            {
+                var fileName = Path.GetFileName(filePath.FilePath);
+                return MimeMapping.MimeUtility.GetMimeMapping(fileName);
+            }
+            return MimeMapping.MimeUtility.UnknownMimeType;
         }
 
     }

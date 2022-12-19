@@ -9,7 +9,7 @@ namespace pocketbase_csharp_sdk.Models.Files
     public interface IFile
     {
         public string? FieldName { get; set; }
-
+        public string? FileName { get; set; }
         public Stream? GetStream();
 
     }

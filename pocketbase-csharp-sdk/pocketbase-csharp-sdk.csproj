@@ -31,4 +31,8 @@
 		</None>
 	</ItemGroup>
 
+	<ItemGroup>
+	  <PackageReference Include="MimeMapping" Version="1.0.1.50" />
+	</ItemGroup>
+
 </Project>
