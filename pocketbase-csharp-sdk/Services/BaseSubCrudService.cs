@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Net.WebSockets;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -99,38 +100,47 @@ namespace pocketbase_csharp_sdk.Services
         }
 
         //TODO REALTIME
-        public void Subscribe(string sub, string recordId, Action<SseMessage> callback)
+        public async void Subscribe(string sub, string recordId, Action<SseMessage> callback)
         {
-            Task.Run(async () =>
-            {
-                string subscribeTo = recordId != "*"
+            string subscribeTo = recordId != "*"
                     ? $"{sub}/{recordId}"
                     : sub;
-                
-                try
-                {
-                    var url = client.BuildUrl("/api/realtime").ToString();
-                    var response = await client._httpClient.GetStreamAsync(url);
 
-                    using StreamReader reader = new StreamReader(response);
-                    SseMessage message = new SseMessage();
-                    while (!reader.EndOfStream)
+            try
+            {
+                var url = client.BuildUrl("/api/realtime").ToString();
+                var responseStream = await client._httpClient.GetStreamAsync(url);
+
+                var buffer = new byte[4096];
+                while (true)
+                {
+                    var readCount = await responseStream.ReadAsync(buffer, 0, buffer.Length);
+                    if (readCount > 0)
                     {
-                        var line = await reader.ReadLineAsync();
-                        
-                        if (ProcessMessage(line, message))
-                        {
-                            callback(message);
-                            message = new SseMessage();
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
+                        var data = Encoding.UTF8.GetString(buffer, 0, readCount);
 
-                    throw;
+                    }
+                    await Task.Delay(125);
                 }
-            });
+
+                //using StreamReader reader = new StreamReader(response);
+                //SseMessage message = new SseMessage();
+                //while (!reader.EndOfStream)
+                //{
+                //    var line = await reader.ReadLineAsync();
+
+                //    if (ProcessMessage(line, message))
+                //    {
+                //        callback(message);
+                //        message = new SseMessage();
+                //    }
+                //}
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
         }
 
         private bool ProcessMessage(string? line, SseMessage message)

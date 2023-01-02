@@ -17,6 +17,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Licenses", "Licenses", "{18
 		LICENSE.txt = LICENSE.txt
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example", "Example\Example.csproj", "{42C17FE4-3780-4AD3-837D-74DEF8FFADFE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -31,6 +33,10 @@ Global
 		{6E0330EB-EA4D-44DC-9693-712F79F9083E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6E0330EB-EA4D-44DC-9693-712F79F9083E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6E0330EB-EA4D-44DC-9693-712F79F9083E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{42C17FE4-3780-4AD3-837D-74DEF8FFADFE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{42C17FE4-3780-4AD3-837D-74DEF8FFADFE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{42C17FE4-3780-4AD3-837D-74DEF8FFADFE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{42C17FE4-3780-4AD3-837D-74DEF8FFADFE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
