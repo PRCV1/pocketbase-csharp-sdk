@@ -111,17 +111,17 @@ namespace pocketbase_csharp_sdk.Services
             return await authService.GetAuthenticationMethodsAsync(body, query, headers);
         }
 
-        public async Task<AuthModel?> AuthenticateWithPassword(string email, string password, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null)
+        public async Task<RecordAuthModel<UserModel>?> AuthenticateWithPassword(string email, string password, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null)
         {
             return await authService.AuthenticateWithPassword(email, password, body, query, headers);
         }
 
-        public async Task<AuthModel?> AuthenticateViaOAuth2(string provider, string code, string codeVerifier, string redirectUrl, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null)
+        public async Task<RecordAuthModel<UserModel>?> AuthenticateViaOAuth2(string provider, string code, string codeVerifier, string redirectUrl, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null)
         {
             return await authService.AuthenticateViaOAuth2(provider, code, codeVerifier, redirectUrl, body, query, headers);
         }
 
-        public async Task<AuthModel?> RefreshAsync(IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null)
+        public async Task<RecordAuthModel<UserModel>?> RefreshAsync(IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null)
         {
             return await authService.RefreshAsync(body, query, headers);
         }
@@ -131,7 +131,7 @@ namespace pocketbase_csharp_sdk.Services
             await authService.RequestPasswordResetAsync(email, body, query, headers);
         }
 
-        public async Task<AuthModel?> ConfirmPasswordResetAsync(string passwordResetToken, string password, string passwordConfirm, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null)
+        public async Task<RecordAuthModel<UserModel>?> ConfirmPasswordResetAsync(string passwordResetToken, string password, string passwordConfirm, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null)
         {
             return await ConfirmPasswordResetAsync(passwordResetToken, password, passwordConfirm, body, query, headers);
         }
@@ -141,7 +141,7 @@ namespace pocketbase_csharp_sdk.Services
             await authService.RequestVerificationAsync(email, body, query, headers);
         }
 
-        public async Task<AuthModel?> ConfirmVerificationAsync(string token, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null)
+        public async Task<RecordAuthModel<UserModel>?> ConfirmVerificationAsync(string token, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null)
         {
             return await authService.ConfirmVerificationAsync(token, body, query, headers);
         }
@@ -151,7 +151,7 @@ namespace pocketbase_csharp_sdk.Services
             await authService.RequestEmailChangeAsync(newEmail, body, query, headers);
         }
 
-        public async Task<AuthModel?> ConfirmEmailChangeAsync(string emailChangeToken, string userPassword, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null)
+        public async Task<RecordAuthModel<UserModel>?> ConfirmEmailChangeAsync(string emailChangeToken, string userPassword, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null)
         {
             return await authService.ConfirmEmailChangeAsync(emailChangeToken, userPassword, body, query, headers);
         }
