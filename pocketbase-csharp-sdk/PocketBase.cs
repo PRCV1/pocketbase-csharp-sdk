@@ -50,6 +50,11 @@ namespace pocketbase_csharp_sdk
             Records = new RecordService(this);
         }
 
+        public CollectionAuthService AuthCollection(string collectionName)
+        {
+            return new CollectionAuthService(this, collectionName);
+        }
+
         public async Task SendAsync(string path, HttpMethod method, IDictionary<string, string>? headers = null, IDictionary<string, object?>? query = null, IDictionary<string, object>? body = null, IEnumerable<IFile>? files = null)
         {
             headers ??= new Dictionary<string, string>();

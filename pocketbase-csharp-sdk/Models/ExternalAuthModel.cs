@@ -18,7 +18,7 @@ namespace pocketbase_csharp_sdk.Models
         [JsonConverter(typeof(DateTimeConverter))]
         public DateTime? Updated { get; set; }
 
-        public string? UserId { get; set; }
+        public string? RecordId { get; set; }
         public string? Provider { get; set; }
         public string? ProviderId { get; set; }
     }
