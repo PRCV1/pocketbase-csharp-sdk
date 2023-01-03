@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace pocketbase_csharp_sdk.Services
 {
-    public class AdminService : BaseAuthService
+    public class AdminService : BaseAuthService<AdminAuthModel>
     {
 
         protected override string BasePath(string? url = null) => "/api/admins";

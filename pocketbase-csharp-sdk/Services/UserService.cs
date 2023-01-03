@@ -17,12 +17,12 @@ namespace pocketbase_csharp_sdk.Services
 
         private readonly PocketBase client;
 
-        private readonly CollectionAuthService authService;
+        private readonly CollectionAuthService<UserModel> authService;
 
         public UserService(PocketBase client) : base(client)
         {
             this.client = client;
-            this.authService = client.AuthCollection("users");
+            this.authService = client.AuthCollection<UserModel>("users");
         }
 
         public async Task<UserModel> CreateAsync(string email, string password, string passwordConfirm)
