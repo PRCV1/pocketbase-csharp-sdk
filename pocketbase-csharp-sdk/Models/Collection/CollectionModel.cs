@@ -19,12 +19,15 @@ namespace pocketbase_csharp_sdk.Models.Collection
 
         public string? Name { get; set; }
         public bool? System { get; set; }
+        public string? Type { get; set; }
+
         public string? ListRule { get; set; }
         public string? ViewRule { get; set; }
         public string? CreateRule { get; set; }
         public string? UpdateRule { get; set; }
         public string? DeleteRule { get; set; }
 
+        public CollectionOptionsModel? Options { get; set; }
         public IEnumerable<SchemaFieldModel>? Schema { get; set; }
     }
 }
