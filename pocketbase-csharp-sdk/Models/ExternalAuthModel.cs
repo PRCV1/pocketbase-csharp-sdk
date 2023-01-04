@@ -19,6 +19,7 @@ namespace pocketbase_csharp_sdk.Models
         public DateTime? Updated { get; set; }
 
         public string? RecordId { get; set; }
+        public string? CollectionId { get; set; }
         public string? Provider { get; set; }
         public string? ProviderId { get; set; }
     }
