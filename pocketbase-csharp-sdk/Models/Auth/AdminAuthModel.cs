@@ -1,14 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Text.Json.Serialization;
 
 namespace pocketbase_csharp_sdk.Models.Auth
 {
-    public class AdminAuthModel
+    public class AdminAuthModel : AuthModel
     {
-        public string? Token { get; set; }
+        [JsonIgnore]
+        public override BaseModel? Model => Admin;
+
+
+        [JsonPropertyName("admin")]
         public AdminModel? Admin { get; set; }
     }
 }

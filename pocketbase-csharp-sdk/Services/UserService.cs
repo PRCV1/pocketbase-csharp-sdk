@@ -17,9 +17,12 @@ namespace pocketbase_csharp_sdk.Services
 
         private readonly PocketBase client;
 
+        private readonly CollectionAuthService<UserAuthModel, UserModel> authService;
+
         public UserService(PocketBase client) : base(client)
         {
             this.client = client;
+            this.authService = new CollectionAuthService<UserAuthModel, UserModel>(client, "users");
         }
 
         public async Task<UserModel> CreateAsync(string email, string password, string passwordConfirm)
@@ -105,136 +108,62 @@ namespace pocketbase_csharp_sdk.Services
 
         public async Task<AuthMethodsList?> GetAuthenticationMethodsAsync(IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null)
         {
-            var url = $"{BasePath()}/auth-methods";
-            var response = await client.SendAsync<AuthMethodsList>(url, HttpMethod.Get, headers: headers, query: query, body: body);
-            return response;
+            return await authService.GetAuthenticationMethodsAsync(body, query, headers);
         }
 
         public async Task<UserAuthModel?> AuthenticateWithPassword(string email, string password, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null)
         {
-            body ??= new Dictionary<string, object>();
-            body.Add("identity", email);
-            body.Add("password", password);
-
-            var url = $"{BasePath()}/auth-with-password";
-            var result = await client.SendAsync<UserAuthModel>(url, HttpMethod.Post, headers: headers, body: body, query: query);
-
-            SaveAuthentication(result);
-
-            return result;
+            return await authService.AuthenticateWithPassword(email, password, body, query, headers);
         }
 
         public async Task<UserAuthModel?> AuthenticateViaOAuth2(string provider, string code, string codeVerifier, string redirectUrl, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null)
         {
-            body ??= new Dictionary<string, object>();
-            body.Add("provider", provider);
-            body.Add("code", code);
-            body.Add("codeVerifier", codeVerifier);
-            body.Add("redirectUrl", redirectUrl);
-
-            var url = $"{BasePath()}/auth-via-oauth2";
-            var result = await client.SendAsync<UserAuthModel>(url, HttpMethod.Post, headers: headers, body: body, query: query);
-
-            SaveAuthentication(result);
-
-            return result;
+            return await authService.AuthenticateViaOAuth2(provider, code, codeVerifier, redirectUrl, body, query, headers);
         }
 
         public async Task<UserAuthModel?> RefreshAsync(IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null)
         {
-            var url = $"{BasePath()}/refresh";
-            var result = await client.SendAsync<UserAuthModel>(url, HttpMethod.Post, headers: headers, query: query, body: body);
-
-            SaveAuthentication(result);
-
-            return result;
+            return await authService.RefreshAsync(body, query, headers);
         }
 
         public async Task RequestPasswordResetAsync(string email, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null)
         {
-            body ??= new Dictionary<string, object>();
-            body.Add("email", email);
-
-            var url = $"{BasePath()}/request-password-reset";
-            await client.SendAsync(url, HttpMethod.Post, headers: headers, query: query, body: body);
+            await authService.RequestPasswordResetAsync(email, body, query, headers);
         }
 
         public async Task<UserAuthModel?> ConfirmPasswordResetAsync(string passwordResetToken, string password, string passwordConfirm, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null)
         {
-            body ??= new Dictionary<string, object>();
-            body.Add("token", passwordResetToken);
-            body.Add("password", password);
-            body.Add("passwordConfirm", passwordConfirm);
-
-            var url = $"{BasePath()}/confirm-password-reset";
-            var result = await client.SendAsync<UserAuthModel>(url, HttpMethod.Post, headers: headers, query: query, body: body);
-
-            SaveAuthentication(result);
-
-            return result;
+            return await ConfirmPasswordResetAsync(passwordResetToken, password, passwordConfirm, body, query, headers);
         }
 
         public async Task RequestVerificationAsync(string email, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null)
         {
-            body ??= new Dictionary<string, object>();
-            body.Add("email", email);
-
-            var url = $"{BasePath()}/request-verification";
-            await client.SendAsync(url, HttpMethod.Post, headers: headers, query: query, body: body);
+            await authService.RequestVerificationAsync(email, body, query, headers);
         }
 
         public async Task<UserAuthModel?> ConfirmVerificationAsync(string token, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null)
         {
-            body ??= new Dictionary<string, object>();
-            body.Add("token", token);
-
-            var url = $"{BasePath()}/confirm-verification";
-            var result = await client.SendAsync<UserAuthModel>(url, HttpMethod.Post, headers: headers, query: query, body: body);
-
-            SaveAuthentication(result);
-
-            return result;
+            return await authService.ConfirmVerificationAsync(token, body, query, headers);
         }
 
         public async Task RequestEmailChangeAsync(string newEmail, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null)
         {
-            body ??= new Dictionary<string, object>();
-            body.Add("newEmail", newEmail);
-
-            var url = $"{BasePath()}/request-email-change";
-            await client.SendAsync(url, HttpMethod.Post, headers: headers, query: query, body: body);
+            await authService.RequestEmailChangeAsync(newEmail, body, query, headers);
         }
 
         public async Task<UserAuthModel?> ConfirmEmailChangeAsync(string emailChangeToken, string userPassword, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null)
         {
-            body ??= new Dictionary<string, object>();
-            body.Add("token", emailChangeToken);
-            body.Add("password", userPassword);
-
-            var url = $"{BasePath()}/confirm-email-change";
-            var result = await client.SendAsync<UserAuthModel>(url, HttpMethod.Post, headers: headers, query: query, body: body);
-
-            SaveAuthentication(result);
-
-            return result;
+            return await authService.ConfirmEmailChangeAsync(emailChangeToken, userPassword, body, query, headers);
         }
 
         public async Task<IEnumerable<ExternalAuthModel>?> GetExternalAuthenticationMethods(string userId, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null)
         {
-            var url = $"{BasePath()}/records/{HttpUtility.HtmlEncode(userId)}/external-auths";
-            var result = await client.SendAsync<IEnumerable<ExternalAuthModel>>(url, HttpMethod.Get, headers: headers, query: query);
-            return result;
+            return await authService.GetExternalAuthenticationMethods(userId, query, headers);
         }
 
         public async Task UnlinkExternalAuthentication(string userId, string provider, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null)
         {
-            var url = $"{BasePath()}/records/{HttpUtility.HtmlEncode(userId)}/external-auths/{HttpUtility.HtmlEncode(provider)}";
-            await client.SendAsync(url, HttpMethod.Delete, headers: headers, query: query, body: body);
-        }
-
-        private void SaveAuthentication(UserAuthModel? adminAuthModel)
-        {
-            client.AuthStore.Save(adminAuthModel?.Token, adminAuthModel?.User);
+            await authService.UnlinkExternalAuthentication(userId, provider, body, query, headers);
         }
 
     }
