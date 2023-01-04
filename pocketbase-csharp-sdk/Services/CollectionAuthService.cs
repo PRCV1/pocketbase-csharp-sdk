@@ -1,17 +1,18 @@
 ﻿using pocketbase_csharp_sdk.Models;
 using pocketbase_csharp_sdk.Models.Auth;
 using pocketbase_csharp_sdk.Models.Log;
-using System;
-using System.Collections.Generic;
-using System.Data.Common;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Web;
 
 namespace pocketbase_csharp_sdk.Services
 {
-    public class CollectionAuthService<T> : BaseAuthService<RecordAuthModel<T>>
+    public class CollectionAuthService<T> : CollectionAuthService<RecordAuthModel<T>, T>
+        where T : BaseAuthModel
+    {
+        public CollectionAuthService(PocketBase client, string collectionName) : base(client, collectionName) { }
+    }
+
+    public class CollectionAuthService<R, T> : BaseAuthService<R>
+        where R : RecordAuthModel<T>
         where T : BaseAuthModel
     {
         protected override string BasePath(string? url = null) => $"/api/collections/{this.collectionName}";
@@ -19,12 +20,12 @@ namespace pocketbase_csharp_sdk.Services
         private readonly string collectionName;
 
 
-        public CollectionAuthService(PocketBase client, string collectionName) : base(client) 
-        { 
+        public CollectionAuthService(PocketBase client, string collectionName) : base(client)
+        {
             this.collectionName = collectionName;
         }
 
-        public async Task<RecordAuthModel<T>?> AuthenticateViaOAuth2(string provider, string code, string codeVerifier, string redirectUrl, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null)
+        public async Task<R?> AuthenticateViaOAuth2(string provider, string code, string codeVerifier, string redirectUrl, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null)
         {
             body ??= new Dictionary<string, object>();
             body.Add("provider", provider);
@@ -33,7 +34,7 @@ namespace pocketbase_csharp_sdk.Services
             body.Add("redirectUrl", redirectUrl);
 
             var url = $"{BasePath()}/auth-via-oauth2";
-            var result = await client.SendAsync<RecordAuthModel<T>>(url, HttpMethod.Post, headers: headers, body: body, query: query);
+            var result = await client.SendAsync<R>(url, HttpMethod.Post, headers: headers, body: body, query: query);
 
             SaveAuthentication(result);
 
@@ -49,13 +50,13 @@ namespace pocketbase_csharp_sdk.Services
             await client.SendAsync(url, HttpMethod.Post, headers: headers, query: query, body: body);
         }
 
-        public async Task<RecordAuthModel<T>?> ConfirmVerificationAsync(string token, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null)
+        public async Task<R?> ConfirmVerificationAsync(string token, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null)
         {
             body ??= new Dictionary<string, object>();
             body.Add("token", token);
 
             var url = $"{BasePath()}/confirm-verification";
-            var result = await client.SendAsync<RecordAuthModel<T>>(url, HttpMethod.Post, headers: headers, query: query, body: body);
+            var result = await client.SendAsync<R>(url, HttpMethod.Post, headers: headers, query: query, body: body);
 
             SaveAuthentication(result);
 
@@ -71,14 +72,14 @@ namespace pocketbase_csharp_sdk.Services
             await client.SendAsync(url, HttpMethod.Post, headers: headers, query: query, body: body);
         }
 
-        public async Task<RecordAuthModel<T>?> ConfirmEmailChangeAsync(string emailChangeToken, string userPassword, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null)
+        public async Task<R?> ConfirmEmailChangeAsync(string emailChangeToken, string userPassword, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null)
         {
             body ??= new Dictionary<string, object>();
             body.Add("token", emailChangeToken);
             body.Add("password", userPassword);
 
             var url = $"{BasePath()}/confirm-email-change";
-            var result = await client.SendAsync<RecordAuthModel<T>>(url, HttpMethod.Post, headers: headers, query: query, body: body);
+            var result = await client.SendAsync<R>(url, HttpMethod.Post, headers: headers, query: query, body: body);
 
             SaveAuthentication(result);
 

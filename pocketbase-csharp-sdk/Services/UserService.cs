@@ -17,12 +17,12 @@ namespace pocketbase_csharp_sdk.Services
 
         private readonly PocketBase client;
 
-        private readonly CollectionAuthService<UserModel> authService;
+        private readonly CollectionAuthService<UserAuthModel, UserModel> authService;
 
         public UserService(PocketBase client) : base(client)
         {
             this.client = client;
-            this.authService = client.AuthCollection<UserModel>("users");
+            this.authService = new CollectionAuthService<UserAuthModel, UserModel>(client, "users");
         }
 
         public async Task<UserModel> CreateAsync(string email, string password, string passwordConfirm)
@@ -111,17 +111,17 @@ namespace pocketbase_csharp_sdk.Services
             return await authService.GetAuthenticationMethodsAsync(body, query, headers);
         }
 
-        public async Task<RecordAuthModel<UserModel>?> AuthenticateWithPassword(string email, string password, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null)
+        public async Task<UserAuthModel?> AuthenticateWithPassword(string email, string password, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null)
         {
             return await authService.AuthenticateWithPassword(email, password, body, query, headers);
         }
 
-        public async Task<RecordAuthModel<UserModel>?> AuthenticateViaOAuth2(string provider, string code, string codeVerifier, string redirectUrl, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null)
+        public async Task<UserAuthModel?> AuthenticateViaOAuth2(string provider, string code, string codeVerifier, string redirectUrl, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null)
         {
             return await authService.AuthenticateViaOAuth2(provider, code, codeVerifier, redirectUrl, body, query, headers);
         }
 
-        public async Task<RecordAuthModel<UserModel>?> RefreshAsync(IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null)
+        public async Task<UserAuthModel?> RefreshAsync(IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null)
         {
             return await authService.RefreshAsync(body, query, headers);
         }
@@ -131,7 +131,7 @@ namespace pocketbase_csharp_sdk.Services
             await authService.RequestPasswordResetAsync(email, body, query, headers);
         }
 
-        public async Task<RecordAuthModel<UserModel>?> ConfirmPasswordResetAsync(string passwordResetToken, string password, string passwordConfirm, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null)
+        public async Task<UserAuthModel?> ConfirmPasswordResetAsync(string passwordResetToken, string password, string passwordConfirm, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null)
         {
             return await ConfirmPasswordResetAsync(passwordResetToken, password, passwordConfirm, body, query, headers);
         }
@@ -141,7 +141,7 @@ namespace pocketbase_csharp_sdk.Services
             await authService.RequestVerificationAsync(email, body, query, headers);
         }
 
-        public async Task<RecordAuthModel<UserModel>?> ConfirmVerificationAsync(string token, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null)
+        public async Task<UserAuthModel?> ConfirmVerificationAsync(string token, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null)
         {
             return await authService.ConfirmVerificationAsync(token, body, query, headers);
         }
@@ -151,7 +151,7 @@ namespace pocketbase_csharp_sdk.Services
             await authService.RequestEmailChangeAsync(newEmail, body, query, headers);
         }
 
-        public async Task<RecordAuthModel<UserModel>?> ConfirmEmailChangeAsync(string emailChangeToken, string userPassword, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null)
+        public async Task<UserAuthModel?> ConfirmEmailChangeAsync(string emailChangeToken, string userPassword, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null)
         {
             return await authService.ConfirmEmailChangeAsync(emailChangeToken, userPassword, body, query, headers);
         }
