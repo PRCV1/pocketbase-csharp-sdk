@@ -11,7 +11,7 @@ namespace pocketbase_csharp_sdk.Services
             this.client = client;
         }
 
-        public async Task<T?> AuthenticateWithPassword(string email, string password, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null)
+        public async Task<T?> AuthenticateWithPasswordAsync(string email, string password, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null)
         {
             body ??= new Dictionary<string, object>();
             body.Add("identity", email);

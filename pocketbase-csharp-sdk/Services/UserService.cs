@@ -81,14 +81,14 @@ namespace pocketbase_csharp_sdk.Services
             return result;
         }
 
-        public async Task<UserModel> GetOne(string id)
+        public async Task<UserModel?> GetOne(string id)
         {
             string url = $"{BasePath()}/{UrlEncode(id)}";
             var result = await client.SendAsync<UserModel>(url, HttpMethod.Get);
             return result;
         }
 
-        public async Task<UserModel> UpdateAsync(string id, string? username = null, string? email = null, bool? emailVisibility = null, string? oldPassword = null, string? password = null, string? passwordConfirm = null, bool? verified = null, string? name = null, object? file = null)
+        public async Task<UserModel?> UpdateAsync(string id, string? username = null, string? email = null, bool? emailVisibility = null, string? oldPassword = null, string? password = null, string? passwordConfirm = null, bool? verified = null, string? name = null, object? file = null)
         {
             //TODO File
             Dictionary<string, object> body = new Dictionary<string, object>();
@@ -106,64 +106,64 @@ namespace pocketbase_csharp_sdk.Services
             return result;
         }
 
-        public async Task<AuthMethodsList?> GetAuthenticationMethodsAsync(IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null)
+        public Task<AuthMethodsList?> GetAuthenticationMethodsAsync(IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null)
         {
-            return await authService.GetAuthenticationMethodsAsync(body, query, headers);
+            return authService.GetAuthenticationMethodsAsync(body, query, headers);
         }
 
-        public async Task<UserAuthModel?> AuthenticateWithPassword(string email, string password, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null)
+        public Task<UserAuthModel?> AuthenticateWithPassword(string email, string password, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null)
         {
-            return await authService.AuthenticateWithPassword(email, password, body, query, headers);
+            return authService.AuthenticateWithPasswordAsync(email, password, body, query, headers);
         }
 
-        public async Task<UserAuthModel?> AuthenticateViaOAuth2(string provider, string code, string codeVerifier, string redirectUrl, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null)
+        public Task<UserAuthModel?> AuthenticateViaOAuth2(string provider, string code, string codeVerifier, string redirectUrl, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null)
         {
-            return await authService.AuthenticateViaOAuth2(provider, code, codeVerifier, redirectUrl, body, query, headers);
+            return authService.AuthenticateViaOAuth2Async(provider, code, codeVerifier, redirectUrl, body, query, headers);
         }
 
-        public async Task<UserAuthModel?> RefreshAsync(IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null)
+        public Task<UserAuthModel?> RefreshAsync(IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null)
         {
-            return await authService.RefreshAsync(body, query, headers);
+            return authService.RefreshAsync(body, query, headers);
         }
 
-        public async Task RequestPasswordResetAsync(string email, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null)
+        public Task RequestPasswordResetAsync(string email, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null)
         {
-            await authService.RequestPasswordResetAsync(email, body, query, headers);
+            return authService.RequestPasswordResetAsync(email, body, query, headers);
         }
 
-        public async Task<UserAuthModel?> ConfirmPasswordResetAsync(string passwordResetToken, string password, string passwordConfirm, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null)
+        public Task<UserAuthModel?> ConfirmPasswordResetAsync(string passwordResetToken, string password, string passwordConfirm, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null)
         {
-            return await ConfirmPasswordResetAsync(passwordResetToken, password, passwordConfirm, body, query, headers);
+            return ConfirmPasswordResetAsync(passwordResetToken, password, passwordConfirm, body, query, headers);
         }
 
-        public async Task RequestVerificationAsync(string email, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null)
+        public Task RequestVerificationAsync(string email, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null)
         {
-            await authService.RequestVerificationAsync(email, body, query, headers);
+            return authService.RequestVerificationAsync(email, body, query, headers);
         }
 
-        public async Task<UserAuthModel?> ConfirmVerificationAsync(string token, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null)
+        public Task<UserAuthModel?> ConfirmVerificationAsync(string token, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null)
         {
-            return await authService.ConfirmVerificationAsync(token, body, query, headers);
+            return authService.ConfirmVerificationAsync(token, body, query, headers);
         }
 
-        public async Task RequestEmailChangeAsync(string newEmail, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null)
+        public Task RequestEmailChangeAsync(string newEmail, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null)
         {
-            await authService.RequestEmailChangeAsync(newEmail, body, query, headers);
+            return authService.RequestEmailChangeAsync(newEmail, body, query, headers);
         }
 
-        public async Task<UserAuthModel?> ConfirmEmailChangeAsync(string emailChangeToken, string userPassword, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null)
+        public Task<UserAuthModel?> ConfirmEmailChangeAsync(string emailChangeToken, string userPassword, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null)
         {
-            return await authService.ConfirmEmailChangeAsync(emailChangeToken, userPassword, body, query, headers);
+            return authService.ConfirmEmailChangeAsync(emailChangeToken, userPassword, body, query, headers);
         }
 
-        public async Task<IEnumerable<ExternalAuthModel>?> GetExternalAuthenticationMethods(string userId, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null)
+        public Task<IEnumerable<ExternalAuthModel>?> GetExternalAuthenticationMethods(string userId, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null)
         {
-            return await authService.GetExternalAuthenticationMethods(userId, query, headers);
+            return authService.GetExternalAuthenticationMethodsAsync(userId, query, headers);
         }
 
-        public async Task UnlinkExternalAuthentication(string userId, string provider, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null)
+        public Task UnlinkExternalAuthentication(string userId, string provider, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null)
         {
-            await authService.UnlinkExternalAuthentication(userId, provider, body, query, headers);
+            return authService.UnlinkExternalAuthenticationAsync(userId, provider, body, query, headers);
         }
 
     }
