@@ -13,8 +13,9 @@ PocketBase pocketBase = new PocketBase("https://orm-csharp-test.pockethost.io");
 //pocketBase.Records.Subscribe("restaurants", "*", cb =>
 pocketBase.Records.Subscribe("tags", "*", cb => 
 {
+    Console.WriteLine("------ New Sse Message: -----");
     Console.WriteLine(cb.ToString());
-    Debugger.Break();
+    //Debugger.Break();
 });
 
 Console.ReadKey();
