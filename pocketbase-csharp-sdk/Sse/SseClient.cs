@@ -1,4 +1,5 @@
 ﻿using pocketbase_csharp_sdk.Models;
+using System.Runtime.Intrinsics.X86;
 using System.Text;
 
 namespace pocketbase_csharp_sdk.Sse
@@ -8,9 +9,9 @@ namespace pocketbase_csharp_sdk.Sse
         const string BasePath = "/api/realtime";
         public string Id { get; private set; }
 
-        const int defaultRetryTimeout = 5000; // in ms
         private readonly PocketBase client;
-
+        private CancellationTokenSource? tokenSource = null;
+        private Task? eventListenerTask = null;
 
         int _retryAttempts = 0;
         int _maxRetry = 5;
@@ -25,20 +26,34 @@ namespace pocketbase_csharp_sdk.Sse
             this.client = client;
         }
 
+
         public async Task ConnectAsync(Action<SseMessage> callback)
         {
-            if (IsConnected) return;
+            Disconnect();
+            tokenSource = new CancellationTokenSource();
             try
             {
-                //var response = await client.SendSseAsync(BasePath, HttpMethod.Get);
-                //var message = SseMessage.FromReceivedMessage(response);
-                await ConnectEventStreamAsync(new CancellationToken(false), callback);
-            }
-            catch
-            {
+                eventListenerTask = ConnectEventStreamAsync(tokenSource.Token, callback);
 
-                throw;
+                while (!IsConnected)
+                    await Task.Delay(500);
             }
+            catch { throw; }
+
+        }
+
+        public void Disconnect()
+        {
+            if (tokenSource != null)
+            {
+                tokenSource.Cancel();
+                tokenSource.Dispose();
+            }
+            tokenSource = null;
+
+            if(eventListenerTask!= null)
+                eventListenerTask.Dispose();
+            eventListenerTask = null;
         }
 
         private async Task ConnectEventStreamAsync(CancellationToken token, Action<SseMessage> callback)
@@ -50,9 +65,8 @@ namespace pocketbase_csharp_sdk.Sse
             try
             {
                 var response = await httpClient.GetAsync(client.BuildUrl(BasePath).ToString(),
-                    HttpCompletionOption.ResponseHeadersRead,
-                    token
-                );
+                                                         HttpCompletionOption.ResponseHeadersRead,
+                                                         token);
                 if (!response.IsSuccessStatusCode)
                     throw new Exception("Unable to connect the stream");
 
@@ -77,17 +91,16 @@ namespace pocketbase_csharp_sdk.Sse
                                 Id = sseMessage.Id;
                                 IsConnected = true;
                             }
-
                             callback(sseMessage);
                         }
                     }
-
-                    await Task.Delay(500, token);
+                    await Task.Delay(125, token);
                 }
             }
             finally
             {
                 httpClient.Dispose();
+                IsConnected = false;
             }
         }
     }

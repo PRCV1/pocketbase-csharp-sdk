@@ -111,11 +111,7 @@ namespace pocketbase_csharp_sdk.Services
 
             try
             {
-                sse.ConnectAsync(callback);
-
-                while(!sse.IsConnected)
-                    await Task.Delay(500);
-
+                await sse.ConnectAsync(callback);
 
                 Dictionary<string, object> body = new();
                 body.Add("clientId", sse.Id);
