@@ -1,31 +1,29 @@
 ﻿using pocketbase_csharp_sdk.Models;
-using System.Runtime.Intrinsics.X86;
 using System.Text;
+using System;
 
 namespace pocketbase_csharp_sdk.Sse
 {
     public class SseClient
     {
         const string BasePath = "/api/realtime";
-        public string Id { get; private set; }
 
         private readonly PocketBase client;
         private CancellationTokenSource? tokenSource = null;
         private Task? eventListenerTask = null;
 
-        int _retryAttempts = 0;
-        int _maxRetry = 5;
-        Timer? _retryTimer;
-
-        /// Indicates whether the client was closed.
-        public bool IsClosed { get; private set; } = false;
+        public string? Id { get; private set; }
         public bool IsConnected { get; private set; } = false;
+
 
         public SseClient(PocketBase client)
         {
             this.client = client;
         }
-
+        ~SseClient()
+        {
+            Disconnect();
+        }
 
         public async Task ConnectAsync(Action<SseMessage> callback)
         {
@@ -33,30 +31,25 @@ namespace pocketbase_csharp_sdk.Sse
             tokenSource = new CancellationTokenSource();
             try
             {
-                eventListenerTask = ConnectEventStreamAsync(tokenSource.Token, callback);
+                eventListenerTask = ConnectEventStreamAsync(callback, tokenSource.Token);
 
                 while (!IsConnected)
                     await Task.Delay(500);
             }
             catch { throw; }
-
         }
 
         public void Disconnect()
         {
-            if (tokenSource != null)
-            {
-                tokenSource.Cancel();
-                tokenSource.Dispose();
-            }
+            tokenSource?.Cancel();
+            tokenSource?.Dispose();
             tokenSource = null;
 
-            if(eventListenerTask!= null)
-                eventListenerTask.Dispose();
+            eventListenerTask?.Dispose();
             eventListenerTask = null;
         }
 
-        private async Task ConnectEventStreamAsync(CancellationToken token, Action<SseMessage> callback)
+        private async Task ConnectEventStreamAsync(Action<SseMessage> callback, CancellationToken token)
         {
             var httpClient = new HttpClient
             {
@@ -79,7 +72,7 @@ namespace pocketbase_csharp_sdk.Sse
                 var buffer = new byte[4096];
                 while (!token.IsCancellationRequested)
                 {
-                    var readCount = await stream.ReadAsync(buffer, 0, buffer.Length, token);
+                    var readCount = await stream.ReadAsync(buffer, token);
                     if (readCount > 0)
                     {
                         var data = Encoding.UTF8.GetString(buffer, 0, readCount);
