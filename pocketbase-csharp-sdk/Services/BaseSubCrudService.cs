@@ -1,6 +1,7 @@
 ﻿using pocketbase_csharp_sdk.Helper.Convert;
 using pocketbase_csharp_sdk.Models;
 using pocketbase_csharp_sdk.Models.Files;
+using pocketbase_csharp_sdk.Sse;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -100,7 +101,7 @@ namespace pocketbase_csharp_sdk.Services
         }
 
         //TODO REALTIME
-        public async void Subscribe(string sub, string recordId, Action<SseMessage> callback)
+        public async void Subscribe(string sub, string recordId, Func<SseMessage, Task> callback)
         {
             string subscribeTo = recordId != "*"
                     ? $"{sub}/{recordId}"
@@ -108,20 +109,30 @@ namespace pocketbase_csharp_sdk.Services
 
             try
             {
-                var url = client.BuildUrl("/api/realtime").ToString();
-                var responseStream = await client._httpClient.GetStreamAsync(url);
+                await client.RealTime.SubscribeAsync(subscribeTo, callback);
+                //await sse.ConnectAsync(callback);
 
-                var buffer = new byte[4096];
-                while (true)
-                {
-                    var readCount = await responseStream.ReadAsync(buffer, 0, buffer.Length);
-                    if (readCount > 0)
-                    {
-                        var data = Encoding.UTF8.GetString(buffer, 0, readCount);
+                //Dictionary<string, object> body = new();
+                //body.Add("clientId", sse.Id);
+                //body.Add("subscriptions", new List<string> { subscribeTo , "tags" });
 
-                    }
-                    await Task.Delay(125);
-                }
+                //var url = $"api/realtime";
+                //await client.SendAsync(url, HttpMethod.Post, body: body);
+
+                //var url = client.BuildUrl("/api/realtime").ToString();
+                //var responseStream = await client._httpClient.GetStreamAsync(url);
+
+                //var buffer = new byte[4096];
+                //while (true)
+                //{
+                //    var readCount = await responseStream.ReadAsync(buffer, 0, buffer.Length);
+                //    if (readCount > 0)
+                //    {
+                //        var data = Encoding.UTF8.GetString(buffer, 0, readCount);
+
+                //    }
+                //    await Task.Delay(125);
+                //}
 
                 //using StreamReader reader = new StreamReader(response);
                 //SseMessage message = new SseMessage();
@@ -143,41 +154,6 @@ namespace pocketbase_csharp_sdk.Services
             }
         }
 
-        private bool ProcessMessage(string? line, SseMessage message)
-        {
-            Regex regex = new Regex("^(\\w+)[\\s\\:]+(.*)?$");
-            if (string.IsNullOrWhiteSpace(line))
-            {
-                return true;
-            }
-
-            var match = regex.Match(line);
-            if (match is null)
-            {
-                return false;
-            }
-
-            var field = match.Groups[1].Value ?? "";
-            var value = match.Groups[2].Value ?? "";
-
-            switch (field)
-            {
-                case "id":
-                    message.Id = value;
-                    break;
-                case "event":
-                    message.Event = value;
-                    break;
-                case "retry":
-                    message.Retry = SafeConvert.ToInt(value, 0);
-                    break;
-                case "data":
-                    message.Data = value;
-                    break;
-            }
-
-            return false;
-        }
 
         public async Task UploadFileAsync(string sub, string field, string fileName, Stream stream)
         {
