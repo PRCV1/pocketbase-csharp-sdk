@@ -17,12 +17,10 @@ namespace pocketbase_csharp_sdk.Services
     public abstract class BaseSubCrudService : BaseService
     {
         private readonly PocketBase client;
-        private readonly SseClient sse;
 
         public BaseSubCrudService(PocketBase client)
         {
             this.client = client;
-            this.sse = new SseClient(client);
         }
 
         public async Task<PagedCollectionModel<T>> ListAsync<T>(
@@ -111,14 +109,15 @@ namespace pocketbase_csharp_sdk.Services
 
             try
             {
-                await sse.ConnectAsync(callback);
+                await client.RealTime.SubscribeAsync(subscribeTo, callback);
+                //await sse.ConnectAsync(callback);
 
-                Dictionary<string, object> body = new();
-                body.Add("clientId", sse.Id);
-                body.Add("subscriptions", new List<string> { "tags" });
+                //Dictionary<string, object> body = new();
+                //body.Add("clientId", sse.Id);
+                //body.Add("subscriptions", new List<string> { subscribeTo , "tags" });
 
-                var url = $"api/realtime";
-                await client.SendAsync(url, HttpMethod.Post, body: body);
+                //var url = $"api/realtime";
+                //await client.SendAsync(url, HttpMethod.Post, body: body);
 
                 //var url = client.BuildUrl("/api/realtime").ToString();
                 //var responseStream = await client._httpClient.GetStreamAsync(url);

@@ -15,26 +15,34 @@ namespace pocketbase_csharp_sdk.Sse
         public string? Id { get; private set; }
         public bool IsConnected { get; private set; } = false;
 
+        public Action<SseMessage> Callback { get; private set; }
 
-        public SseClient(PocketBase client)
+        public SseClient(PocketBase client, Action<SseMessage> callback)
         {
             this.client = client;
+            Callback = callback;
         }
         ~SseClient()
         {
             Disconnect();
         }
 
-        public async Task ConnectAsync(Action<SseMessage> callback)
+        public async Task EnsureIsConnectedAsync()
+        {
+            if(!IsConnected) 
+                await ConnectAsync();
+        }
+
+        public async Task ConnectAsync()
         {
             Disconnect();
             tokenSource = new CancellationTokenSource();
             try
             {
-                eventListenerTask = ConnectEventStreamAsync(callback, tokenSource.Token);
+                eventListenerTask = ConnectEventStreamAsync(tokenSource.Token);
 
                 while (!IsConnected)
-                    await Task.Delay(500);
+                    await Task.Delay(250);
             }
             catch { throw; }
         }
@@ -45,18 +53,24 @@ namespace pocketbase_csharp_sdk.Sse
             tokenSource?.Dispose();
             tokenSource = null;
 
-            eventListenerTask?.Dispose();
+            try { eventListenerTask?.Dispose(); }
+            catch { }
             eventListenerTask = null;
+
+            IsConnected = false;
+            Id = null;
         }
 
-        private async Task ConnectEventStreamAsync(Action<SseMessage> callback, CancellationToken token)
+        private async Task ConnectEventStreamAsync(CancellationToken token)
         {
             var httpClient = new HttpClient
             {
                 Timeout = Timeout.InfiniteTimeSpan
             };
+            httpClient.DefaultRequestHeaders.ConnectionClose = false;
             try
             {
+
                 var response = await httpClient.GetAsync(client.BuildUrl(BasePath).ToString(),
                                                          HttpCompletionOption.ResponseHeadersRead,
                                                          token);
@@ -68,7 +82,7 @@ namespace pocketbase_csharp_sdk.Sse
                 if (!isTextEventStream)
                     throw new InvalidOperationException("Invalid resource content type");
 
-                var stream = await response.Content.ReadAsStreamAsync();
+                var stream = await response.Content.ReadAsStreamAsync(token);
                 var buffer = new byte[4096];
                 while (!token.IsCancellationRequested)
                 {
@@ -76,7 +90,7 @@ namespace pocketbase_csharp_sdk.Sse
                     if (readCount > 0)
                     {
                         var data = Encoding.UTF8.GetString(buffer, 0, readCount);
-                        var sseMessage = await SseMessage.FromReceivedMessage(data);
+                        var sseMessage = await SseMessage.FromReceivedMessageAsync(data);
                         if (sseMessage != null)
                         {
                             if (sseMessage.Id != null && sseMessage.Event == "PB_CONNECT")
@@ -84,7 +98,7 @@ namespace pocketbase_csharp_sdk.Sse
                                 Id = sseMessage.Id;
                                 IsConnected = true;
                             }
-                            callback(sseMessage);
+                            Callback(sseMessage);
                         }
                     }
                     await Task.Delay(125, token);
@@ -94,6 +108,7 @@ namespace pocketbase_csharp_sdk.Sse
             {
                 httpClient.Dispose();
                 IsConnected = false;
+                Id = null;
             }
         }
     }

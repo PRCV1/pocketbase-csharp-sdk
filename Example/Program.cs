@@ -11,7 +11,13 @@ PocketBase pocketBase = new PocketBase("https://orm-csharp-test.pockethost.io");
 //var adminUser = await pocketBase.Admin.AuthenticateWithPassword("test@test.de", "0123456789");
 
 //pocketBase.Records.Subscribe("restaurants", "*", cb =>
-pocketBase.Records.Subscribe("tags", "*", cb => 
+pocketBase.Records.Subscribe("tags", "*", cb =>
+{
+    Console.WriteLine("------ New Sse Message: -----");
+    Console.WriteLine(cb.ToString());
+    //Debugger.Break();
+});
+pocketBase.Records.Subscribe("categories", "sywd90gz2ifd7pf", cb =>
 {
     Console.WriteLine("------ New Sse Message: -----");
     Console.WriteLine(cb.ToString());

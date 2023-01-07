@@ -57,7 +57,7 @@ namespace pocketbase_csharp_sdk.Models
         /// </summary>
         /// <param name="receivedMessage"></param>
         /// <returns></returns>
-        public static async Task<SseMessage?> FromReceivedMessage(string? receivedMessage)
+        public static async Task<SseMessage?> FromReceivedMessageAsync(string? receivedMessage)
         {
             if (receivedMessage == null)
                 return null;
