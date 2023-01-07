@@ -101,7 +101,7 @@ namespace pocketbase_csharp_sdk.Services
         }
 
         //TODO REALTIME
-        public async void Subscribe(string sub, string recordId, Action<SseMessage> callback)
+        public async void Subscribe(string sub, string recordId, Func<SseMessage, Task> callback)
         {
             string subscribeTo = recordId != "*"
                     ? $"{sub}/{recordId}"

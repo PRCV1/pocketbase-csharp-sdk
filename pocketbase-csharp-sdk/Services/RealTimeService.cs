@@ -10,29 +10,29 @@ namespace pocketbase_csharp_sdk.Services
         private readonly PocketBase client;
 
         private SseClient? _SseClient = null;
-        private SseClient SseClient => _SseClient ??= new SseClient(client, RealTimeCallBack);
+        private SseClient SseClient => _SseClient ??= new SseClient(client, RealTimeCallBackAsync);
 
-        private Dictionary<string, List<Action<SseMessage>>> Subscriptions = new Dictionary<string, List<Action<SseMessage>>>();
+        private readonly Dictionary<string, List<Func<SseMessage, Task>>> Subscriptions = new();
 
         public RealTimeService(PocketBase client)
         {
             this.client = client;
         }
 
-        private void RealTimeCallBack(SseMessage message)
+        private async Task RealTimeCallBackAsync(SseMessage message)
         {
             var messageEvent = message.Event ?? "";
             if (Subscriptions.ContainsKey(messageEvent))
                 foreach (var callBack in Subscriptions[messageEvent])
-                    callBack(message);
+                    await callBack(message);
         }
 
-        public async Task SubscribeAsync(string subscription, Action<SseMessage> callback)
+        public async Task SubscribeAsync(string subscription, Func<SseMessage, Task> callback)
         {
             if (!Subscriptions.ContainsKey(subscription))
             {
                 // New subscription
-                Subscriptions.Add(subscription, new List<Action<SseMessage>> { callback });
+                Subscriptions.Add(subscription, new List<Func<SseMessage, Task>> { callback });
                 await SubmitSubscriptionsAsync();
             }
             else
@@ -63,7 +63,7 @@ namespace pocketbase_csharp_sdk.Services
                 await SubmitSubscriptionsAsync();
             }
         }
-        public async Task UnsubscribeByTopicAndListener(string topic, Action<SseMessage> listener)
+        public async Task UnsubscribeByTopicAndListener(string topic, Func<SseMessage, Task> listener)
         {
             if (!Subscriptions.ContainsKey(topic))
                 return;

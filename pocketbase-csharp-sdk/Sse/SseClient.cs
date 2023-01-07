@@ -1,6 +1,5 @@
 ﻿using pocketbase_csharp_sdk.Models;
 using System.Text;
-using System;
 
 namespace pocketbase_csharp_sdk.Sse
 {
@@ -15,12 +14,12 @@ namespace pocketbase_csharp_sdk.Sse
         public string? Id { get; private set; }
         public bool IsConnected { get; private set; } = false;
 
-        public Action<SseMessage> Callback { get; private set; }
+        public Func<SseMessage, Task> CallbackAsync { get; private set; }
 
-        public SseClient(PocketBase client, Action<SseMessage> callback)
+        public SseClient(PocketBase client, Func<SseMessage, Task> callbackAsync)
         {
             this.client = client;
-            Callback = callback;
+            CallbackAsync = callbackAsync;
         }
         ~SseClient()
         {
@@ -29,7 +28,7 @@ namespace pocketbase_csharp_sdk.Sse
 
         public async Task EnsureIsConnectedAsync()
         {
-            if(!IsConnected) 
+            if (!IsConnected)
                 await ConnectAsync();
         }
 
@@ -98,7 +97,7 @@ namespace pocketbase_csharp_sdk.Sse
                                 Id = sseMessage.Id;
                                 IsConnected = true;
                             }
-                            Callback(sseMessage);
+                            await CallbackAsync(sseMessage);
                         }
                     }
                     await Task.Delay(125, token);
