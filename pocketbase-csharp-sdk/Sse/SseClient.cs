@@ -68,7 +68,7 @@ namespace pocketbase_csharp_sdk.Sse
                 if (!isTextEventStream)
                     throw new InvalidOperationException("Invalid resource content type");
 
-                var stream = await response.Content.ReadAsStreamAsync();
+                var stream = await response.Content.ReadAsStreamAsync(token);
                 var buffer = new byte[4096];
                 while (!token.IsCancellationRequested)
                 {
