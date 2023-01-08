@@ -19,7 +19,7 @@ namespace pocketbase_csharp_sdk.Services
             this.client = client;
         }
 
-        public virtual async Task<PagedCollectionModel<T>> ListAsync(int page = 1, int perPage = 30, string? filter = null, string? sort = null)
+        public virtual async Task<PagedCollectionModel<T>> ListAsync(int page = 1, int perPage = 30, string? filter = null, string? sort = null, CancellationToken cancellationToken = default)
         {
             var query = new Dictionary<string, object?>()
             {
@@ -29,7 +29,7 @@ namespace pocketbase_csharp_sdk.Services
                 { "sort", sort }
             };
 
-            var response = await client.SendAsync<PagedCollectionModel<T>>(BasePath(), HttpMethod.Get, query: query);
+            var response = await client.SendAsync<PagedCollectionModel<T>>(BasePath(), HttpMethod.Get, query: query, cancellationToken: cancellationToken);
             if (response is null)
             {
                 throw new ClientException(BasePath());
@@ -38,14 +38,14 @@ namespace pocketbase_csharp_sdk.Services
             return response;
         }
 
-        public virtual async Task<IEnumerable<T>> GetFullListAsync(int batch = 100, string? filter = null, string? sort = null)
+        public virtual async Task<IEnumerable<T>> GetFullListAsync(int batch = 100, string? filter = null, string? sort = null, CancellationToken cancellationToken = default)
         {
             List<T> result = new();
             int currentPage = 1;
             PagedCollectionModel<T> lastResponse;
             do
             {
-                lastResponse = await ListAsync(currentPage, perPage: batch, filter: filter, sort: sort);
+                lastResponse = await ListAsync(currentPage, perPage: batch, filter: filter, sort: sort, cancellationToken: cancellationToken);
                 if (lastResponse is not null && lastResponse.Items is not null)
                 {
                     result.AddRange(lastResponse.Items);

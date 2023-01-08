@@ -21,14 +21,14 @@ namespace pocketbase_csharp_sdk.Services
             this.client = client;
         }
 
-        public async Task<LogRequestModel?> GetRequestAsync(string id, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null)
+        public async Task<LogRequestModel?> GetRequestAsync(string id, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default)
         {
             var url = $"{BasePath()}/{HttpUtility.HtmlEncode(id)}";
-            var response = await client.SendAsync<LogRequestModel>(url, HttpMethod.Get, headers: headers, query: query, body: body);
+            var response = await client.SendAsync<LogRequestModel>(url, HttpMethod.Get, headers: headers, query: query, body: body, cancellationToken: cancellationToken);
             return response;
         }
 
-        public async Task<ResultList<LogRequestModel>?> GetRequestsAsync(int page = 1, int perPage = 30, string? filter = null, string? sort = null, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null)
+        public async Task<ResultList<LogRequestModel>?> GetRequestsAsync(int page = 1, int perPage = 30, string? filter = null, string? sort = null, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default)
         {
             query ??= new Dictionary<string, object?>();
             query.Add("page", page);
@@ -36,15 +36,15 @@ namespace pocketbase_csharp_sdk.Services
             query.Add("filter", filter);
             query.Add("sort", sort);
 
-            var response = await client.SendAsync<ResultList<LogRequestModel>>(BasePath(), HttpMethod.Get, headers: headers, query: query, body: body);
+            var response = await client.SendAsync<ResultList<LogRequestModel>>(BasePath(), HttpMethod.Get, headers: headers, query: query, body: body, cancellationToken: cancellationToken);
 
             return response;
         }
 
-        public async Task<IEnumerable<LogRequestStatistic>?> GetRequestsStatisticsAsync(IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null)
+        public async Task<IEnumerable<LogRequestStatistic>?> GetRequestsStatisticsAsync(IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default)
         {
             var url = $"{BasePath()}/stats";
-            var response = await client.SendAsync<IEnumerable<LogRequestStatistic>>(url, HttpMethod.Get, headers: headers, query: query);
+            var response = await client.SendAsync<IEnumerable<LogRequestStatistic>>(url, HttpMethod.Get, headers: headers, query: query, cancellationToken: cancellationToken);
 
             return response;
         }

@@ -58,7 +58,7 @@ namespace pocketbase_csharp_sdk
             return new CollectionAuthService<T>(this, collectionName);
         }
 
-        public async Task SendAsync(string path, HttpMethod method, IDictionary<string, string>? headers = null, IDictionary<string, object?>? query = null, IDictionary<string, object>? body = null, IEnumerable<IFile>? files = null)
+        public async Task SendAsync(string path, HttpMethod method, IDictionary<string, string>? headers = null, IDictionary<string, object?>? query = null, IDictionary<string, object>? body = null, IEnumerable<IFile>? files = null, CancellationToken cancellationToken = default)
         {
             headers ??= new Dictionary<string, string>();
             query ??= new Dictionary<string, object?>();
@@ -76,7 +76,7 @@ namespace pocketbase_csharp_sdk
                     request = BeforeSend.Invoke(this, new RequestEventArgs(url, request));
                 }
 
-                var response = await _httpClient.SendAsync(request);
+                var response = await _httpClient.SendAsync(request, cancellationToken);
 
                 if (AfterSend is not null)
                 {
@@ -84,7 +84,7 @@ namespace pocketbase_csharp_sdk
                 }
 
 #if DEBUG
-                var json = await response.Content.ReadAsStringAsync();
+                var json = await response.Content.ReadAsStringAsync(cancellationToken);
 #endif
 
                 if ((int)response.StatusCode >= 400)
@@ -112,7 +112,7 @@ namespace pocketbase_csharp_sdk
             }
         }
 
-        public async Task<T?> SendAsync<T>(string path, HttpMethod method, IDictionary<string, string>? headers = null, IDictionary<string, object?>? query = null, IDictionary<string, object>? body = null, IEnumerable<IFile>? files = null)
+        public async Task<T?> SendAsync<T>(string path, HttpMethod method, IDictionary<string, string>? headers = null, IDictionary<string, object?>? query = null, IDictionary<string, object>? body = null, IEnumerable<IFile>? files = null, CancellationToken cancellationToken = default)
         {
             headers ??= new Dictionary<string, string>();
             query ??= new Dictionary<string, object?>();
@@ -130,7 +130,7 @@ namespace pocketbase_csharp_sdk
                     request = BeforeSend.Invoke(this, new RequestEventArgs(url, request));
                 }
 
-                var response = await _httpClient.SendAsync(request);
+                var response = await _httpClient.SendAsync(request, cancellationToken);
 
                 if (AfterSend is not null)
                 {
@@ -138,7 +138,7 @@ namespace pocketbase_csharp_sdk
                 }
 
 #if DEBUG
-                var json = await response.Content.ReadAsStringAsync();
+                var json = await response.Content.ReadAsStringAsync(cancellationToken);
 #endif
 
                 if ((int)response.StatusCode >= 400)

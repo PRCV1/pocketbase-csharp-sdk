@@ -11,40 +11,40 @@ namespace pocketbase_csharp_sdk.Services
             this.client = client;
         }
 
-        public async Task<T?> AuthenticateWithPassword(string email, string password, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null)
+        public async Task<T?> AuthenticateWithPasswordAsync(string email, string password, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default)
         {
             body ??= new Dictionary<string, object>();
             body.Add("identity", email);
             body.Add("password", password);
 
             var url = $"{BasePath()}/auth-with-password";
-            var result = await client.SendAsync<T>(url, HttpMethod.Post, headers: headers, body: body, query: query);
+            var result = await client.SendAsync<T>(url, HttpMethod.Post, headers: headers, body: body, query: query, cancellationToken: cancellationToken);
 
             SaveAuthentication(result);
 
             return result;
         }
 
-        public async Task<T?> RefreshAsync(IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null)
+        public async Task<T?> RefreshAsync(IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default)
         {
             var url = $"{BasePath()}/auth-refresh";
-            var result = await client.SendAsync<T>(url, HttpMethod.Post, headers: headers, query: query, body: body);
+            var result = await client.SendAsync<T>(url, HttpMethod.Post, headers: headers, query: query, body: body, cancellationToken: cancellationToken);
 
             SaveAuthentication(result);
 
             return result;
         }
 
-        public async Task RequestPasswordResetAsync(string email, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null)
+        public async Task RequestPasswordResetAsync(string email, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default)
         {
             body ??= new Dictionary<string, object>();
             body.Add("email", email);
 
             var url = $"{BasePath()}/request-password-reset";
-            await client.SendAsync(url, HttpMethod.Post, headers: headers, query: query, body: body);
+            await client.SendAsync(url, HttpMethod.Post, headers: headers, query: query, body: body, cancellationToken: cancellationToken);
         }
 
-        public async Task<T?> ConfirmPasswordResetAsync(string passwordResetToken, string password, string passwordConfirm, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null)
+        public async Task<T?> ConfirmPasswordResetAsync(string passwordResetToken, string password, string passwordConfirm, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default)
         {
             body ??= new Dictionary<string, object>();
             body.Add("token", passwordResetToken);
@@ -52,7 +52,7 @@ namespace pocketbase_csharp_sdk.Services
             body.Add("passwordConfirm", passwordConfirm);
 
             var url = $"{BasePath()}/confirm-password-reset";
-            var result = await client.SendAsync<T>(url, HttpMethod.Post, headers: headers, query: query, body: body);
+            var result = await client.SendAsync<T>(url, HttpMethod.Post, headers: headers, query: query, body: body, cancellationToken: cancellationToken);
 
             SaveAuthentication(result);
 

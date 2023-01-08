@@ -18,26 +18,26 @@ namespace pocketbase_csharp_sdk.Services
             this.client = client;
         }
 
-        public async Task ImportAsync(IEnumerable<CollectionModel> collections,bool deleteMissing = false, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null)
+        public async Task ImportAsync(IEnumerable<CollectionModel> collections,bool deleteMissing = false, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default)
         {
             body ??= new Dictionary<string, object>();
             body.Add("collections", collections);
             body.Add("deleteMissing", deleteMissing);
 
             var url = $"{BasePath()}/import";
-            await client.SendAsync(url, HttpMethod.Put, headers: headers, query: query, body: body);
+            await client.SendAsync(url, HttpMethod.Put, headers: headers, query: query, body: body, cancellationToken: cancellationToken);
         }
 
-        public Task<CollectionModel?> GetByNameAsync(string name)
+        public Task<CollectionModel?> GetByNameAsync(string name, CancellationToken cancellationToken = default)
         {
             var url = $"{BasePath()}/{UrlEncode(name)}";
-            return client.SendAsync<CollectionModel>(url, HttpMethod.Get);
+            return client.SendAsync<CollectionModel>(url, HttpMethod.Get, cancellationToken: cancellationToken);
         }
 
-        public Task DeleteAsync(string name)
+        public Task DeleteAsync(string name, CancellationToken cancellationToken = default)
         {
             var url = $"{BasePath()}/{UrlEncode(name)}";
-            return client.SendAsync(url, HttpMethod.Delete);
+            return client.SendAsync(url, HttpMethod.Delete, cancellationToken: cancellationToken);
         }
 
     }

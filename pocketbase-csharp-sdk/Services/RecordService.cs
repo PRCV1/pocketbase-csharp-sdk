@@ -31,7 +31,7 @@ namespace pocketbase_csharp_sdk.Services
             return client.BuildUrl(url, query);
         }
 
-        public Task<Stream> DownloadFileAsync(string sub, string recordId, string fileName, ThumbFormat? thumbFormat = null)
+        public Task<Stream> DownloadFileAsync(string sub, string recordId, string fileName, ThumbFormat? thumbFormat = null, CancellationToken cancellationToken = default)
         {
             //TODO find out how the specify the actual resolution to resize
             var query = new Dictionary<string, object?>() 
@@ -40,7 +40,7 @@ namespace pocketbase_csharp_sdk.Services
             };
             
             var fileUrl = GetFileUrl(sub, recordId, fileName, query);
-            return client._httpClient.GetStreamAsync(fileUrl);
+            return client._httpClient.GetStreamAsync(fileUrl, cancellationToken);
         }
         
     }

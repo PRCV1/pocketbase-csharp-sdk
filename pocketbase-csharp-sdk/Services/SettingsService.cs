@@ -19,32 +19,30 @@ namespace pocketbase_csharp_sdk.Services
             this.client = client;
         }
 
-        public async Task<IDictionary<string, object>?> GetAllAsync(IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null)
+        public Task<IDictionary<string, object>?> GetAllAsync(IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default)
         {
-            var response = await client.SendAsync<IDictionary<string, object>>(BasePath(), HttpMethod.Get, headers: headers, query: query);
-            return response;
+            return client.SendAsync<IDictionary<string, object>>(BasePath(), HttpMethod.Get, headers: headers, query: query, cancellationToken: cancellationToken);
         }
 
-        public async Task<IDictionary<string, object>?> UpdateAsync(IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null)
+        public Task<IDictionary<string, object>?> UpdateAsync(IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default)
         {
-            var response = await client.SendAsync<IDictionary<string, object>>(BasePath(), HttpMethod.Patch, headers: headers, query: query, body: body);
-            return response;
+            return client.SendAsync<IDictionary<string, object>>(BasePath(), HttpMethod.Patch, headers: headers, query: query, body: body, cancellationToken: cancellationToken);
         }
 
-        public async Task TestS3Async(IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null)
+        public Task TestS3Async(IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default)
         {
             var url = $"{BasePath()}/test/s3";
-            await client.SendAsync(url, HttpMethod.Post, headers: headers, body: body, query: query);
+            return client.SendAsync(url, HttpMethod.Post, headers: headers, body: body, query: query, cancellationToken: cancellationToken);
         }
 
-        public async Task TestEmailAsync(string toEmail, string template, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null)
+        public Task TestEmailAsync(string toEmail, string template, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default)
         {
             query ??= new Dictionary<string, object?>();
             query.Add("email", toEmail);
             query.Add("template", template);
 
             var url = $"{BasePath()}/test/email";
-            await client.SendAsync(url, HttpMethod.Post, headers: headers, body: body, query: query);
+            return client.SendAsync(url, HttpMethod.Post, headers: headers, body: body, query: query, cancellationToken: cancellationToken);
         }
 
     }

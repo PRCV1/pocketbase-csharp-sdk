@@ -30,7 +30,8 @@ namespace pocketbase_csharp_sdk.Services
             string? sort = null,
             string? filter = null,
             string? expand = null,
-            IDictionary<string, string>? headers = null) where T : BaseModel
+            IDictionary<string, string>? headers = null, 
+            CancellationToken cancellationToken = default) where T : BaseModel
         {
             var query = new Dictionary<string, object?>()
             {
@@ -45,7 +46,8 @@ namespace pocketbase_csharp_sdk.Services
                 url,
                 HttpMethod.Get,
                 headers: headers,
-                query: query);
+                query: query,
+                cancellationToken: cancellationToken);
             if (pagedResponse is null) throw new ClientException(url);
 
             return pagedResponse;
@@ -56,7 +58,8 @@ namespace pocketbase_csharp_sdk.Services
             T item,
             string? expand = null,
             IDictionary<string, string>? headers = null,
-            IEnumerable<IFile>? files = null) where T : BaseModel
+            IEnumerable<IFile>? files = null,
+            CancellationToken cancellationToken = default) where T : BaseModel
         {
             var query = new Dictionary<string, object?>()
             {
@@ -70,7 +73,8 @@ namespace pocketbase_csharp_sdk.Services
                 body: body,
                 headers: headers,
                 query: query,
-                files: files);
+                files: files,
+                cancellationToken: cancellationToken);
             if (response is null) throw new ClientException(url);
 
             return response;
@@ -81,7 +85,8 @@ namespace pocketbase_csharp_sdk.Services
             string id,
             T item,
             string? expand = null,
-            IDictionary<string, string>? headers = null) where T : BaseModel
+            IDictionary<string, string>? headers = null, 
+            CancellationToken cancellationToken = default) where T : BaseModel
         {
             var query = new Dictionary<string, object?>()
             {
@@ -94,7 +99,8 @@ namespace pocketbase_csharp_sdk.Services
                 HttpMethod.Patch,
                 body: body,
                 headers: headers,
-                query: query);
+                query: query, 
+                cancellationToken: cancellationToken);
             if (response is null) throw new ClientException(url);
 
             return response;
@@ -155,7 +161,7 @@ namespace pocketbase_csharp_sdk.Services
         }
 
 
-        public async Task UploadFileAsync(string sub, string field, string fileName, Stream stream)
+        public async Task UploadFileAsync(string sub, string field, string fileName, Stream stream, CancellationToken cancellationToken = default)
         {
             var file = new StreamFile()
             {
@@ -163,7 +169,7 @@ namespace pocketbase_csharp_sdk.Services
                 Stream = stream
             };
             var url = this.BasePath(sub);
-            await client.SendAsync(url, HttpMethod.Post, files: new[] { file });
+            await client.SendAsync(url, HttpMethod.Post, files: new[] { file }, cancellationToken: cancellationToken);
         }
 
     }
