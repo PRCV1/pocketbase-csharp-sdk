@@ -165,6 +165,7 @@ namespace pocketbase_csharp_sdk.Services
         {
             var file = new StreamFile()
             {
+                FileName = fileName,
                 FieldName = field,
                 Stream = stream
             };
