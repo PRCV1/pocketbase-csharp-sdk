@@ -42,17 +42,19 @@ namespace pocketbase_csharp_sdk.Services
                     subcriptionCallbacks.Add(callback);
             }
         }
-        public async Task UnsubscribeAsync(string? topic = null)
+
+        public Task UnsubscribeAsync(string? topic = null)
         {
             if (string.IsNullOrEmpty(topic))
                 Subscriptions.Clear();
             else if (Subscriptions.ContainsKey(topic))
                 Subscriptions.Remove(topic);
             else
-                return;
-            await SubmitSubscriptionsAsync();
+                return Task.CompletedTask;
+            return SubmitSubscriptionsAsync();
         }
-        public async Task UnsubscribeByPrefix(string prefix)
+
+        public async Task UnsubscribeByPrefixAsync(string prefix)
         {
             var subscriptionsToRemove = Subscriptions.Keys.Where(k => k.StartsWith(prefix)).ToList();
             if (subscriptionsToRemove.Any())
@@ -63,7 +65,8 @@ namespace pocketbase_csharp_sdk.Services
                 await SubmitSubscriptionsAsync();
             }
         }
-        public async Task UnsubscribeByTopicAndListener(string topic, Func<SseMessage, Task> listener)
+
+        public async Task UnsubscribeByTopicAndListenerAsync(string topic, Func<SseMessage, Task> listener)
         {
             if (!Subscriptions.ContainsKey(topic))
                 return;
@@ -72,6 +75,7 @@ namespace pocketbase_csharp_sdk.Services
             if (listeners.Remove(listener) && !listeners.Any())
                 await UnsubscribeAsync(topic);
         }
+
         private async Task SubmitSubscriptionsAsync()
         {
             if (!Subscriptions.Any())

@@ -1,16 +1,5 @@
 ﻿using pocketbase_csharp_sdk.Helper.Convert;
-using pocketbase_csharp_sdk.Models;
-using pocketbase_csharp_sdk.Models.Files;
-using pocketbase_csharp_sdk.Sse;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Net.WebSockets;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using System.Web;
 
 namespace pocketbase_csharp_sdk.Models
 {

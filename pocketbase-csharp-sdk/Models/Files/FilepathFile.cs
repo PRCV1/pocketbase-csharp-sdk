@@ -6,6 +6,10 @@ using System.Threading.Tasks;
 
 namespace pocketbase_csharp_sdk.Models.Files
 {
+
+    /// <summary>
+    /// simple class for uploading files to PocketBase, accepting a path to a file
+    /// </summary>
     public class FilepathFile : BaseFile, IFile
     {
         public string? FilePath { get; set; }
@@ -27,5 +31,16 @@ namespace pocketbase_csharp_sdk.Models.Files
                 return null;
             }
         }
+
+        public FilepathFile()
+        {
+            
+        }
+
+        public FilepathFile(string? filePath)
+        {
+            this.FilePath = filePath;
+        }
+
     }
 }

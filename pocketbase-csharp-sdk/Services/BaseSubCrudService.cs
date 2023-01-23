@@ -106,7 +106,12 @@ namespace pocketbase_csharp_sdk.Services
             return response;
         }
 
-        //TODO REALTIME
+        /// <summary>
+        /// subscribe to the specified topic for realtime updates
+        /// </summary>
+        /// <param name="sub">the topic to subscribe to</param>
+        /// <param name="recordId">the id of the specific record or * for the whole collection</param>
+        /// <param name="callback">callback, that is invoked every time something changes</param>
         public async void Subscribe(string sub, string recordId, Func<SseMessage, Task> callback)
         {
             string subscribeTo = recordId != "*"
@@ -116,48 +121,42 @@ namespace pocketbase_csharp_sdk.Services
             try
             {
                 await client.RealTime.SubscribeAsync(subscribeTo, callback);
-                //await sse.ConnectAsync(callback);
-
-                //Dictionary<string, object> body = new();
-                //body.Add("clientId", sse.Id);
-                //body.Add("subscriptions", new List<string> { subscribeTo , "tags" });
-
-                //var url = $"api/realtime";
-                //await client.SendAsync(url, HttpMethod.Post, body: body);
-
-                //var url = client.BuildUrl("/api/realtime").ToString();
-                //var responseStream = await client._httpClient.GetStreamAsync(url);
-
-                //var buffer = new byte[4096];
-                //while (true)
-                //{
-                //    var readCount = await responseStream.ReadAsync(buffer, 0, buffer.Length);
-                //    if (readCount > 0)
-                //    {
-                //        var data = Encoding.UTF8.GetString(buffer, 0, readCount);
-
-                //    }
-                //    await Task.Delay(125);
-                //}
-
-                //using StreamReader reader = new StreamReader(response);
-                //SseMessage message = new SseMessage();
-                //while (!reader.EndOfStream)
-                //{
-                //    var line = await reader.ReadLineAsync();
-
-                //    if (ProcessMessage(line, message))
-                //    {
-                //        callback(message);
-                //        message = new SseMessage();
-                //    }
-                //}
             }
             catch (Exception ex)
             {
 
                 throw;
             }
+        }
+
+        /// <summary>
+        /// unsubscribe all listeners from the specified topic
+        /// </summary>
+        /// <param name="topic">the topic to unsubscribe from</param>
+        public Task UnsubscribeAsync(string? topic = null)
+        {
+            return client.RealTime.UnsubscribeAsync(topic);
+        }
+
+        /// <summary>
+        /// unsubscribe all listeners from the specified prefix
+        /// </summary>
+        /// <param name="prefix">the prefix to unsubscribe from</param>
+        /// <returns></returns>
+        public Task UnsubscribeByPrefixAsync(string prefix)
+        {
+            return client.RealTime.UnsubscribeByPrefixAsync(prefix);
+        }
+
+        /// <summary>
+        /// unsubscribe the specified listener from the specified topic
+        /// </summary>
+        /// <param name="topic">the topic to unsubscribe from</param>
+        /// <param name="listener">the listener to remove</param>
+        /// <returns></returns>
+        public Task UnsubscribeByTopicAndListenerAsync(string topic, Func<SseMessage, Task> listener)
+        {
+            return client.RealTime.UnsubscribeByTopicAndListenerAsync(topic, listener);
         }
 
 

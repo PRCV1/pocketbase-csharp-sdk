@@ -21,8 +21,7 @@ namespace pocketbase_csharp_sdk
 
         public override string ToString()
         {
-            //TODO MOdel
-            return $"token: {Token}{Environment.NewLine}model: MODEL TODO";
+            return $"token: {Token}{Environment.NewLine}model: {Model}";
         }
 
     }

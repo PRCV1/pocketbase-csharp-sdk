@@ -1,10 +1,6 @@
 ﻿using pocketbase_csharp_sdk.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Text.Json;
 using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 
 namespace pocketbase_csharp_sdk.Models
 {
@@ -26,5 +22,11 @@ namespace pocketbase_csharp_sdk.Models
 
         [JsonPropertyName("collectionName")]
         public virtual string? CollectionName { get; set; }
+
+        public override string ToString()
+        {
+            return JsonSerializer.Serialize(this);
+        }
+
     }
 }
