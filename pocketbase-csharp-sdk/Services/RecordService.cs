@@ -2,6 +2,7 @@
 using pocketbase_csharp_sdk.Models;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -31,16 +32,17 @@ namespace pocketbase_csharp_sdk.Services
             return client.BuildUrl(url, query);
         }
 
-        public Task<Stream> DownloadFileAsync(string sub, string recordId, string fileName, ThumbFormat? thumbFormat = null, CancellationToken cancellationToken = default)
+        public Task<Stream> DownloadFileAsync(string collectionId, string recordId, string fileName, ThumbFormat? thumbFormat = null, CancellationToken cancellationToken = default)
         {
+            var url = $"api/files/{UrlEncode(collectionId)}/{UrlEncode(recordId)}/{fileName}";
+
             //TODO find out how the specify the actual resolution to resize
             var query = new Dictionary<string, object?>() 
             {
                 { "thumb", ThumbFormatHelper.GetNameForQuery(thumbFormat) }
             };
             
-            var fileUrl = GetFileUrl(sub, recordId, fileName, query);
-            return client._httpClient.GetStreamAsync(fileUrl, cancellationToken);
+            return client.GetStreamAsync(url, query, cancellationToken);
         }
         
     }

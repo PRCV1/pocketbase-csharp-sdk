@@ -1,4 +1,5 @@
-﻿using pocketbase_csharp_sdk.Event;
+﻿using pocketbase_csharp_sdk.Enum;
+using pocketbase_csharp_sdk.Event;
 using pocketbase_csharp_sdk.Json;
 using pocketbase_csharp_sdk.Models;
 using pocketbase_csharp_sdk.Models.Files;
@@ -150,6 +151,33 @@ namespace pocketbase_csharp_sdk
                 }
 
                 return await response.Content.ReadFromJsonAsync<T>();
+            }
+            catch (Exception ex)
+            {
+                if (ex is ClientException)
+                {
+                    throw;
+                }
+                else if (ex is HttpRequestException)
+                {
+                    throw new ClientException(url: url.ToString(), originalError: ex, isAbort: true);
+                }
+                else
+                {
+                    throw new ClientException(url: url.ToString(), originalError: ex);
+                }
+            }
+        }
+
+        public Task<Stream> GetStreamAsync(string path, IDictionary<string, object?>? query = null, CancellationToken cancellationToken = default)
+        {
+            query ??= new Dictionary<string, object?>();
+            
+            Uri url = BuildUrl(path, query);
+
+            try
+            {
+                return _httpClient.GetStreamAsync(url, cancellationToken);
             }
             catch (Exception ex)
             {
