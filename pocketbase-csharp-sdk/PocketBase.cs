@@ -169,7 +169,7 @@ namespace pocketbase_csharp_sdk
             }
         }
 
-        public async Task<Stream> GetStreamAsync(string path, IDictionary<string, object?>? query = null, CancellationToken cancellationToken = default)
+        public Task<Stream> GetStreamAsync(string path, IDictionary<string, object?>? query = null, CancellationToken cancellationToken = default)
         {
             query ??= new Dictionary<string, object?>();
             
@@ -177,7 +177,7 @@ namespace pocketbase_csharp_sdk
 
             try
             {
-                return await _httpClient.GetStreamAsync(url, cancellationToken);
+                return _httpClient.GetStreamAsync(url, cancellationToken);
             }
             catch (Exception ex)
             {

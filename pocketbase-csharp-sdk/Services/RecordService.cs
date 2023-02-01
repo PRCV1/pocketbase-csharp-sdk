@@ -32,7 +32,7 @@ namespace pocketbase_csharp_sdk.Services
             return client.BuildUrl(url, query);
         }
 
-        public async Task<Stream> DownloadFileAsync(string collectionId, string recordId, string fileName, ThumbFormat? thumbFormat = null, CancellationToken cancellationToken = default)
+        public Task<Stream> DownloadFileAsync(string collectionId, string recordId, string fileName, ThumbFormat? thumbFormat = null, CancellationToken cancellationToken = default)
         {
             var url = $"api/files/{UrlEncode(collectionId)}/{UrlEncode(recordId)}/{fileName}";
 
@@ -42,7 +42,7 @@ namespace pocketbase_csharp_sdk.Services
                 { "thumb", ThumbFormatHelper.GetNameForQuery(thumbFormat) }
             };
             
-            return await client.GetStreamAsync(url, query, cancellationToken);
+            return client.GetStreamAsync(url, query, cancellationToken);
         }
         
     }
