@@ -12,19 +12,19 @@ namespace pocketbase_csharp_sdk.Services
         }
 
         /// <summary>
-        /// authenticates a user with the API using their email and password.
+        /// authenticates a user with the API using their email/username and password.
         /// </summary>
-        /// <param name="email">The email of the user to authenticate.</param>
+        /// <param name="usernameOrEmail">The email/username of the user to authenticate.</param>
         /// <param name="password">The password of the user to authenticate.</param>
         /// <param name="body">The request body to send to the API. Default is null.</param>
         /// <param name="query">The query parameters to send to the API. Default is null.</param>
         /// <param name="headers">The headers to send to the API. Default is null.</param>
         /// <param name="cancellationToken">A cancellation token to cancel the operation. Default is the default cancellation token.</param>
         /// <returns>An object of type T containing the authenticated user's information.</returns>
-        public async Task<T?> AuthenticateWithPasswordAsync(string email, string password, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default)
+        public async Task<T?> AuthenticateWithPasswordAsync(string usernameOrEmail, string password, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default)
         {
-            body ??= new Dictionary<string, object>();
-            body.Add("identity", email);
+            var body = new Dictionary<string, object>();
+            body.Add("identity", usernameOrEmail);
             body.Add("password", password);
 
             var url = $"{BasePath()}/auth-with-password";
