@@ -7,6 +7,7 @@ using pocketbase_csharp_sdk.Services;
 using System;
 using System.Collections;
 using System.Collections.Specialized;
+using System.IO;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Net.Mime;
@@ -112,6 +113,59 @@ namespace pocketbase_csharp_sdk
                 }
             }
         }
+        public void Send(string path, HttpMethod method, IDictionary<string, string>? headers = null, IDictionary<string, object?>? query = null, IDictionary<string, object>? body = null, IEnumerable<IFile>? files = null, CancellationToken cancellationToken = default)
+        {
+            headers ??= new Dictionary<string, string>();
+            query ??= new Dictionary<string, object?>();
+            body ??= new Dictionary<string, object>();
+            files ??= new List<IFile>();
+
+            Uri url = BuildUrl(path, query);
+
+            HttpRequestMessage request = CreateRequest(url, method, headers: headers, query: query, body: body, files: files);
+
+            try
+            {
+                if (BeforeSend is not null)
+                {
+                    request = BeforeSend.Invoke(this, new RequestEventArgs(url, request));
+                }
+
+                var response = _httpClient.Send(request, cancellationToken);
+
+                if (AfterSend is not null)
+                {
+                    AfterSend.Invoke(this, new ResponseEventArgs(url, response));
+                }
+
+#if DEBUG
+                var json = response.Content.ReadAsStringAsync(cancellationToken).Result;
+#endif
+
+                if ((int)response.StatusCode >= 400)
+                {
+                    //TODO
+                    //var dic = GetResponseAsDictionary(responseData);
+                    //throw new ClientException(url.ToString(), statusCode: (int)response.StatusCode, response: dic);
+                    throw new ClientException(url.ToString(), statusCode: (int)response.StatusCode);
+                }
+            }
+            catch (Exception ex)
+            {
+                if (ex is ClientException)
+                {
+                    throw;
+                }
+                else if (ex is HttpRequestException)
+                {
+                    throw new ClientException(url: url.ToString(), originalError: ex, isAbort: true);
+                }
+                else
+                {
+                    throw new ClientException(url: url.ToString(), originalError: ex);
+                }
+            }
+        }
 
         public async Task<T?> SendAsync<T>(string path, HttpMethod method, IDictionary<string, string>? headers = null, IDictionary<string, object?>? query = null, IDictionary<string, object>? body = null, IEnumerable<IFile>? files = null, CancellationToken cancellationToken = default)
         {
@@ -151,6 +205,61 @@ namespace pocketbase_csharp_sdk
                 }
 
                 return await response.Content.ReadFromJsonAsync<T>();
+            }
+            catch (Exception ex)
+            {
+                if (ex is ClientException)
+                {
+                    throw;
+                }
+                else if (ex is HttpRequestException)
+                {
+                    throw new ClientException(url: url.ToString(), originalError: ex, isAbort: true);
+                }
+                else
+                {
+                    throw new ClientException(url: url.ToString(), originalError: ex);
+                }
+            }
+        }
+        public T? Send<T>(string path, HttpMethod method, IDictionary<string, string>? headers = null, IDictionary<string, object?>? query = null, IDictionary<string, object>? body = null, IEnumerable<IFile>? files = null, CancellationToken cancellationToken = default)
+        {
+            headers ??= new Dictionary<string, string>();
+            query ??= new Dictionary<string, object?>();
+            body ??= new Dictionary<string, object>();
+            files ??= new List<IFile>();
+
+            Uri url = BuildUrl(path, query);
+
+            HttpRequestMessage request = CreateRequest(url, method, headers: headers, query: query, body: body, files: files);
+
+            try
+            {
+                if (BeforeSend is not null)
+                {
+                    request = BeforeSend.Invoke(this, new RequestEventArgs(url, request));
+                }
+
+                var response = _httpClient.Send(request, cancellationToken);
+
+                if (AfterSend is not null)
+                {
+                    AfterSend.Invoke(this, new ResponseEventArgs(url, response));
+                }
+
+#if DEBUG
+                var json = response.Content.ReadAsStringAsync(cancellationToken).Result;
+#endif
+
+                if ((int)response.StatusCode >= 400)
+                {
+                    //TODO
+                    //var dic = GetResponseAsDictionary(responseData);
+                    //throw new ClientException(url.ToString(), statusCode: (int)response.StatusCode, response: dic);
+                    throw new ClientException(url.ToString(), statusCode: (int)response.StatusCode);
+                }
+                using (var stream = response.Content.ReadAsStream())
+                    return JsonSerializer.Deserialize<T>(stream, new JsonSerializerOptions(JsonSerializerDefaults.Web));
             }
             catch (Exception ex)
             {
