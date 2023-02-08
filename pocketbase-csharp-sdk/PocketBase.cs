@@ -19,11 +19,18 @@ namespace pocketbase_csharp_sdk
 {
     public class PocketBase
     {
+        #region Private Fields
+        private readonly JsonSerializerOptions jsonSerializerOptions = new JsonSerializerOptions(JsonSerializerDefaults.Web);
+        #endregion
+
+        #region Events
         public delegate HttpRequestMessage BeforeSendEventHandler(object sender, RequestEventArgs e);
         public event BeforeSendEventHandler? BeforeSend;
 
         public delegate void AfterSendEventHandler(object sender, ResponseEventArgs e);
         public event AfterSendEventHandler? AfterSend;
+        #endregion
+
 
         public AuthStore AuthStore { private set; get; }
         public AdminService Admin { private set; get; }
@@ -113,6 +120,7 @@ namespace pocketbase_csharp_sdk
                 }
             }
         }
+
         public void Send(string path, HttpMethod method, IDictionary<string, string>? headers = null, IDictionary<string, object?>? query = null, IDictionary<string, object>? body = null, IEnumerable<IFile>? files = null, CancellationToken cancellationToken = default)
         {
             headers ??= new Dictionary<string, string>();
@@ -137,10 +145,6 @@ namespace pocketbase_csharp_sdk
                 {
                     AfterSend.Invoke(this, new ResponseEventArgs(url, response));
                 }
-
-#if DEBUG
-                var json = response.Content.ReadAsStringAsync(cancellationToken).Result;
-#endif
 
                 if ((int)response.StatusCode >= 400)
                 {
@@ -204,7 +208,7 @@ namespace pocketbase_csharp_sdk
                     throw new ClientException(url.ToString(), statusCode: (int)response.StatusCode);
                 }
 
-                return await response.Content.ReadFromJsonAsync<T>();
+                return await response.Content.ReadFromJsonAsync<T>(jsonSerializerOptions, cancellationToken);
             }
             catch (Exception ex)
             {
@@ -247,10 +251,6 @@ namespace pocketbase_csharp_sdk
                     AfterSend.Invoke(this, new ResponseEventArgs(url, response));
                 }
 
-#if DEBUG
-                var json = response.Content.ReadAsStringAsync(cancellationToken).Result;
-#endif
-
                 if ((int)response.StatusCode >= 400)
                 {
                     //TODO
@@ -259,7 +259,7 @@ namespace pocketbase_csharp_sdk
                     throw new ClientException(url.ToString(), statusCode: (int)response.StatusCode);
                 }
                 using (var stream = response.Content.ReadAsStream())
-                    return JsonSerializer.Deserialize<T>(stream, new JsonSerializerOptions(JsonSerializerDefaults.Web));
+                    return JsonSerializer.Deserialize<T>(stream, jsonSerializerOptions);
             }
             catch (Exception ex)
             {
@@ -281,7 +281,7 @@ namespace pocketbase_csharp_sdk
         public Task<Stream> GetStreamAsync(string path, IDictionary<string, object?>? query = null, CancellationToken cancellationToken = default)
         {
             query ??= new Dictionary<string, object?>();
-            
+
             Uri url = BuildUrl(path, query);
 
             try
@@ -468,7 +468,7 @@ namespace pocketbase_csharp_sdk
                 form.Add(fileContent, file.FieldName, file.FileName);
             }
 
-            
+
             if (body is not null && body.Count > 0)
             {
                 Dictionary<string, string> additionalBody = new Dictionary<string, string>();
