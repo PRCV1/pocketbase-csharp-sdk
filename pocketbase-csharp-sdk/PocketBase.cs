@@ -40,6 +40,7 @@ namespace pocketbase_csharp_sdk
         public CollectionService Collections { private set; get; }
         public RecordService Records { private set; get; }
         public RealTimeService RealTime { private set; get; }
+        public HealthService Health { private set; get; }
 
         private readonly string _baseUrl;
         private readonly string _language;
@@ -59,6 +60,7 @@ namespace pocketbase_csharp_sdk
             Collections = new CollectionService(this);
             Records = new RecordService(this);
             RealTime = new RealTimeService(this);
+            Health = new HealthService(this);
         }
 
         public CollectionAuthService<T> AuthCollection<T>(string collectionName)
