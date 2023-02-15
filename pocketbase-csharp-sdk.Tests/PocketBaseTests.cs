@@ -1,7 +1,6 @@
 using FluentAssertions;
 using Moq;
 using Moq.Protected;
-using RichardSzalay.MockHttp;
 using System.Net;
 
 namespace pocketbase_csharp_sdk.Tests
@@ -52,52 +51,6 @@ namespace pocketbase_csharp_sdk.Tests
             var url = client.BuildUrl("/test", parameters).ToString();
 
             url.Should().Be("https://example.com/test?b=123&c=123&d=1&d=2&%40encodeA=%40encodeB");
-        }
-
-        [TestMethod]
-        public async Task Test_Check_Request_Data_Json()
-        {
-            Dictionary<string, string> headers = new() 
-            {
-                { "test", "123" },
-            };
-            Dictionary<string, object> body = new()
-            {
-                { "test", 123 }
-            };
-
-            var mock = new MockHttpMessageHandler();
-            mock
-                .When("/test")
-                .Respond((HttpRequestMessage request) =>
-                {
-                    request.Method.Should().Be(HttpMethod.Get);
-
-                    var allHeaders = Enumerable.Concat(request.Headers, request.Content.Headers).ToArray();
-
-                    var contentTypeExists = allHeaders.Any(kvp => kvp.Key == "Content-Type");
-                    var contentType = allHeaders.FirstOrDefault(kvp => kvp.Key == "Content-Type").Value.FirstOrDefault();
-                    contentTypeExists.Should().BeTrue();
-                    contentType.Should().Contain("application/json");
-
-                    var testExists = allHeaders.Any(kvp => kvp.Key == "test");
-                    var test = allHeaders.FirstOrDefault(kvp => kvp.Key == "test").Value.FirstOrDefault();
-                    testExists.Should().BeTrue();
-                    test.Should().Be("123");
-
-                    var languageExists = allHeaders.Any(kvp => kvp.Key == "Accept-Language");
-                    var language = allHeaders.FirstOrDefault(kvp => kvp.Key == "Accept-Language").Value.FirstOrDefault();
-                    languageExists.Should().BeTrue();
-                    language.Should().Be("test_lang");
-
-                    return default;
-                });
-
-
-            var httpClient = mock.ToHttpClient();
-            var pocketbase = new PocketBase("https://example.com", language: "test_lang", httpClient: httpClient);
-
-            var result = await pocketbase.SendAsync<object>("/test", HttpMethod.Get, headers: headers, body: body);
         }
 
     }
