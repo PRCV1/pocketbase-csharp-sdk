@@ -1,34 +1,15 @@
-﻿// See https://aka.ms/new-console-template for more information
+using Example;
+using Microsoft.AspNetCore.Components.Web;
+using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using pocketbase_csharp_sdk;
-using System.Diagnostics;
 
-Console.WriteLine("Hello, World!");
+var builder = WebAssemblyHostBuilder.CreateDefault(args);
+builder.RootComponents.Add<App>("#app");
+builder.RootComponents.Add<HeadOutlet>("head::after");
 
-PocketBase pocketBase = new PocketBase("https://orm-csharp-test.pockethost.io");//"http://127.0.0.1:8090");
-//var user2 = await pocketBase1.AuthCollection<Users2>("users2").AuthenticateWithPassword("iluvadev@gmail.com", "123456789");
-
-//PocketBase pocketBase = new PocketBase("http://127.0.0.1:8090");
-//var adminUser = await pocketBase.Admin.AuthenticateWithPassword("test@test.de", "0123456789");
-
-//pocketBase.Records.Subscribe("restaurants", "*", cb =>
-pocketBase.Records.Subscribe("tags", "*", async cb =>
+builder.Services.AddScoped<PocketBase>(sp =>
 {
-    await Task.Run(() =>
-    {
-        Console.WriteLine("------ New Sse Message: -----");
-        Console.WriteLine(cb.ToString());
-    });
-    //Debugger.Break();
-
-});
-pocketBase.Records.Subscribe("categories", "sywd90gz2ifd7pf", async cb =>
-{
-    await Task.Run(() =>
-    {
-        Console.WriteLine("------ New Sse Message: -----");
-        Console.WriteLine(cb.ToString());
-    });
-    //Debugger.Break();
+    return new PocketBase(builder.HostEnvironment.BaseAddress);
 });
 
-Console.ReadKey();
+await builder.Build().RunAsync();
