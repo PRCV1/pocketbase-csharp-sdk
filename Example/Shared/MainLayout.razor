@@ -1,23 +1,18 @@
 ﻿@inherits LayoutComponentBase
 
-<nav class="navbar navbar-expand-lg bg-body-tertiary">
-    <div class="container">
-        <a class="navbar-brand" href="#">ToDo-Example</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                <li class="nav-item">
-                    <a class="nav-link active" aria-current="page" href="#">Home</a>
-                </li>
-            </ul>
-            <form class="d-flex" role="search">
-                <button class="btn btn-outline-success" type="submit">Login</button>
-            </form>
-        </div>
-    </div>
-</nav>
-<div class="container">
-    @Body
-</div>
+<MudLayout>
+    <MudAppBar Elevation="1">
+        <MudText Typo="Typo.h5" Class="ml-3">Example-Todo-App</MudText>
+        <MudSpacer />
+        <MudIconButton Icon="@Icons.Material.Filled.AccountBox" Href="/login" />
+    </MudAppBar>
+    <MudMainContent>
+        <MudContainer Fixed="false" Class="mt-5">
+            @Body
+        </MudContainer>
+    </MudMainContent>
+</MudLayout>
+
+<MudThemeProvider @ref="themeProvider" @bind-IsDarkMode="UseDarkmode" />
+<MudDialogProvider />
+<MudSnackbarProvider />

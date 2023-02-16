@@ -1,0 +1,17 @@
+﻿@page "/login"
+
+<MudCard>
+    <MudCardHeader>
+        <CardHeaderContent>
+            <MudText Typo="Typo.h6">Login</MudText>
+            <MudText Typo="Typo.body1">Username: demo Password: demo1234</MudText>
+        </CardHeaderContent>
+    </MudCardHeader>
+    <MudCardContent>
+        <MudTextField @bind-Text="Username" T="string" Label="Username" Variant="Variant.Outlined"></MudTextField>
+        <MudTextField @bind-Text="Password" T="string" Label="Password" Variant="Variant.Outlined" InputType="InputType.Password"></MudTextField>
+    </MudCardContent>
+    <MudCardActions>
+        <MudButton EndIcon="@Icons.Material.Filled.Login" Color="Color.Success" OnClick="LoginAsync">Login</MudButton>
+    </MudCardActions>
+</MudCard>
