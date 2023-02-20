@@ -20,7 +20,7 @@ namespace Example.Pages
 
         protected async Task LoginAsync()
         {
-            var valid = await CheckInputs();
+            var valid = CheckInputs();
             if (valid)
             {
                 try
@@ -40,7 +40,7 @@ namespace Example.Pages
             }
         }
 
-        private async Task<bool> CheckInputs()
+        private bool CheckInputs()
         {
             var userEmpty = string.IsNullOrWhiteSpace(Username);
             var passwordEmpty = string.IsNullOrWhiteSpace(Password);
