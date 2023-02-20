@@ -11,7 +11,6 @@ namespace Example
     {
         private readonly PocketBase _pocketBase;
         private readonly ILocalStorageService _localStorage;
-        private ClaimsPrincipal claimsPrincipal = new ClaimsPrincipal(new ClaimsIdentity());
 
         public PocketBaseAuthenticationStateProvider(PocketBase pocketBase, ILocalStorageService localStorage)
         {
@@ -59,7 +58,7 @@ namespace Example
 
         public void MarkUserAsAuthenticated(IEnumerable<Claim> claims)
         {
-            var authenticatedUser = new ClaimsPrincipal(new ClaimsIdentity(claims, "apiauth"));
+            var authenticatedUser = new ClaimsPrincipal(new ClaimsIdentity(claims, "pocketbase"));
             var authState = Task.FromResult(new AuthenticationState(authenticatedUser));
             NotifyAuthenticationStateChanged(authState);
         }
@@ -71,8 +70,13 @@ namespace Example
             NotifyAuthenticationStateChanged(authState);
         }
 
-        private IEnumerable<Claim> ParseClaimsFromJwt(string jwt)
+        public static IEnumerable<Claim> ParseClaimsFromJwt(string? jwt)
         {
+            if (string.IsNullOrWhiteSpace(jwt))
+            {
+                return Enumerable.Empty<Claim>();
+            }
+
             var payload = jwt.Split(".")[1];
             var jsonBytes = ParseBase64WithoutPadding(payload);
             var keyValuePairs = JsonSerializer.Deserialize<IDictionary<string, object>>(jsonBytes);
@@ -87,7 +91,7 @@ namespace Example
                 .ToList();
         }
 
-        private byte[] ParseBase64WithoutPadding(string base64)
+        public static byte[] ParseBase64WithoutPadding(string base64)
         {
             switch (base64.Length % 4)
             {

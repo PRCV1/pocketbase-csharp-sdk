@@ -10,7 +10,7 @@ var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
-builder.Services.AddScoped<PocketBase>(sp =>
+builder.Services.AddSingleton<PocketBase>(sp =>
 {
     return new PocketBase("https://sdk-todo-example.pockethost.io/");
 });

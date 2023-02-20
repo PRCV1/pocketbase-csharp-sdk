@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
 using MudBlazor;
 using pocketbase_csharp_sdk;
 
@@ -15,6 +16,9 @@ namespace Example.Pages
         [Inject]
         public ISnackbar Snackbar { get; set; } = null!;
 
+        [Inject]
+        public AuthenticationStateProvider AuthenticationStateProvider { get; set; } = null!;
+
         public string? Username { get; set; }
         public string? Password { get; set; }
 
@@ -25,10 +29,12 @@ namespace Example.Pages
             {
                 try
                 {
-                    var lel = await PocketBase.User.AuthenticateWithPasswordAsync(Username!, Password!);
+                    var token = await PocketBase.User.AuthenticateWithPasswordAsync(Username!, Password!);
                     if (PocketBase.AuthStore.IsValid)
                     {
                         Snackbar.Add("Logged in!", Severity.Success);
+                        var claims = PocketBaseAuthenticationStateProvider.ParseClaimsFromJwt(token?.Token);
+                        ((PocketBaseAuthenticationStateProvider)AuthenticationStateProvider).MarkUserAsAuthenticated(claims);
                         NavigationManager.NavigateTo("/");
                     }
                 }
