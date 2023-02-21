@@ -23,15 +23,7 @@ namespace pocketbase_csharp_sdk.Services
             this.client = client;
         }
 
-        public async Task<PagedCollectionModel<T>> ListAsync<T>(
-            string sub,
-            int? page = null,
-            int? perPage = null,
-            string? sort = null,
-            string? filter = null,
-            string? expand = null,
-            IDictionary<string, string>? headers = null, 
-            CancellationToken cancellationToken = default) where T : BaseModel
+        public async Task<PagedCollectionModel<T>> ListAsync<T>(string sub, int? page = null, int? perPage = null, string? sort = null, string? filter = null, string? expand = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default) where T : BaseModel
         {
             var query = new Dictionary<string, object?>()
             {
@@ -42,24 +34,31 @@ namespace pocketbase_csharp_sdk.Services
                 { "expand", expand },
             };
             var url = this.BasePath(sub);
-            var pagedResponse = await client.SendAsync<PagedCollectionModel<T>>(
-                url,
-                HttpMethod.Get,
-                headers: headers,
-                query: query,
-                cancellationToken: cancellationToken);
+            var pagedResponse = await client.SendAsync<PagedCollectionModel<T>>(url, HttpMethod.Get, headers: headers, query: query, cancellationToken: cancellationToken);
             if (pagedResponse is null) throw new ClientException(url);
 
             return pagedResponse;
         }
 
-        public async Task<T> CreateAsync<T>(
-            string sub,
-            T item,
-            string? expand = null,
-            IDictionary<string, string>? headers = null,
-            IEnumerable<IFile>? files = null,
-            CancellationToken cancellationToken = default) where T : BaseModel
+        public async Task<IEnumerable<T>> GetFullListAsync<T>(string sub, int batch = 100, string? filter = null, string? sort = null, CancellationToken cancellationToken = default) where T : BaseModel
+        {
+            List<T> result = new();
+            int currentPage = 1;
+            PagedCollectionModel<T> lastResponse;
+            do
+            {
+                lastResponse = await ListAsync<T>(sub, page: currentPage, perPage: batch, filter: filter, sort: sort, cancellationToken: cancellationToken);
+                if (lastResponse is not null && lastResponse.Items is not null)
+                {
+                    result.AddRange(lastResponse.Items);
+                }
+                currentPage++;
+            } while (lastResponse?.Items?.Length > 0 && lastResponse?.TotalItems > result.Count);
+
+            return result;
+        }
+
+        public async Task<T> CreateAsync<T>(string sub, T item, string? expand = null, IDictionary<string, string>? headers = null, IEnumerable<IFile>? files = null, CancellationToken cancellationToken = default) where T : BaseModel
         {
             var query = new Dictionary<string, object?>()
             {
@@ -67,26 +66,13 @@ namespace pocketbase_csharp_sdk.Services
             };
             var body = ConstructBody(item);
             var url = this.BasePath(sub);
-            var response = await client.SendAsync<T>(
-                url,
-                HttpMethod.Post,
-                body: body,
-                headers: headers,
-                query: query,
-                files: files,
-                cancellationToken: cancellationToken);
+            var response = await client.SendAsync<T>(url, HttpMethod.Post, body: body, headers: headers, query: query, files: files, cancellationToken: cancellationToken);
             if (response is null) throw new ClientException(url);
 
             return response;
         }
 
-        public async Task<T> UpdateAsync<T>(
-            string sub,
-            string id,
-            T item,
-            string? expand = null,
-            IDictionary<string, string>? headers = null, 
-            CancellationToken cancellationToken = default) where T : BaseModel
+        public async Task<T> UpdateAsync<T>(string sub, string id, T item, string? expand = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default) where T : BaseModel
         {
             var query = new Dictionary<string, object?>()
             {
@@ -94,13 +80,7 @@ namespace pocketbase_csharp_sdk.Services
             };
             var body = ConstructBody(item);
             var url = this.BasePath(sub) + "/" + UrlEncode(id);
-            var response = await client.SendAsync<T>(
-                url,
-                HttpMethod.Patch,
-                body: body,
-                headers: headers,
-                query: query, 
-                cancellationToken: cancellationToken);
+            var response = await client.SendAsync<T>(url, HttpMethod.Patch, body: body, headers: headers, query: query, cancellationToken: cancellationToken);
             if (response is null) throw new ClientException(url);
 
             return response;

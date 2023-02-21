@@ -53,6 +53,7 @@ namespace Example
                 return new AuthenticationState(new ClaimsPrincipal());
             }
 
+            _pocketBase.AuthStore.Save(savedToken, null);
             return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity(ParseClaimsFromJwt(savedToken), "jwt")));
         }
 

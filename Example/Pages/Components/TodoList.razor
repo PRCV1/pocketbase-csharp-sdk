@@ -1,5 +1,27 @@
-﻿<h3>TodoList</h3>
+﻿
 
-@code {
-
-}
+<MudCard>
+    <MudCardHeader>
+        <CardHeaderContent>
+            <MudText Typo="Typo.h6">To-Do List</MudText>
+        </CardHeaderContent>
+        <CardHeaderActions>
+            <MudIconButton Icon="@Icons.Material.Filled.Refresh" Color="Color.Default" OnClick="LoadTodosFromPocketbase" />
+        </CardHeaderActions>
+    </MudCardHeader>
+    <MudCardContent>
+        <MudList Clickable="true">
+            <Loading Visible="!isLoading || (todos is not null && todos.Any())">
+                @foreach (var item in todos!)
+                {
+                    <MudListItem OnClick="() => NavigateToTodoList(item)">
+                        @item.Name
+                    </MudListItem>
+                }
+            </Loading>
+        </MudList>
+    </MudCardContent>
+    <MudCardActions>
+        <MudButton Variant="Variant.Text" Color="Color.Primary">Learn More</MudButton>
+    </MudCardActions>
+</MudCard>

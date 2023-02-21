@@ -9,6 +9,9 @@ namespace Example.Pages.Components
         [Inject]
         public PocketBase PocketBase { get; set; } = null!;
 
+        private bool isLoading = false;
+        private IEnumerable<TodoModel>? todos;
+
         protected override async Task OnInitializedAsync()
         {
             await LoadTodosFromPocketbase();
@@ -17,7 +20,14 @@ namespace Example.Pages.Components
 
         protected async Task LoadTodosFromPocketbase()
         {
-            var list = await PocketBase.Records.ListAsync<TodoModel>("todos");
+            isLoading = true;
+            todos = await PocketBase.Records.GetFullListAsync<TodoModel>("todos", batch: 1);
+            isLoading = true;
+        }
+
+        protected void NavigateToTodoList(TodoModel model)
+        {
+
         }
 
     }
