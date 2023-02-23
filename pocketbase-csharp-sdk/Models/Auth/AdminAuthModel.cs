@@ -5,7 +5,7 @@ namespace pocketbase_csharp_sdk.Models.Auth
     public class AdminAuthModel : AuthModel
     {
         [JsonIgnore]
-        public override BaseModel? Model => Admin;
+        public override IBaseModel? Model => Admin;
 
 
         [JsonPropertyName("admin")]

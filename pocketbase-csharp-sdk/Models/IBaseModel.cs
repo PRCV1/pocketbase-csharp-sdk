@@ -10,21 +10,14 @@ namespace pocketbase_csharp_sdk.Models
 {
     public interface IBaseModel
     {
-        [JsonPropertyName("id")]
-        string? Id { get; set; }
+        string? Id { get; }
 
-        [JsonPropertyName("created")]
-        [JsonConverter(typeof(DateTimeConverter))]
-        DateTime? Created { get; set; }
+        DateTime? Created { get; }
 
-        [JsonPropertyName("updated")]
-        [JsonConverter(typeof(DateTimeConverter))]
-        DateTime? Updated { get; set; }
+        DateTime? Updated { get; }
 
-        [JsonPropertyName("collectionId")]
-        string? CollectionId { get; set; }
+        string? CollectionId { get; }
 
-        [JsonPropertyName("collectionName")]
-        string? CollectionName { get; set; }
+        string? CollectionName { get; }
     }
 }

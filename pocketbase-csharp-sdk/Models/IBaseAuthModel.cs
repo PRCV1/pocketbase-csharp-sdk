@@ -9,16 +9,12 @@ namespace pocketbase_csharp_sdk.Models
 {
     public interface IBaseAuthModel : IBaseModel
     {
-        [JsonPropertyName("email")]
-        string? Email { get; set; }
+        string? Email { get; }
 
-        [JsonPropertyName("emailVisibility")]
-        bool? EmailVisibility { get; set; }
+        bool? EmailVisibility { get; }
 
-        [JsonPropertyName("username")]
-        string? Username { get; set; }
+        string? Username { get; }
 
-        [JsonPropertyName("verified")]
-        bool? Verified { get; set; }
+        bool? Verified { get; }
     }
 }
