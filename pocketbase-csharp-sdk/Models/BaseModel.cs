@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 
 namespace pocketbase_csharp_sdk.Models
 {
-    public abstract class BaseModel
+    public abstract class BaseModel : IBaseModel
     {
         [JsonPropertyName("id")]
         public virtual string? Id { get; set; }

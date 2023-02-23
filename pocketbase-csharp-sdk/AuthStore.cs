@@ -14,7 +14,7 @@ namespace pocketbase_csharp_sdk
         public event EventHandler<AuthStoreEvent>? OnChange;
 
         public string? Token { get; set; }
-        public BaseModel? Model { get; set; }
+        public IBaseModel? Model { get; set; }
 
         public bool IsValid { get => GetIsValid(); }
 
@@ -58,7 +58,7 @@ namespace pocketbase_csharp_sdk
             return Convert.FromBase64String(payload);
         }
 
-        public void Save(string? token, BaseModel? model)
+        public void Save(string? token, IBaseModel? model)
         {
             this.Token = token;
             this.Model = model;

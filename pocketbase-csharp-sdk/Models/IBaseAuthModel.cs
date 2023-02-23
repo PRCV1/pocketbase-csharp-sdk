@@ -7,18 +7,18 @@ using System.Threading.Tasks;
 
 namespace pocketbase_csharp_sdk.Models
 {
-    public class BaseAuthModel : BaseModel, IBaseAuthModel
+    public interface IBaseAuthModel : IBaseModel
     {
         [JsonPropertyName("email")]
-        public string? Email { get; set; }
-        
-        [JsonPropertyName("emailVisibility")] 
-        public bool? EmailVisibility { get; set; }
-        
+        string? Email { get; set; }
+
+        [JsonPropertyName("emailVisibility")]
+        bool? EmailVisibility { get; set; }
+
         [JsonPropertyName("username")]
-        public string? Username { get; set; }
-        
+        string? Username { get; set; }
+
         [JsonPropertyName("verified")]
-        public bool? Verified { get; set; }
+        bool? Verified { get; set; }
     }
 }

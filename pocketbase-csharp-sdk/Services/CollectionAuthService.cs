@@ -6,14 +6,14 @@ using System.Web;
 namespace pocketbase_csharp_sdk.Services
 {
     public class CollectionAuthService<T> : CollectionAuthService<RecordAuthModel<T>, T>
-        where T : BaseAuthModel
+        where T : IBaseAuthModel
     {
         public CollectionAuthService(PocketBase client, string collectionName) : base(client, collectionName) { }
     }
 
     public class CollectionAuthService<R, T> : BaseAuthService<R>
         where R : RecordAuthModel<T>
-        where T : BaseAuthModel
+        where T : IBaseAuthModel
     {
         protected override string BasePath(string? url = null) => $"/api/collections/{this.collectionName}";
 
