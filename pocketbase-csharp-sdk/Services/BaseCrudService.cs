@@ -8,11 +8,14 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 
-namespace pocketbase_csharp_sdk.Services {
-    public abstract class BaseCrudService<T> : BaseService {
+namespace pocketbase_csharp_sdk.Services
+{
+    public abstract class BaseCrudService<T> : BaseService
+    {
         private readonly PocketBase client;
 
-        public BaseCrudService(PocketBase client) {
+        public BaseCrudService(PocketBase client)
+        {
             this.client = client;
         }
 
@@ -26,7 +29,8 @@ namespace pocketbase_csharp_sdk.Services {
         /// <param name="cancellationToken">A cancellation token to cancel the operation. Default is the default cancellation token</param>
         /// <returns>A PagedCollectionModel<T> object containing the paginated list of objects.</returns>
         /// <exception cref="ClientException"></exception>
-        public virtual async Task<PagedCollectionModel<T>> ListAsync(int page = 1, int perPage = 30, string? filter = null, string? sort = null, CancellationToken cancellationToken = default) {
+        public virtual async Task<PagedCollectionModel<T>> ListAsync(int page = 1, int perPage = 30, string? filter = null, string? sort = null, CancellationToken cancellationToken = default)
+        {
             var query = new Dictionary<string, object?>()
             {
                 { "filter", filter },
@@ -36,7 +40,8 @@ namespace pocketbase_csharp_sdk.Services {
             };
 
             var response = await client.SendAsync<PagedCollectionModel<T>>(BasePath(), HttpMethod.Get, query: query, cancellationToken: cancellationToken);
-            if (response is null) {
+            if (response is null)
+            {
                 throw new ClientException(BasePath());
             }
 
@@ -53,7 +58,8 @@ namespace pocketbase_csharp_sdk.Services {
         /// <param name="cancellationToken">A cancellation token to cancel the operation. Default is the default cancellation token</param>
         /// <returns>A PagedCollectionModel<T> object containing the paginated list of objects.</returns>
         /// <exception cref="ClientException"></exception>
-        public virtual PagedCollectionModel<T> List(int page = 1, int perPage = 30, string? filter = null, string? sort = null, CancellationToken cancellationToken = default) {
+        public virtual PagedCollectionModel<T> List(int page = 1, int perPage = 30, string? filter = null, string? sort = null, CancellationToken cancellationToken = default)
+        {
             var query = new Dictionary<string, object?>()
             {
                 { "filter", filter },
@@ -63,7 +69,8 @@ namespace pocketbase_csharp_sdk.Services {
             };
 
             var response = client.Send<PagedCollectionModel<T>>(BasePath(), HttpMethod.Get, query: query, cancellationToken: cancellationToken);
-            if (response is null) {
+            if (response is null)
+            {
                 throw new ClientException(BasePath());
             }
 
@@ -78,13 +85,16 @@ namespace pocketbase_csharp_sdk.Services {
         /// <param name="sort">A sort string to apply to the list. Default is null.</param>
         /// <param name="cancellationToken">A cancellation token to cancel the operation. Default is the default cancellation token.</param>
         /// <returns>An IEnumerable<T> object containing the full list of objects.</returns>
-        public virtual async Task<IEnumerable<T>> GetFullListAsync(int batch = 100, string? filter = null, string? sort = null, CancellationToken cancellationToken = default) {
+        public virtual async Task<IEnumerable<T>> GetFullListAsync(int batch = 100, string? filter = null, string? sort = null, CancellationToken cancellationToken = default)
+        {
             List<T> result = new();
             int currentPage = 1;
             PagedCollectionModel<T> lastResponse;
-            do {
+            do
+            {
                 lastResponse = await ListAsync(currentPage, perPage: batch, filter: filter, sort: sort, cancellationToken: cancellationToken);
-                if (lastResponse is not null && lastResponse.Items is not null) {
+                if (lastResponse is not null && lastResponse.Items is not null)
+                {
                     result.AddRange(lastResponse.Items);
                 }
                 currentPage++;
@@ -101,13 +111,16 @@ namespace pocketbase_csharp_sdk.Services {
         /// <param name="sort">A sort string to apply to the list. Default is null.</param>
         /// <param name="cancellationToken">A cancellation token to cancel the operation. Default is the default cancellation token.</param>
         /// <returns>An IEnumerable<T> object containing the full list of objects.</returns>
-        public virtual IEnumerable<T> GetFullList(int batch = 100, string? filter = null, string? sort = null, CancellationToken cancellationToken = default) {
+        public virtual IEnumerable<T> GetFullList(int batch = 100, string? filter = null, string? sort = null, CancellationToken cancellationToken = default)
+        {
             List<T> result = new();
             int currentPage = 1;
             PagedCollectionModel<T> lastResponse;
-            do {
+            do
+            {
                 lastResponse = List(currentPage, perPage: batch, filter: filter, sort: sort, cancellationToken: cancellationToken);
-                if (lastResponse is not null && lastResponse.Items is not null) {
+                if (lastResponse is not null && lastResponse.Items is not null)
+                {
                     result.AddRange(lastResponse.Items);
                 }
                 currentPage++;

@@ -13,8 +13,8 @@ namespace pocketbase_csharp_sdk.Services
 
         protected override string BasePath(string? url = null) => "/api/admins";
 
-        public AdminService(PocketBase client) : base(client) 
-        { 
+        public AdminService(PocketBase client) : base(client)
+        {
         }
 
     }

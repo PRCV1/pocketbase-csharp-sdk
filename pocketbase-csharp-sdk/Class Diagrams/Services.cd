@@ -3,47 +3,47 @@
   <Class Name="pocketbase_csharp_sdk.Services.AdminService">
     <Position X="6.5" Y="3.75" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>BAAAAAAEAAIAAAAAAAAAAAAAAAAAAQAAAABABAAAAAQ=</HashCode>
+      <HashCode>BAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Services\AdminService.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="pocketbase_csharp_sdk.Services.BaseService">
     <Position X="8.75" Y="0.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>BAAAAAAQAAIAAAAAACAAAAAAIAAAAAAAAAAAAAAAAAA=</HashCode>
+      <HashCode>BAAAAAAIAAIAEAAAACAAAAAAIAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Services\BaseService.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="pocketbase_csharp_sdk.Services.BaseCrudService&lt;T&gt;">
     <Position X="4.25" Y="3.75" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAABAAAAAA=</HashCode>
+      <HashCode>AAAAAAAAAAAAAAIAAAAAAAAAAAAQIAAAAAAABAAAAAI=</HashCode>
       <FileName>Services\BaseCrudService.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="pocketbase_csharp_sdk.Services.BaseSubCrudService">
     <Position X="8.75" Y="3.75" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAQAAIAAAAAACAAAAIAIAAAIAgAAAAABIAAAAA=</HashCode>
+      <HashCode>ACQAAAAAAAAAAAIAAAAAEAIAAAASIEgAAAAABIAAgAI=</HashCode>
       <FileName>Services\BaseSubCrudService.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="pocketbase_csharp_sdk.Services.LogService">
     <Position X="11" Y="3.75" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>FAAAAAAgAAAAAAgAAAAAAAAAAAAAAAAAAAAABAAAAAA=</HashCode>
+      <HashCode>FAAAAAAgAAAAAAgAAAAAAACAAQAAAAAAAIAABAAAAAA=</HashCode>
       <FileName>Services\LogService.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="pocketbase_csharp_sdk.Services.SettingsService">
     <Position X="13" Y="3.75" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>BAEAAAAAAAAAAAAAAAIAAAAAAAAAAAgAgAAABAAAAAA=</HashCode>
+      <HashCode>BAUAAAAAAAAAAAAAAAIAAAAAABABAAgAggAABAAAAAA=</HashCode>
       <FileName>Services\SettingsService.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="pocketbase_csharp_sdk.Services.RecordService">
-    <Position X="8.75" Y="7.75" Width="1.5" />
+    <Position X="8.75" Y="8.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>BAAAAAAAAAAAAAAAAAAAAAAAAACEAAAAAAAABAAAAAA=</HashCode>
       <FileName>Services\RecordService.cs</FileName>
@@ -52,14 +52,14 @@
   <Class Name="pocketbase_csharp_sdk.Services.CollectionService">
     <Position X="2.25" Y="7.75" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>BAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAABAAAAAA=</HashCode>
+      <HashCode>BAAAAAAAAAAEAAAAIAAAAAAAAAEAAAAAAAAABAQAAIg=</HashCode>
       <FileName>Services\CollectionService.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="pocketbase_csharp_sdk.Services.UserService">
     <Position X="6.5" Y="7.75" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>RACAAAAEACIAAAIgAAABABAAAAAAIQgAAABABIBgAAQ=</HashCode>
+      <HashCode>RAXAAAAAACLACAIgAAgJABAAAAAQIUigAAFEBIBgAAY=</HashCode>
       <FileName>Services\UserService.cs</FileName>
     </TypeIdentifier>
   </Class>
