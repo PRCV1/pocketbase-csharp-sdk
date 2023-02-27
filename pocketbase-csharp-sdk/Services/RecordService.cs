@@ -44,6 +44,6 @@ namespace pocketbase_csharp_sdk.Services
             
             return client.GetStreamAsync(url, query, cancellationToken);
         }
-        
+
     }
 }
