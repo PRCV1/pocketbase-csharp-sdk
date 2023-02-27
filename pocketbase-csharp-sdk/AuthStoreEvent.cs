@@ -11,9 +11,9 @@ namespace pocketbase_csharp_sdk
     {
 
         public string? Token { get; private set; }
-        public BaseModel? Model { get; private set; }
+        public IBaseModel? Model { get; private set; }
 
-        public AuthStoreEvent(string? token, BaseModel? model)
+        public AuthStoreEvent(string? token, IBaseModel? model)
         {
             Token = token;
             Model = model;

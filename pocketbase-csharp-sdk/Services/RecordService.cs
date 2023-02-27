@@ -37,13 +37,13 @@ namespace pocketbase_csharp_sdk.Services
             var url = $"api/files/{UrlEncode(collectionId)}/{UrlEncode(recordId)}/{fileName}";
 
             //TODO find out how the specify the actual resolution to resize
-            var query = new Dictionary<string, object?>() 
+            var query = new Dictionary<string, object?>()
             {
                 { "thumb", ThumbFormatHelper.GetNameForQuery(thumbFormat) }
             };
-            
+
             return client.GetStreamAsync(url, query, cancellationToken);
         }
-        
+
     }
 }

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace pocketbase_csharp_sdk.Models
 {
-    public class BaseAuthModel : BaseModel
+    public class BaseAuthModel : BaseModel, IBaseAuthModel
     {
         [JsonPropertyName("email")]
         public string? Email { get; set; }

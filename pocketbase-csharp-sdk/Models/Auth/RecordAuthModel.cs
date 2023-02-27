@@ -2,10 +2,10 @@
 
 namespace pocketbase_csharp_sdk.Models.Auth
 {
-    public class RecordAuthModel<T> : AuthModel where T : BaseAuthModel
+    public class RecordAuthModel<T> : AuthModel where T : IBaseAuthModel
     {
         [JsonIgnore]
-        public override BaseModel? Model => Record;
+        public override IBaseModel? Model => Record;
 
         [JsonPropertyName("record")]
         public T? Record { get; set; }

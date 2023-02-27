@@ -7,6 +7,6 @@ namespace pocketbase_csharp_sdk.Models.Auth
         public string? Token { get; set; }
 
         [JsonIgnore]
-        public abstract BaseModel? Model { get; }
+        public abstract IBaseModel? Model { get; }
     }
 }

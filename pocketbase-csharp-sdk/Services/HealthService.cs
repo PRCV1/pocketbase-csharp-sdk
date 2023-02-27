@@ -25,6 +25,14 @@ namespace pocketbase_csharp_sdk.Services
         {
             return pocketBase.SendAsync<ApiHealthModel>(BasePath(), HttpMethod.Get);
         }
-        
+
+        /// <summary>
+        /// Returns the health status of the server.
+        /// </summary>
+        public ApiHealthModel? CheckHealth()
+        {
+            return pocketBase.Send<ApiHealthModel>(BasePath(), HttpMethod.Get);
+        }
+
     }
 }

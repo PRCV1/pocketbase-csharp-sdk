@@ -64,7 +64,7 @@ namespace pocketbase_csharp_sdk
         }
 
         public CollectionAuthService<T> AuthCollection<T>(string collectionName)
-            where T : BaseAuthModel
+            where T : IBaseAuthModel
         {
             return new CollectionAuthService<T>(this, collectionName);
         }

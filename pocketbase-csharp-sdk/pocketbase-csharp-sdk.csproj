@@ -29,10 +29,15 @@
 			<Pack>True</Pack>
 			<PackagePath>\</PackagePath>
 		</None>
+		<None Include="C:\Users\Lukas\source\repos\pocketbase-csharp-sdk\pocketbase-csharp-sdk\.editorconfig" />
 	</ItemGroup>
 
 	<ItemGroup>
 	  <PackageReference Include="MimeMapping" Version="1.0.1.50" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <EditorConfigFiles Remove="C:\Users\Lukas\source\repos\pocketbase-csharp-sdk\pocketbase-csharp-sdk\.editorconfig" />
 	</ItemGroup>
 
 </Project>
