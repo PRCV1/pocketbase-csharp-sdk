@@ -6,7 +6,7 @@ namespace pocketbase_csharp_sdk.Services
         where T : AuthModel
     {
         protected readonly PocketBase client;
-        public BaseAuthService(PocketBase client)
+        public BaseAuthService(PocketBase client) : base(client)
         {
             this.client = client;
         }

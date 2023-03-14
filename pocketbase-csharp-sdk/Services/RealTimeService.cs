@@ -14,7 +14,7 @@ namespace pocketbase_csharp_sdk.Services
 
         private readonly Dictionary<string, List<Func<SseMessage, Task>>> Subscriptions = new();
 
-        public RealTimeService(PocketBase client)
+        public RealTimeService(PocketBase client) : base(client)
         {
             this.client = client;
         }

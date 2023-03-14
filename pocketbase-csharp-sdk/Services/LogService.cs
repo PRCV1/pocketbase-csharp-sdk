@@ -16,7 +16,7 @@ namespace pocketbase_csharp_sdk.Services
 
         private readonly PocketBase client;
 
-        public LogService(PocketBase client)
+        public LogService(PocketBase client) : base(client)
         {
             this.client = client;
         }

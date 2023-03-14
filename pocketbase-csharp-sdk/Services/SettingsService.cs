@@ -14,7 +14,7 @@ namespace pocketbase_csharp_sdk.Services
 
         private readonly PocketBase client;
 
-        public SettingsService(PocketBase client)
+        public SettingsService(PocketBase client) : base(client)
         {
             this.client = client;
         }

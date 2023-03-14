@@ -11,10 +11,12 @@ namespace pocketbase_csharp_sdk.Services
     public abstract class BaseService
     {
         protected readonly string[] itemProperties;
+        private readonly PocketBase pocketBase;
 
-        public BaseService()
+        public BaseService(PocketBase pocketBase)
         {
             this.itemProperties = this.GetPropertyNames().ToArray();
+            this.pocketBase = pocketBase;
         }
 
         protected abstract string BasePath(string? path = null);

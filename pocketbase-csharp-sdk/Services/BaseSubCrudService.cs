@@ -18,7 +18,7 @@ namespace pocketbase_csharp_sdk.Services
     {
         private readonly PocketBase client;
 
-        public BaseSubCrudService(PocketBase client)
+        public BaseSubCrudService(PocketBase client) : base(client)
         {
             this.client = client;
         }

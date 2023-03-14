@@ -13,7 +13,7 @@ namespace pocketbase_csharp_sdk.Services
 
         protected override string BasePath(string? path = null) => "api/health";
 
-        public HealthService(PocketBase pocketBase)
+        public HealthService(PocketBase pocketBase) : base(pocketBase)
         {
             this.pocketBase = pocketBase;
         }
