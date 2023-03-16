@@ -41,12 +41,90 @@ namespace pocketbase_csharp_sdk.Services
         }
 
         private IEnumerable<string> GetPropertyNames()
-            => from prop in typeof(BaseModel).GetProperties()
-               select prop.Name;
+        {
+            return from prop in typeof(BaseModel).GetProperties()
+                   select prop.Name;
+        }
 
         protected string UrlEncode(string param)
         {
             return HttpUtility.UrlEncode(param);
+        }
+
+        internal virtual PagedCollectionModel<T> List<T>(string? sub = null, int page = 1, int perPage = 30, string? filter = null, string? sort = null, CancellationToken cancellationToken = default)
+        {
+            var path = BasePath(sub);
+            var query = new Dictionary<string, object?>()
+            {
+                { "filter", filter },
+                { "page", page },
+                { "perPage", perPage },
+                { "sort", sort }
+            };
+
+            var response = pocketBase.Send<PagedCollectionModel<T>>(path, HttpMethod.Get, query: query, cancellationToken: cancellationToken);
+            if (response is null)
+            {
+                throw new ClientException(BasePath(path));
+            }
+
+            return response;
+        }
+
+        internal virtual async Task<PagedCollectionModel<T>> ListAsync<T>(string? sub = null, int page = 1, int perPage = 30, string? filter = null, string? sort = null, CancellationToken cancellationToken = default)
+        {
+            var path = BasePath(sub);
+            var query = new Dictionary<string, object?>()
+            {
+                { "filter", filter },
+                { "page", page },
+                { "perPage", perPage },
+                { "sort", sort }
+            };
+
+            var response = await pocketBase.SendAsync<PagedCollectionModel<T>>(path, HttpMethod.Get, query: query, cancellationToken: cancellationToken);
+            if (response is null)
+            {
+                throw new ClientException(path);
+            }
+
+            return response;
+        }
+
+        internal virtual IEnumerable<T> GetFullList<T>(string? sub = null, int batch = 100, string? filter = null, string? sort = null, CancellationToken cancellationToken = default)
+        {
+            List<T> result = new();
+            int currentPage = 1;
+            PagedCollectionModel<T> lastResponse;
+            do
+            {
+                lastResponse = List<T>(sub, currentPage, perPage: batch, filter: filter, sort: sort, cancellationToken: cancellationToken);
+                if (lastResponse is not null && lastResponse.Items is not null)
+                {
+                    result.AddRange(lastResponse.Items);
+                }
+                currentPage++;
+            } while (lastResponse?.Items?.Length > 0 && lastResponse?.TotalItems > result.Count);
+
+            return result;
+        }
+
+        internal virtual async Task<IEnumerable<T>> GetFullListAsync<T>(string? sub = null, int batch = 100, string? filter = null, string? sort = null, CancellationToken cancellationToken = default)
+        {
+            List<T> result = new();
+            int currentPage = 1;
+            PagedCollectionModel<T> lastResponse;
+            do
+            {
+                lastResponse = await ListAsync<T>(sub, currentPage, perPage: batch, filter: filter, sort: sort, cancellationToken: cancellationToken);
+                if (lastResponse is not null && lastResponse.Items is not null)
+                {
+                    result.AddRange(lastResponse.Items);
+                }
+                currentPage++;
+            } while (lastResponse?.Items?.Length > 0 && lastResponse?.TotalItems > result.Count);
+
+            return result;
         }
 
     }

@@ -23,74 +23,24 @@ namespace pocketbase_csharp_sdk.Services
             this.client = client;
         }
 
-        public async Task<PagedCollectionModel<T>> ListAsync<T>(string sub, int? page = null, int? perPage = null, string? sort = null, string? filter = null, string? expand = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default) where T : BaseModel
+        public Task<PagedCollectionModel<T>> ListAsync<T>(string sub, int page = 1, int perPage = 30, string? sort = null, string? filter = null, string? expand = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default) where T : BaseModel
         {
-            var query = new Dictionary<string, object?>()
-            {
-                { "filter", filter },
-                { "page", page },
-                { "perPage", perPage },
-                { "sort", sort },
-                { "expand", expand },
-            };
-            var url = this.BasePath(sub);
-            var pagedResponse = await client.SendAsync<PagedCollectionModel<T>>(url, HttpMethod.Get, headers: headers, query: query, cancellationToken: cancellationToken);
-            if (pagedResponse is null) throw new ClientException(url);
-
-            return pagedResponse;
+            return base.ListAsync<T>(sub, page, perPage, filter, sort, cancellationToken);
         }
 
-        public PagedCollectionModel<T> List<T>(string sub, int? page = null, int? perPage = null, string? sort = null, string? filter = null, string? expand = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default) where T : BaseModel
+        public PagedCollectionModel<T> List<T>(string sub, int page = 1, int perPage = 30, string? sort = null, string? filter = null, string? expand = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default) where T : BaseModel
         {
-            var query = new Dictionary<string, object?>()
-            {
-                { "filter", filter },
-                { "page", page },
-                { "perPage", perPage },
-                { "sort", sort },
-                { "expand", expand },
-            };
-            var url = this.BasePath(sub);
-            var pagedResponse = client.Send<PagedCollectionModel<T>>(url, HttpMethod.Get, headers: headers, query: query, cancellationToken: cancellationToken);
-            if (pagedResponse is null) throw new ClientException(url);
-
-            return pagedResponse;
+            return base.List<T>(sub, page, perPage, filter, sort);
         }
 
-        public async Task<IEnumerable<T>> GetFullListAsync<T>(string sub, int batch = 100, string? filter = null, string? sort = null, CancellationToken cancellationToken = default) where T : BaseModel
+        public Task<IEnumerable<T>> GetFullListAsync<T>(string sub, int batch = 100, string? filter = null, string? sort = null, CancellationToken cancellationToken = default) where T : BaseModel
         {
-            List<T> result = new();
-            int currentPage = 1;
-            PagedCollectionModel<T> lastResponse;
-            do
-            {
-                lastResponse = await ListAsync<T>(sub, page: currentPage, perPage: batch, filter: filter, sort: sort, cancellationToken: cancellationToken);
-                if (lastResponse is not null && lastResponse.Items is not null)
-                {
-                    result.AddRange(lastResponse.Items);
-                }
-                currentPage++;
-            } while (lastResponse?.Items?.Length > 0 && lastResponse?.TotalItems > result.Count);
-
-            return result;
+            return base.GetFullListAsync<T>(sub, batch, filter, sort, cancellationToken);
         }
 
         public IEnumerable<T> GetFullList<T>(string sub, int batch = 100, string? filter = null, string? sort = null, CancellationToken cancellationToken = default) where T : BaseModel
         {
-            List<T> result = new();
-            int currentPage = 1;
-            PagedCollectionModel<T> lastResponse;
-            do
-            {
-                lastResponse = List<T>(sub, page: currentPage, perPage: batch, filter: filter, sort: sort, cancellationToken: cancellationToken);
-                if (lastResponse is not null && lastResponse.Items is not null)
-                {
-                    result.AddRange(lastResponse.Items);
-                }
-                currentPage++;
-            } while (lastResponse?.Items?.Length > 0 && lastResponse?.TotalItems > result.Count);
-
-            return result;
+            return base.GetFullList<T>(sub, batch, filter, sort, cancellationToken);
         }
 
         public async Task<T> CreateAsync<T>(string sub, T item, string? expand = null, IDictionary<string, string>? headers = null, IEnumerable<IFile>? files = null, CancellationToken cancellationToken = default) where T : BaseModel
