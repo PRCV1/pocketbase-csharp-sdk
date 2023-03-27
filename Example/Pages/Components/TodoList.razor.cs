@@ -1,4 +1,6 @@
-﻿using Example.Models;
+﻿using Example.DTOs;
+using Example.Models;
+using Mapster;
 using Microsoft.AspNetCore.Components;
 using pocketbase_csharp_sdk;
 
@@ -9,8 +11,8 @@ namespace Example.Pages.Components
         [Inject]
         public PocketBase PocketBase { get; set; } = null!;
 
-        private bool isLoading = false;
-        private IEnumerable<TodoModel>? todos;
+        private bool _loading = false;
+        private IEnumerable<TodoDTO>? todos;
 
         protected override async Task OnInitializedAsync()
         {
@@ -18,16 +20,17 @@ namespace Example.Pages.Components
             await base.OnInitializedAsync();
         }
 
-        protected async Task LoadTodosFromPocketbase()
+        private async Task LoadTodosFromPocketbase()
         {
-            isLoading = true;
-            todos = await PocketBase.Records.GetFullListAsync<TodoModel>("todos", batch: 1);
-            isLoading = true;
+            _loading = true;
+            var responseList = await PocketBase.Records.GetFullListAsync<TodoModel>("todos");
+            todos = responseList.Adapt<IEnumerable<TodoDTO>>();
+            _loading = false;
         }
 
-        protected void NavigateToTodoList(TodoModel model)
+        private void ToggleDetails(TodoDTO dto)
         {
-
+            dto.ShowDetails = !dto.ShowDetails;
         }
 
     }

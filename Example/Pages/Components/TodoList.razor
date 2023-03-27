@@ -10,18 +10,57 @@
         </CardHeaderActions>
     </MudCardHeader>
     <MudCardContent>
-        <MudList Clickable="true">
-            <Loading Visible="!isLoading || (todos is not null && todos.Any())">
-                @foreach (var item in todos!)
-                {
-                    <MudListItem OnClick="() => NavigateToTodoList(item)">
-                        @item.Name
-                    </MudListItem>
-                }
-            </Loading>
-        </MudList>
+        @if (todos is null)
+        {
+            @for (int i = 0; i < 5; i++)
+            {
+                <MudSkeleton />
+            }
+        }
+        else
+        {
+            <MudTable Items="todos" Loading="_loading" Hover="true">
+                <HeaderContent>
+                    <MudTh></MudTh>
+                    <MudTh>
+                        Name
+                    </MudTh>
+                    <MudTh>
+                        Created
+                    </MudTh>
+                    <MudTh>
+                        Updated
+                    </MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd>
+                        <MudButton StartIcon="@Icons.Material.Filled.Search" Size="Size.Small" Variant="Variant.Outlined" OnClick="() => ToggleDetails(context)">
+                            @(context.ShowDetails ? "Hide" : "Show") entries
+                        </MudButton>
+                    </MudTd>
+                    <MudTd DataLabel="Name">
+                        @context.Name
+                    </MudTd>
+                    <MudTd DataLabel="Created">
+                        @context.Created
+                    </MudTd>
+                    <MudTd DataLabel="Updated">
+                        @context.Updated
+                    </MudTd>
+                </RowTemplate>
+                <ChildRowContent>
+                    @if (context.ShowDetails)
+                    {
+                        <h1>
+                            jajaja
+                        </h1>
+                        <TodoListEntries />
+                    }
+                </ChildRowContent>
+            </MudTable>
+        }
     </MudCardContent>
     <MudCardActions>
-        <MudButton Variant="Variant.Text" Color="Color.Primary">Learn More</MudButton>
+        <MudButton Variant="Variant.Text" Color="Color.Success" StartIcon="@Icons.Material.Filled.Create">Create new list</MudButton>
     </MudCardActions>
 </MudCard>
