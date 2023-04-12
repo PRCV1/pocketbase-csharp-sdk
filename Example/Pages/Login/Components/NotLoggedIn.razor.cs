@@ -1,12 +1,13 @@
-﻿using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Authorization;
+﻿using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Components;
 using MudBlazor;
 using pocketbase_csharp_sdk;
 
-namespace Example.Pages
+namespace Example.Pages.Login.Components
 {
-    public partial class Login
+    public partial class NotLoggedIn
     {
+
         [Inject]
         public NavigationManager NavigationManager { get; set; } = null!;
 
@@ -42,7 +43,7 @@ namespace Example.Pages
                 {
                     Snackbar.Add("Login failed, please check your Username and Password", Severity.Error);
                 }
-                
+
             }
         }
 

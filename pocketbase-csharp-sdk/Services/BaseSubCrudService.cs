@@ -73,6 +73,7 @@ namespace pocketbase_csharp_sdk.Services
 
         public async Task<T> UpdateAsync<T>(string sub, string id, T item, string? expand = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default) where T : BaseModel
         {
+            //TODO there is no need for the id parameter since every BaseModel already has the Id in it
             var query = new Dictionary<string, object?>()
             {
                 { "expand", expand },
@@ -87,6 +88,7 @@ namespace pocketbase_csharp_sdk.Services
 
         public T Update<T>(string sub, string id, T item, string? expand = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default) where T : BaseModel
         {
+            //TODO there is no need for the id parameter since every BaseModel already has the Id in it
             var query = new Dictionary<string, object?>()
             {
                 { "expand", expand },

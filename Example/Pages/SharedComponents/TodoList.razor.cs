@@ -1,18 +1,19 @@
-﻿using Example.DTOs;
-using Example.Models;
-using Mapster;
+﻿using Example.Models;
 using Microsoft.AspNetCore.Components;
 using pocketbase_csharp_sdk;
 
-namespace Example.Pages.Components
+namespace Example.Pages.SharedComponents
 {
     public partial class TodoList
     {
         [Inject]
         public PocketBase PocketBase { get; set; } = null!;
 
+        [Inject]
+        public NavigationManager NavigationManager { get; set; } = null!;
+
         private bool _loading = false;
-        private IEnumerable<TodoDTO>? todos;
+        private IEnumerable<TodoModel>? todos;
 
         protected override async Task OnInitializedAsync()
         {
@@ -23,14 +24,14 @@ namespace Example.Pages.Components
         private async Task LoadTodosFromPocketbase()
         {
             _loading = true;
-            var responseList = await PocketBase.Records.GetFullListAsync<TodoModel>("todos");
-            todos = responseList.Adapt<IEnumerable<TodoDTO>>();
+            todos = await PocketBase.Records.GetFullListAsync<TodoModel>("todos");
             _loading = false;
         }
 
-        private void ToggleDetails(TodoDTO dto)
+        private void GoToDetails(TodoModel dto)
         {
-            dto.ShowDetails = !dto.ShowDetails;
+            var path = $"/details/{dto.Id}";
+            NavigationManager.NavigateTo(path);
         }
 
     }

@@ -19,7 +19,7 @@
         }
         else
         {
-            <MudTable Items="todos" Loading="_loading" Hover="true">
+            <MudTable Items="todos" Loading="_loading" Hover="true" Elevation="0">
                 <HeaderContent>
                     <MudTh></MudTh>
                     <MudTh>
@@ -34,8 +34,8 @@
                 </HeaderContent>
                 <RowTemplate>
                     <MudTd>
-                        <MudButton StartIcon="@Icons.Material.Filled.Search" Size="Size.Small" Variant="Variant.Outlined" OnClick="() => ToggleDetails(context)">
-                            @(context.ShowDetails ? "Hide" : "Show") entries
+                        <MudButton StartIcon="@Icons.Material.Filled.Search" Size="Size.Small" Variant="Variant.Outlined" OnClick="() => GoToDetails(context)">
+                            Show entries
                         </MudButton>
                     </MudTd>
                     <MudTd DataLabel="Name">
@@ -48,15 +48,6 @@
                         @context.Updated
                     </MudTd>
                 </RowTemplate>
-                <ChildRowContent>
-                    @if (context.ShowDetails)
-                    {
-                        <h1>
-                            jajaja
-                        </h1>
-                        <TodoListEntries />
-                    }
-                </ChildRowContent>
             </MudTable>
         }
     </MudCardContent>

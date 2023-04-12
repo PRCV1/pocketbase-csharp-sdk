@@ -54,6 +54,8 @@ namespace Example
             }
 
             _pocketBase.AuthStore.Save(savedToken, null);
+            await _pocketBase.User.RefreshAsync();
+
             return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity(ParseClaimsFromJwt(savedToken), "jwt")));
         }
 

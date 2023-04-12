@@ -1,10 +1,11 @@
 ﻿@page "/"
+@using Example.Pages.SharedComponents
 
 <PageTitle>ToDo-Example</PageTitle>
 
 <AuthorizeView>
     <Authorized>
-        <Example.Pages.Components.TodoList />
+        <TodoList />
     </Authorized>
     <NotAuthorized>
         <RedirectTo To="/login" />

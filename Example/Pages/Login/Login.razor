@@ -1,0 +1,11 @@
+﻿@page "/login"
+@using Example.Pages.Login.Components
+
+<AuthorizeView>
+    <Authorized>
+        <RedirectTo To="/" />
+    </Authorized>
+    <NotAuthorized>
+        <NotLoggedIn />
+    </NotAuthorized>
+</AuthorizeView>
