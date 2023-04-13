@@ -1,0 +1,38 @@
+﻿@if (_currentUser is null)
+{
+    <MudCard>
+        <MudCardHeader>
+            <CardHeaderAvatar>
+                <MudSkeleton SkeletonType="SkeletonType.Circle" Animation="Animation.Wave" Height="40px" Width="40px" />
+            </CardHeaderAvatar>
+            <CardHeaderContent>
+                <MudSkeleton Animation="Animation.Wave" Width="40%" />
+                <MudSkeleton Animation="Animation.Wave" Width="60%" />
+            </CardHeaderContent>
+        </MudCardHeader>
+        <MudSkeleton SkeletonType="SkeletonType.Rectangle" Animation="Animation.Wave" Height="250px" />
+        <MudCardContent>
+            <MudSkeleton Animation="Animation.Wave" />
+        </MudCardContent>
+    </MudCard>
+}
+else
+{
+    <MudCard>
+        <MudCardHeader>
+            <CardHeaderAvatar>
+                <MudAvatar Color="Color.Secondary">
+                    @_currentUser.Username?.Substring(0, 1).ToUpper()
+                </MudAvatar>
+            </CardHeaderAvatar>
+            <CardHeaderContent>
+                <MudText Typo="Typo.body1">@_currentUser.Username</MudText>
+                <MudText Typo="Typo.body2">@string.Format("Created: {0:dd.MM.yyyy}", _currentUser.Created)</MudText>
+            </CardHeaderContent>
+        </MudCardHeader>
+        @if (!string.IsNullOrWhiteSpace(_avatarAsBase64))
+        {
+            <MudImage Src="@_avatarAsBase64" Class="mx-auto" Alt="Avatar" />
+        }
+    </MudCard>
+}

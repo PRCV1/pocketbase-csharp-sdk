@@ -13,7 +13,7 @@ namespace pocketbase_csharp_sdk.Services
 {
     public class UserService : BaseCrudService<UserModel>
     {
-        protected override string BasePath(string? url = null) => "/api/collections/users";
+        protected override string BasePath(string? url = null) => "/api/collections/users/records";
 
         private readonly PocketBase client;
 
