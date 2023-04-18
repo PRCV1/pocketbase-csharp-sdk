@@ -8,6 +8,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
+using FluentResults;
+using pocketbase_csharp_sdk.Services.Base;
 
 namespace pocketbase_csharp_sdk.Services
 {
@@ -16,7 +18,6 @@ namespace pocketbase_csharp_sdk.Services
         protected override string BasePath(string? url = null) => "/api/collections/users/records";
 
         private readonly PocketBase client;
-
         private readonly CollectionAuthService<UserAuthModel, UserModel> authService;
 
         public UserService(PocketBase client) : base(client)
@@ -34,7 +35,7 @@ namespace pocketbase_csharp_sdk.Services
         /// <param name="cancellationToken">The cancellation token for the request.</param>
         /// <returns>A task that returns the created `UserModel`.</returns>
         /// <exception cref="ClientException">Thrown if the client fails to send the request or receive a response.</exception>
-        public async Task<UserModel> CreateAsync(string email, string password, string passwordConfirm, CancellationToken cancellationToken = default)
+        public Task<Result<UserModel>> CreateAsync(string email, string password, string passwordConfirm, CancellationToken cancellationToken = default)
         {
             Dictionary<string, object> body = new()
             {
@@ -43,13 +44,7 @@ namespace pocketbase_csharp_sdk.Services
                 { "passwordConfirm", passwordConfirm },
             };
 
-            var response = await client.SendAsync<UserModel>(BasePath(), HttpMethod.Post, body: body, cancellationToken: cancellationToken);
-            if (response is null)
-            {
-                throw new ClientException(BasePath());
-            }
-
-            return response;
+            return client.SendAsync<UserModel>(BasePath(), HttpMethod.Post, body: body, cancellationToken: cancellationToken);
         }
 
         /// <summary>
@@ -61,7 +56,7 @@ namespace pocketbase_csharp_sdk.Services
         /// <param name="cancellationToken">The cancellation token for the request.</param>
         /// <returns>A task that returns the created `UserModel`.</returns>
         /// <exception cref="ClientException">Thrown if the client fails to send the request or receive a response.</exception>
-        public UserModel Create(string email, string password, string passwordConfirm, CancellationToken cancellationToken = default)
+        public Result<UserModel> Create(string email, string password, string passwordConfirm, CancellationToken cancellationToken = default)
         {
             Dictionary<string, object> body = new()
             {
@@ -70,128 +65,7 @@ namespace pocketbase_csharp_sdk.Services
                 { "passwordConfirm", passwordConfirm },
             };
 
-            var response = client.Send<UserModel>(BasePath(), HttpMethod.Post, body: body, cancellationToken: cancellationToken);
-            if (response is null)
-            {
-                throw new ClientException(BasePath());
-            }
-
-            return response;
-        }
-
-        /// <summary>
-        /// Asynchronously lists all users in a paginated manner.
-        /// </summary>
-        /// <param name="page">The page number of the results to retrieve (default is 1).</param>
-        /// <param name="perPage">The number of results to retrieve per page (default is 30).</param>
-        /// <param name="filter">The filter to apply to the results (optional).</param>
-        /// <param name="sort">The sort order to apply to the results (optional).</param>
-        /// <param name="cancellationToken">The cancellation token for the request.</param>
-        /// <returns>A task that returns a `PagedCollectionModel` of `UserModel`.</returns>
-        /// <exception cref="ClientException">Thrown if the client fails to send the request or receive a response.</exception>
-        public Task<PagedCollectionModel<UserModel>> ListAsync(int page = 1, int perPage = 30, string? filter = null, string? sort = null, CancellationToken cancellationToken = default)
-        {
-            return base.ListAsync<UserModel>();
-            //var query = new Dictionary<string, object?>()
-            //{
-            //    { "filter", filter },
-            //    { "page", page },
-            //    { "perPage", perPage },
-            //    { "sort", sort }
-            //};
-
-            //var url = $"{BasePath()}/records";
-            //var response = await client.SendAsync<PagedCollectionModel<UserModel>>(url, HttpMethod.Get, query: query, cancellationToken: cancellationToken);
-            //if (response is null)
-            //{
-            //    throw new ClientException(BasePath());
-            //}
-
-            //return response;
-        }
-
-        /// <summary>
-        /// lists all users in a paginated manner.
-        /// </summary>
-        /// <param name="page">The page number of the results to retrieve (default is 1).</param>
-        /// <param name="perPage">The number of results to retrieve per page (default is 30).</param>
-        /// <param name="filter">The filter to apply to the results (optional).</param>
-        /// <param name="sort">The sort order to apply to the results (optional).</param>
-        /// <param name="cancellationToken">The cancellation token for the request.</param>
-        /// <returns>A task that returns a `PagedCollectionModel` of `UserModel`.</returns>
-        /// <exception cref="ClientException">Thrown if the client fails to send the request or receive a response.</exception>
-        public override PagedCollectionModel<UserModel> List(int page = 1, int perPage = 30, string? filter = null, string? sort = null, CancellationToken cancellationToken = default)
-        {
-            var query = new Dictionary<string, object?>()
-            {
-                { "filter", filter },
-                { "page", page },
-                { "perPage", perPage },
-                { "sort", sort }
-            };
-
-            var url = $"{BasePath()}/records";
-            var response = client.Send<PagedCollectionModel<UserModel>>(url, HttpMethod.Get, query: query, cancellationToken: cancellationToken);
-            if (response is null)
-            {
-                throw new ClientException(BasePath());
-            }
-
-            return response;
-        }
-
-        /// <summary>
-        /// Asynchronously lists all users.
-        /// </summary>
-        /// <param name="page">The page number of the results to retrieve (default is 1).</param>
-        /// <param name="perPage">The number of results to retrieve per page (default is 30).</param>
-        /// <param name="filter">The filter to apply to the results (optional).</param>
-        /// <param name="sort">The sort order to apply to the results (optional).</param>
-        /// <param name="cancellationToken">The cancellation token for the request.</param>
-        /// <returns>A task that returns a `PagedCollectionModel` of `UserModel`.</returns>
-        /// <exception cref="ClientException">Thrown if the client fails to send the request or receive a response.</exception>
-        public Task<IEnumerable<UserModel>> GetFullListAsync(int batch = 100, string? filter = null, string? sort = null, CancellationToken cancellationToken = default)
-        {
-            return base.GetFullListAsync<UserModel>(null, batch, filter, sort, cancellationToken);
-        }
-
-        /// <summary>
-        /// lists all users.
-        /// </summary>
-        /// <param name="page">The page number of the results to retrieve (default is 1).</param>
-        /// <param name="perPage">The number of results to retrieve per page (default is 30).</param>
-        /// <param name="filter">The filter to apply to the results (optional).</param>
-        /// <param name="sort">The sort order to apply to the results (optional).</param>
-        /// <param name="cancellationToken">The cancellation token for the request.</param>
-        /// <returns>A task that returns a `PagedCollectionModel` of `UserModel`.</returns>
-        /// <exception cref="ClientException">Thrown if the client fails to send the request or receive a response.</exception>
-        public override IEnumerable<UserModel> GetFullList(int batch = 100, string? filter = null, string? sort = null, CancellationToken cancellationToken = default)
-        {
-            return base.GetFullList<UserModel>(null, batch, filter, sort, cancellationToken);
-        }
-
-        /// <summary>
-        /// Gets the specific user from the id
-        /// </summary>
-        /// <param name="id">The id of the user</param>
-        /// <param name="cancellationToken">The cancellation token for the request.</param>
-        /// <returns>The cancellation token for the request.</returns>
-        public Task<UserModel?> GetOneAsync(string id, CancellationToken cancellationToken = default)
-        {
-            string url = $"{BasePath()}/{UrlEncode(id)}";
-            return client.SendAsync<UserModel>(url, HttpMethod.Get, cancellationToken: cancellationToken);
-        }
-
-        /// <summary>
-        /// Gets the specific user from the id
-        /// </summary>
-        /// <param name="id">The id of the user</param>
-        /// <param name="cancellationToken">The cancellation token for the request.</param>
-        /// <returns>The cancellation token for the request.</returns>
-        public UserModel? GetOne(string id, CancellationToken cancellationToken = default)
-        {
-            string url = $"{BasePath()}/{UrlEncode(id)}";
-            return client.Send<UserModel>(url, HttpMethod.Get, cancellationToken: cancellationToken);
+            return client.Send<UserModel>(BasePath(), HttpMethod.Post, body: body, cancellationToken: cancellationToken);
         }
 
         /// <summary>
@@ -208,7 +82,7 @@ namespace pocketbase_csharp_sdk.Services
         /// <param name="file"></param>
         /// <param name="cancellationToken">The cancellation token for the request.</param>
         /// <returns></returns>
-        public Task<UserModel?> UpdateAsync(string id, string? username = null, string? email = null, bool? emailVisibility = null, string? oldPassword = null, string? password = null, string? passwordConfirm = null, bool? verified = null, object? file = null, CancellationToken cancellationToken = default)
+        public Task<Result<UserModel>> UpdateAsync(string id, string? username = null, string? email = null, bool? emailVisibility = null, string? oldPassword = null, string? password = null, string? passwordConfirm = null, bool? verified = null, object? file = null, CancellationToken cancellationToken = default)
         {
             //TODO File
             Dictionary<string, object> body = new Dictionary<string, object>();
@@ -238,7 +112,7 @@ namespace pocketbase_csharp_sdk.Services
         /// <param name="file"></param>
         /// <param name="cancellationToken">The cancellation token for the request.</param>
         /// <returns></returns>
-        public UserModel? Update(string id, string? username = null, string? email = null, bool? emailVisibility = null, string? oldPassword = null, string? password = null, string? passwordConfirm = null, bool? verified = null, object? file = null, CancellationToken cancellationToken = default)
+        public Result<UserModel> Update(string id, string? username = null, string? email = null, bool? emailVisibility = null, string? oldPassword = null, string? password = null, string? passwordConfirm = null, bool? verified = null, object? file = null, CancellationToken cancellationToken = default)
         {
             //TODO File
             Dictionary<string, object> body = new Dictionary<string, object>();
@@ -261,7 +135,7 @@ namespace pocketbase_csharp_sdk.Services
         /// <param name="headers"></param>
         /// <param name="cancellationToken">The cancellation token for the request.</param>
         /// <returns></returns>
-        public Task<AuthMethodsList?> GetAuthenticationMethodsAsync(IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default)
+        public Task<Result<AuthMethodsList>> GetAuthenticationMethodsAsync(IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default)
         {
             return authService.GetAuthenticationMethodsAsync(query, headers, cancellationToken);
         }
@@ -273,7 +147,7 @@ namespace pocketbase_csharp_sdk.Services
         /// <param name="headers"></param>
         /// <param name="cancellationToken">The cancellation token for the request.</param>
         /// <returns></returns>
-        public AuthMethodsList? GetAuthenticationMethods(IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default)
+        public Result<AuthMethodsList> GetAuthenticationMethods(IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default)
         {
             return authService.GetAuthenticationMethods(query, headers, cancellationToken);
         }
@@ -287,7 +161,7 @@ namespace pocketbase_csharp_sdk.Services
         /// <param name="headers">The headers to send to the API. Default is null.</param>
         /// <param name="cancellationToken">A cancellation token to cancel the operation. Default is the default cancellation token.</param>
         /// <returns>An object of type T containing the authenticated user's information.</returns>
-        public Task<UserAuthModel?> AuthenticateWithPasswordAsync(string usernameOrEmail, string password, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default)
+        public Task<Result<UserAuthModel>> AuthenticateWithPasswordAsync(string usernameOrEmail, string password, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default)
         {
             return authService.AuthenticateWithPasswordAsync(usernameOrEmail, password, query, headers, cancellationToken);
         }
@@ -301,27 +175,27 @@ namespace pocketbase_csharp_sdk.Services
         /// <param name="headers">The headers to send to the API. Default is null.</param>
         /// <param name="cancellationToken">A cancellation token to cancel the operation. Default is the default cancellation token.</param>
         /// <returns>An object of type T containing the authenticated user's information.</returns>
-        public UserAuthModel? AuthenticateWithPassword(string usernameOrEmail, string password, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default)
+        public Result<UserAuthModel> AuthenticateWithPassword(string usernameOrEmail, string password, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default)
         {
             return authService.AuthenticateWithPassword(usernameOrEmail, password, query, headers, cancellationToken);
         }
 
-        public Task<UserAuthModel?> AuthenticateViaOAuth2Async(string provider, string code, string codeVerifier, string redirectUrl, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default)
+        public Task<Result<UserAuthModel>> AuthenticateViaOAuth2Async(string provider, string code, string codeVerifier, string redirectUrl, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default)
         {
             return authService.AuthenticateViaOAuth2Async(provider, code, codeVerifier, redirectUrl, body, query, headers, cancellationToken);
         }
 
-        public UserAuthModel? AuthenticateViaOAuth2(string provider, string code, string codeVerifier, string redirectUrl, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default)
+        public Result<UserAuthModel> AuthenticateViaOAuth2(string provider, string code, string codeVerifier, string redirectUrl, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default)
         {
             return authService.AuthenticateViaOAuth2(provider, code, codeVerifier, redirectUrl, body, query, headers, cancellationToken);
         }
 
-        public Task<UserAuthModel?> RefreshAsync(IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default)
+        public Task<Result<UserAuthModel>> RefreshAsync(IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default)
         {
             return authService.RefreshAsync(body, query, headers, cancellationToken);
         }
 
-        public UserAuthModel? Refresh(IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default)
+        public Result<UserAuthModel> Refresh(IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default)
         {
             return authService.Refresh(body, query, headers, cancellationToken);
         }
@@ -336,12 +210,12 @@ namespace pocketbase_csharp_sdk.Services
             authService.RequestPasswordReset(email, body, query, headers, cancellationToken);
         }
 
-        public Task<UserAuthModel?> ConfirmPasswordResetAsync(string passwordResetToken, string password, string passwordConfirm, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default)
+        public Task<Result<UserAuthModel>> ConfirmPasswordResetAsync(string passwordResetToken, string password, string passwordConfirm, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default)
         {
             return authService.ConfirmPasswordResetAsync(passwordResetToken, password, passwordConfirm, body, query, headers, cancellationToken);
         }
 
-        public UserAuthModel? ConfirmPasswordReset(string passwordResetToken, string password, string passwordConfirm, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default)
+        public Result<UserAuthModel> ConfirmPasswordReset(string passwordResetToken, string password, string passwordConfirm, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default)
         {
             return authService.ConfirmPasswordReset(passwordResetToken, password, passwordConfirm, body, query, headers, cancellationToken);
         }
@@ -356,12 +230,12 @@ namespace pocketbase_csharp_sdk.Services
             authService.RequestVerification(email, body, query, headers, cancellationToken);
         }
 
-        public Task<UserAuthModel?> ConfirmVerificationAsync(string token, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default)
+        public Task<Result<UserAuthModel>> ConfirmVerificationAsync(string token, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default)
         {
             return authService.ConfirmVerificationAsync(token, body, query, headers, cancellationToken);
         }
 
-        public UserAuthModel? ConfirmVerification(string token, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default)
+        public Result<UserAuthModel> ConfirmVerification(string token, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default)
         {
             return authService.ConfirmVerification(token, body, query, headers, cancellationToken);
         }
@@ -376,22 +250,22 @@ namespace pocketbase_csharp_sdk.Services
             authService.RequestEmailChange(newEmail, body, query, headers, cancellationToken);
         }
 
-        public Task<UserAuthModel?> ConfirmEmailChangeAsync(string emailChangeToken, string userPassword, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default)
+        public Task<Result<UserAuthModel>> ConfirmEmailChangeAsync(string emailChangeToken, string userPassword, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default)
         {
             return authService.ConfirmEmailChangeAsync(emailChangeToken, userPassword, body, query, headers, cancellationToken);
         }
 
-        public UserAuthModel? ConfirmEmailChange(string emailChangeToken, string userPassword, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default)
+        public Result<UserAuthModel> ConfirmEmailChange(string emailChangeToken, string userPassword, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default)
         {
             return authService.ConfirmEmailChange(emailChangeToken, userPassword, body, query, headers, cancellationToken);
         }
 
-        public Task<IEnumerable<ExternalAuthModel>?> GetExternalAuthenticationMethodsAsync(string userId, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default)
+        public Task<Result<IEnumerable<ExternalAuthModel>>> GetExternalAuthenticationMethodsAsync(string userId, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default)
         {
             return authService.GetExternalAuthenticationMethodsAsync(userId, query, headers, cancellationToken);
         }
 
-        public IEnumerable<ExternalAuthModel>? GetExternalAuthenticationMethods(string userId, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default)
+        public Result<IEnumerable<ExternalAuthModel>> GetExternalAuthenticationMethods(string userId, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default)
         {
             return authService.GetExternalAuthenticationMethods(userId, query, headers, cancellationToken);
         }

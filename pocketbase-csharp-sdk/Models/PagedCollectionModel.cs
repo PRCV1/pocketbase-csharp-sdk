@@ -5,7 +5,7 @@
         public int Page { get; set; }
         public int PerPage { get; set; }
         public int TotalItems { get; set; }
-        public T[]? Items { get; set; }
+        public ICollection<T>? Items { get; set; }
     }
 
 }

@@ -2,6 +2,8 @@
 using pocketbase_csharp_sdk.Models.Auth;
 using pocketbase_csharp_sdk.Models.Log;
 using System.Web;
+using FluentResults;
+using pocketbase_csharp_sdk.Services.Base;
 
 namespace pocketbase_csharp_sdk.Services
 {
@@ -18,14 +20,13 @@ namespace pocketbase_csharp_sdk.Services
         protected override string BasePath(string? url = null) => $"/api/collections/{this.collectionName}";
 
         private readonly string collectionName;
-
-
+        
         public CollectionAuthService(PocketBase client, string collectionName) : base(client)
         {
             this.collectionName = collectionName;
         }
 
-        public async Task<R?> AuthenticateViaOAuth2Async(string provider, string code, string codeVerifier, string redirectUrl, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default)
+        public async Task<Result<R>> AuthenticateViaOAuth2Async(string provider, string code, string codeVerifier, string redirectUrl, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default)
         {
             body ??= new Dictionary<string, object>();
             body.Add("provider", provider);
@@ -36,12 +37,10 @@ namespace pocketbase_csharp_sdk.Services
             var url = $"{BasePath()}/auth-via-oauth2";
             var result = await client.SendAsync<R>(url, HttpMethod.Post, headers: headers, body: body, query: query, cancellationToken: cancellationToken);
 
-            SaveAuthentication(result);
-
-            return result;
+            return SetAndReturn(result);
         }
 
-        public R? AuthenticateViaOAuth2(string provider, string code, string codeVerifier, string redirectUrl, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default)
+        public Result<R> AuthenticateViaOAuth2(string provider, string code, string codeVerifier, string redirectUrl, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default)
         {
             body ??= new Dictionary<string, object>();
             body.Add("provider", provider);
@@ -52,9 +51,7 @@ namespace pocketbase_csharp_sdk.Services
             var url = $"{BasePath()}/auth-via-oauth2";
             var result = client.Send<R>(url, HttpMethod.Post, headers: headers, body: body, query: query, cancellationToken: cancellationToken);
 
-            SaveAuthentication(result);
-
-            return result;
+            return SetAndReturn(result);
         }
 
         public Task RequestVerificationAsync(string email, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default)
@@ -75,7 +72,7 @@ namespace pocketbase_csharp_sdk.Services
             client.Send(url, HttpMethod.Post, headers: headers, query: query, body: body, cancellationToken: cancellationToken);
         }
 
-        public async Task<R?> ConfirmVerificationAsync(string token, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default)
+        public async Task<Result<R>> ConfirmVerificationAsync(string token, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default)
         {
             body ??= new Dictionary<string, object>();
             body.Add("token", token);
@@ -83,12 +80,10 @@ namespace pocketbase_csharp_sdk.Services
             var url = $"{BasePath()}/confirm-verification";
             var result = await client.SendAsync<R>(url, HttpMethod.Post, headers: headers, query: query, body: body, cancellationToken: cancellationToken);
 
-            SaveAuthentication(result);
-
-            return result;
+            return SetAndReturn(result);
         }
 
-        public R? ConfirmVerification(string token, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default)
+        public Result<R> ConfirmVerification(string token, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default)
         {
             body ??= new Dictionary<string, object>();
             body.Add("token", token);
@@ -96,9 +91,7 @@ namespace pocketbase_csharp_sdk.Services
             var url = $"{BasePath()}/confirm-verification";
             var result = client.Send<R>(url, HttpMethod.Post, headers: headers, query: query, body: body, cancellationToken: cancellationToken);
 
-            SaveAuthentication(result);
-
-            return result;
+            return SetAndReturn(result);
         }
 
         public Task RequestEmailChangeAsync(string newEmail, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default)
@@ -119,7 +112,7 @@ namespace pocketbase_csharp_sdk.Services
             client.Send(url, HttpMethod.Post, headers: headers, query: query, body: body, cancellationToken: cancellationToken);
         }
 
-        public async Task<R?> ConfirmEmailChangeAsync(string emailChangeToken, string userPassword, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default)
+        public async Task<Result<R>> ConfirmEmailChangeAsync(string emailChangeToken, string userPassword, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default)
         {
             body ??= new Dictionary<string, object>();
             body.Add("token", emailChangeToken);
@@ -128,12 +121,10 @@ namespace pocketbase_csharp_sdk.Services
             var url = $"{BasePath()}/confirm-email-change";
             var result = await client.SendAsync<R>(url, HttpMethod.Post, headers: headers, query: query, body: body, cancellationToken: cancellationToken);
 
-            SaveAuthentication(result);
-
-            return result;
+            return SetAndReturn(result);
         }
 
-        public R? ConfirmEmailChange(string emailChangeToken, string userPassword, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default)
+        public Result<R> ConfirmEmailChange(string emailChangeToken, string userPassword, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default)
         {
             body ??= new Dictionary<string, object>();
             body.Add("token", emailChangeToken);
@@ -142,30 +133,28 @@ namespace pocketbase_csharp_sdk.Services
             var url = $"{BasePath()}/confirm-email-change";
             var result = client.Send<R>(url, HttpMethod.Post, headers: headers, query: query, body: body, cancellationToken: cancellationToken);
 
-            SaveAuthentication(result);
-
-            return result;
+            return SetAndReturn(result);
         }
 
-        public Task<AuthMethodsList?> GetAuthenticationMethodsAsync(IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default)
+        public Task<Result<AuthMethodsList>> GetAuthenticationMethodsAsync(IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default)
         {
             var url = $"{BasePath()}/auth-methods";
             return client.SendAsync<AuthMethodsList>(url, HttpMethod.Get, headers: headers, query: query, cancellationToken: cancellationToken);
         }
 
-        public AuthMethodsList? GetAuthenticationMethods(IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default)
+        public Result<AuthMethodsList> GetAuthenticationMethods(IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default)
         {
             var url = $"{BasePath()}/auth-methods";
             return client.Send<AuthMethodsList>(url, HttpMethod.Get, headers: headers, query: query, cancellationToken: cancellationToken);
         }
 
-        public Task<IEnumerable<ExternalAuthModel>?> GetExternalAuthenticationMethodsAsync(string userId, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default)
+        public Task<Result<IEnumerable<ExternalAuthModel>>> GetExternalAuthenticationMethodsAsync(string userId, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default)
         {
             var url = $"{BasePath()}/records/{HttpUtility.HtmlEncode(userId)}/external-auths";
             return client.SendAsync<IEnumerable<ExternalAuthModel>>(url, HttpMethod.Get, headers: headers, query: query, cancellationToken: cancellationToken);
         }
 
-        public IEnumerable<ExternalAuthModel>? GetExternalAuthenticationMethods(string userId, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default)
+        public Result<IEnumerable<ExternalAuthModel>> GetExternalAuthenticationMethods(string userId, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default)
         {
             var url = $"{BasePath()}/records/{HttpUtility.HtmlEncode(userId)}/external-auths";
             return client.Send<IEnumerable<ExternalAuthModel>>(url, HttpMethod.Get, headers: headers, query: query, cancellationToken: cancellationToken);

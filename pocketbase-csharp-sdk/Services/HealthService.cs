@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using FluentResults;
+using pocketbase_csharp_sdk.Services.Base;
 
 namespace pocketbase_csharp_sdk.Services
 {
@@ -21,7 +23,7 @@ namespace pocketbase_csharp_sdk.Services
         /// <summary>
         /// Returns the health status of the server.
         /// </summary>
-        public Task<ApiHealthModel?> CheckHealthAsync()
+        public Task<Result<ApiHealthModel>> CheckHealthAsync()
         {
             return pocketBase.SendAsync<ApiHealthModel>(BasePath(), HttpMethod.Get);
         }
@@ -29,7 +31,7 @@ namespace pocketbase_csharp_sdk.Services
         /// <summary>
         /// Returns the health status of the server.
         /// </summary>
-        public ApiHealthModel? CheckHealth()
+        public Result<ApiHealthModel> CheckHealth()
         {
             return pocketBase.Send<ApiHealthModel>(BasePath(), HttpMethod.Get);
         }

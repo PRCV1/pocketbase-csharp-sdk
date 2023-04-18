@@ -10,7 +10,6 @@ namespace pocketbase_csharp_sdk
 {
     public class AuthStore
     {
-
         public event EventHandler<AuthStoreEvent>? OnChange;
 
         public string? Token { get; set; }
@@ -47,14 +46,16 @@ namespace pocketbase_csharp_sdk
 
         private byte[] ParsePayload(string payload)
         {
-            if (payload.Length % 4 == 2)
+            switch (payload.Length % 4)
             {
-                payload += "==";
+                case 2:
+                    payload += "==";
+                    break;
+                case 3:
+                    payload += "=";
+                    break;
             }
-            else if (payload.Length % 4 == 3)
-            {
-                payload += "=";
-            }
+
             return Convert.FromBase64String(payload);
         }
 

@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using FluentResults;
+using pocketbase_csharp_sdk.Services.Base;
 
 namespace pocketbase_csharp_sdk.Services
 {
@@ -38,13 +40,13 @@ namespace pocketbase_csharp_sdk.Services
             client.Send(url, HttpMethod.Put, headers: headers, query: query, body: body, cancellationToken: cancellationToken);
         }
 
-        public Task<CollectionModel?> GetByNameAsync(string name, CancellationToken cancellationToken = default)
+        public Task<Result<CollectionModel>> GetByNameAsync(string name, CancellationToken cancellationToken = default)
         {
             var url = $"{BasePath()}/{UrlEncode(name)}";
             return client.SendAsync<CollectionModel>(url, HttpMethod.Get, cancellationToken: cancellationToken);
         }
 
-        public CollectionModel? GetByName(string name, CancellationToken cancellationToken = default)
+        public Result<CollectionModel> GetByName(string name, CancellationToken cancellationToken = default)
         {
             var url = $"{BasePath()}/{UrlEncode(name)}";
             return client.Send<CollectionModel>(url, HttpMethod.Get, cancellationToken: cancellationToken);

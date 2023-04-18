@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using FluentResults;
+using pocketbase_csharp_sdk.Services.Base;
 
 namespace pocketbase_csharp_sdk.Services
 {
@@ -19,22 +21,22 @@ namespace pocketbase_csharp_sdk.Services
             this.client = client;
         }
 
-        public Task<IDictionary<string, object>?> GetAllAsync(IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default)
+        public Task<Result<IDictionary<string, object>>> GetAllAsync(IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default)
         {
             return client.SendAsync<IDictionary<string, object>>(BasePath(), HttpMethod.Get, headers: headers, query: query, cancellationToken: cancellationToken);
         }
 
-        public IDictionary<string, object>? GetAll(IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default)
+        public Result<IDictionary<string, object>> GetAll(IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default)
         {
             return client.Send<IDictionary<string, object>>(BasePath(), HttpMethod.Get, headers: headers, query: query, cancellationToken: cancellationToken);
         }
 
-        public Task<IDictionary<string, object>?> UpdateAsync(IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default)
+        public Task<Result<IDictionary<string, object>>> UpdateAsync(IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default)
         {
             return client.SendAsync<IDictionary<string, object>>(BasePath(), HttpMethod.Patch, headers: headers, query: query, body: body, cancellationToken: cancellationToken);
         }
 
-        public IDictionary<string, object>? Update(IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default)
+        public Result<IDictionary<string, object>> Update(IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default)
         {
             return client.Send<IDictionary<string, object>>(BasePath(), HttpMethod.Patch, headers: headers, query: query, body: body, cancellationToken: cancellationToken);
         }

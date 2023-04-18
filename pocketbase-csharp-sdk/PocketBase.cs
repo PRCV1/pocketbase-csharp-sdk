@@ -14,6 +14,7 @@ using System.Net.Mime;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Web;
+using FluentResults;
 
 namespace pocketbase_csharp_sdk
 {
@@ -44,7 +45,7 @@ namespace pocketbase_csharp_sdk
 
         private readonly string _baseUrl;
         private readonly string _language;
-        internal readonly HttpClient _httpClient;
+        private readonly HttpClient _httpClient;
 
         public PocketBase(string baseUrl, AuthStore? authStore = null, string language = "en-US", HttpClient? httpClient = null)
         {
@@ -125,6 +126,8 @@ namespace pocketbase_csharp_sdk
 
         public void Send(string path, HttpMethod method, IDictionary<string, string>? headers = null, IDictionary<string, object?>? query = null, IDictionary<string, object>? body = null, IEnumerable<IFile>? files = null, CancellationToken cancellationToken = default)
         {
+            //RETURN RESULT
+            
             headers ??= new Dictionary<string, string>();
             query ??= new Dictionary<string, object?>();
             body ??= new Dictionary<string, object>();
@@ -173,7 +176,7 @@ namespace pocketbase_csharp_sdk
             }
         }
 
-        public async Task<T?> SendAsync<T>(string path, HttpMethod method, IDictionary<string, string>? headers = null, IDictionary<string, object?>? query = null, IDictionary<string, object>? body = null, IEnumerable<IFile>? files = null, CancellationToken cancellationToken = default)
+        public async Task<Result<T>> SendAsync<T>(string path, HttpMethod method, IDictionary<string, string>? headers = null, IDictionary<string, object?>? query = null, IDictionary<string, object>? body = null, IEnumerable<IFile>? files = null, CancellationToken cancellationToken = default)
         {
             headers ??= new Dictionary<string, string>();
             query ??= new Dictionary<string, object?>();
@@ -201,34 +204,31 @@ namespace pocketbase_csharp_sdk
 #if DEBUG
                 var json = await response.Content.ReadAsStringAsync(cancellationToken);
 #endif
-
+                
                 if ((int)response.StatusCode >= 400)
                 {
-                    //TODO
-                    //var dic = GetResponseAsDictionary(responseData);
-                    //throw new ClientException(url.ToString(), statusCode: (int)response.StatusCode, response: dic);
-                    throw new ClientException(url.ToString(), statusCode: (int)response.StatusCode);
+                    ClientError error = new ClientError(method, url.ToString(), (int)response.StatusCode);
+                    return Result.Fail(error);
                 }
 
-                return await response.Content.ReadFromJsonAsync<T>(jsonSerializerOptions, cancellationToken);
+                var parsedResponse =
+                    await response.Content.ReadFromJsonAsync<T>(jsonSerializerOptions, cancellationToken);
+                return Result.Ok(parsedResponse!);
             }
             catch (Exception ex)
             {
-                if (ex is ClientException)
+
+                if (ex is HttpRequestException requestException)
                 {
-                    throw;
+                    ClientError error = new ClientError(method, url.ToString(), (int)requestException.StatusCode!);
+                    return Result.Fail(error);
                 }
-                else if (ex is HttpRequestException)
-                {
-                    throw new ClientException(url: url.ToString(), originalError: ex, isAbort: true);
-                }
-                else
-                {
-                    throw new ClientException(url: url.ToString(), originalError: ex);
-                }
+
+                return Result.Fail(new Error(ex.Message));
             }
         }
-        public T? Send<T>(string path, HttpMethod method, IDictionary<string, string>? headers = null, IDictionary<string, object?>? query = null, IDictionary<string, object>? body = null, IEnumerable<IFile>? files = null, CancellationToken cancellationToken = default)
+        
+        public Result<T> Send<T>(string path, HttpMethod method, IDictionary<string, string>? headers = null, IDictionary<string, object?>? query = null, IDictionary<string, object>? body = null, IEnumerable<IFile>? files = null, CancellationToken cancellationToken = default)
         {
             headers ??= new Dictionary<string, string>();
             query ??= new Dictionary<string, object?>();
@@ -255,28 +255,24 @@ namespace pocketbase_csharp_sdk
 
                 if ((int)response.StatusCode >= 400)
                 {
-                    //TODO
-                    //var dic = GetResponseAsDictionary(responseData);
-                    //throw new ClientException(url.ToString(), statusCode: (int)response.StatusCode, response: dic);
-                    throw new ClientException(url.ToString(), statusCode: (int)response.StatusCode);
+                    ClientError error = new ClientError(method, url.ToString(), (int)response.StatusCode);
+                    return Result.Fail(error);
                 }
-                using (var stream = response.Content.ReadAsStream())
-                    return JsonSerializer.Deserialize<T>(stream, jsonSerializerOptions);
+
+                using var stream = response.Content.ReadAsStream();
+                var parsedResponse = JsonSerializer.Deserialize<T>(stream, jsonSerializerOptions);
+                return Result.Ok(parsedResponse!);
             }
             catch (Exception ex)
             {
-                if (ex is ClientException)
+                
+                if (ex is HttpRequestException requestException)
                 {
-                    throw;
+                    ClientError error = new ClientError(method, url.ToString(), (int)requestException.StatusCode!);
+                    return Result.Fail(error);
                 }
-                else if (ex is HttpRequestException)
-                {
-                    throw new ClientException(url: url.ToString(), originalError: ex, isAbort: true);
-                }
-                else
-                {
-                    throw new ClientException(url: url.ToString(), originalError: ex);
-                }
+
+                return Result.Fail(new Error(ex.Message));
             }
         }
 

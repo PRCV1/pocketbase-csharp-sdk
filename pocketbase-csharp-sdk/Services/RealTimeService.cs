@@ -1,4 +1,5 @@
 ﻿using pocketbase_csharp_sdk.Models;
+using pocketbase_csharp_sdk.Services.Base;
 using pocketbase_csharp_sdk.Sse;
 
 namespace pocketbase_csharp_sdk.Services

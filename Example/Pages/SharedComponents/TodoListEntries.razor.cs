@@ -57,7 +57,7 @@ namespace Example.Pages.SharedComponents
             }
             foreach (var item in _entries)
             {
-                await PocketBase.Records.UpdateAsync<EntryModel>("todos_entries", item.Id, item);
+                await PocketBase.Records.UpdateAsync<EntryModel>("todos_entries", item);
             }
         }
 
