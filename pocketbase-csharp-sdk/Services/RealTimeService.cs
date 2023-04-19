@@ -8,37 +8,37 @@ namespace pocketbase_csharp_sdk.Services
     {
         protected override string BasePath(string? path = null) => "/api/realtime";
 
-        private readonly PocketBase client;
+        private readonly PocketBase _client;
 
-        private SseClient? _SseClient = null;
-        private SseClient SseClient => _SseClient ??= new SseClient(client, RealTimeCallBackAsync);
+        private SseClient? _sseClient = null;
+        private SseClient SseClient => _sseClient ??= new SseClient(_client, RealTimeCallBackAsync);
 
-        private readonly Dictionary<string, List<Func<SseMessage, Task>>> Subscriptions = new();
+        private readonly Dictionary<string, List<Func<SseMessage, Task>>> _subscriptions = new();
 
-        public RealTimeService(PocketBase client) : base(client)
+        public RealTimeService(PocketBase client)
         {
-            this.client = client;
+            this._client = client;
         }
 
         private async Task RealTimeCallBackAsync(SseMessage message)
         {
             var messageEvent = message.Event ?? "";
-            if (Subscriptions.ContainsKey(messageEvent))
-                foreach (var callBack in Subscriptions[messageEvent])
+            if (_subscriptions.ContainsKey(messageEvent))
+                foreach (var callBack in _subscriptions[messageEvent])
                     await callBack(message);
         }
 
         public async Task SubscribeAsync(string subscription, Func<SseMessage, Task> callback)
         {
-            if (!Subscriptions.ContainsKey(subscription))
+            if (!_subscriptions.ContainsKey(subscription))
             {
                 // New subscription
-                Subscriptions.Add(subscription, new List<Func<SseMessage, Task>> { callback });
+                _subscriptions.Add(subscription, new List<Func<SseMessage, Task>> { callback });
                 await SubmitSubscriptionsAsync();
             }
             else
             {
-                var subcriptionCallbacks = Subscriptions[subscription];
+                var subcriptionCallbacks = _subscriptions[subscription];
                 if (!subcriptionCallbacks.Contains(callback))
                     subcriptionCallbacks.Add(callback);
             }
@@ -47,9 +47,9 @@ namespace pocketbase_csharp_sdk.Services
         public Task UnsubscribeAsync(string? topic = null)
         {
             if (string.IsNullOrEmpty(topic))
-                Subscriptions.Clear();
-            else if (Subscriptions.ContainsKey(topic))
-                Subscriptions.Remove(topic);
+                _subscriptions.Clear();
+            else if (_subscriptions.ContainsKey(topic))
+                _subscriptions.Remove(topic);
             else
                 return Task.CompletedTask;
             return SubmitSubscriptionsAsync();
@@ -57,11 +57,11 @@ namespace pocketbase_csharp_sdk.Services
 
         public async Task UnsubscribeByPrefixAsync(string prefix)
         {
-            var subscriptionsToRemove = Subscriptions.Keys.Where(k => k.StartsWith(prefix)).ToList();
+            var subscriptionsToRemove = _subscriptions.Keys.Where(k => k.StartsWith(prefix)).ToList();
             if (subscriptionsToRemove.Any())
             {
                 foreach (var subs in subscriptionsToRemove)
-                    Subscriptions.Remove(subs);
+                    _subscriptions.Remove(subs);
 
                 await SubmitSubscriptionsAsync();
             }
@@ -69,17 +69,17 @@ namespace pocketbase_csharp_sdk.Services
 
         public async Task UnsubscribeByTopicAndListenerAsync(string topic, Func<SseMessage, Task> listener)
         {
-            if (!Subscriptions.ContainsKey(topic))
+            if (!_subscriptions.ContainsKey(topic))
                 return;
 
-            var listeners = Subscriptions[topic];
+            var listeners = _subscriptions[topic];
             if (listeners.Remove(listener) && !listeners.Any())
                 await UnsubscribeAsync(topic);
         }
 
         private async Task SubmitSubscriptionsAsync()
         {
-            if (!Subscriptions.Any())
+            if (!_subscriptions.Any())
                 SseClient.Disconnect();
             else
             {
@@ -87,10 +87,10 @@ namespace pocketbase_csharp_sdk.Services
                 Dictionary<string, object> body = new()
                 {
                     { "clientId", SseClient.Id! },
-                    { "subscriptions", Subscriptions.Keys.ToList() }
+                    { "subscriptions", _subscriptions.Keys.ToList() }
                 };
 
-                await client.SendAsync(BasePath(), HttpMethod.Post, body: body);
+                await _client.SendAsync(BasePath(), HttpMethod.Post, body: body);
             }
         }
     }

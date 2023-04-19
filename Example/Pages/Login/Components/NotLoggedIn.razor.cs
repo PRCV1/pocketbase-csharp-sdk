@@ -30,11 +30,11 @@ namespace Example.Pages.Login.Components
             {
                 try
                 {
-                    var token = await PocketBase.User.AuthenticateWithPasswordAsync(Username!, Password!);
-                    if (PocketBase.AuthStore.IsValid)
+                    var result = await PocketBase.User.AuthenticateWithPasswordAsync(Username!, Password!);
+                    if (result.IsSuccess)
                     {
                         Snackbar.Add("Logged in!", Severity.Success);
-                        var claims = PocketBaseAuthenticationStateProvider.ParseClaimsFromJwt(token?.Token);
+                        var claims = PocketBaseAuthenticationStateProvider.ParseClaimsFromJwt(result.Value.Token);
                         ((PocketBaseAuthenticationStateProvider)AuthenticationStateProvider).MarkUserAsAuthenticated(claims);
                         NavigationManager.NavigateTo("/");
                     }

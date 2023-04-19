@@ -1,20 +1,14 @@
-﻿using pocketbase_csharp_sdk.Enum;
-using pocketbase_csharp_sdk.Event;
-using pocketbase_csharp_sdk.Json;
+﻿using pocketbase_csharp_sdk.Event;
 using pocketbase_csharp_sdk.Models;
 using pocketbase_csharp_sdk.Models.Files;
 using pocketbase_csharp_sdk.Services;
-using System;
 using System.Collections;
-using System.Collections.Specialized;
-using System.IO;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
-using System.Net.Mime;
 using System.Text.Json;
-using System.Text.Json.Nodes;
 using System.Web;
 using FluentResults;
+using pocketbase_csharp_sdk.Errors;
 
 namespace pocketbase_csharp_sdk
 {
@@ -70,7 +64,7 @@ namespace pocketbase_csharp_sdk
             return new CollectionAuthService<T>(this, collectionName);
         }
 
-        public async Task SendAsync(string path, HttpMethod method, IDictionary<string, string>? headers = null, IDictionary<string, object?>? query = null, IDictionary<string, object>? body = null, IEnumerable<IFile>? files = null, CancellationToken cancellationToken = default)
+        public async Task<Result> SendAsync(string path, HttpMethod method, IDictionary<string, string>? headers = null, IDictionary<string, object?>? query = null, IDictionary<string, object>? body = null, IEnumerable<IFile>? files = null, CancellationToken cancellationToken = default)
         {
             headers ??= new Dictionary<string, string>();
             query ??= new Dictionary<string, object?>();
@@ -101,30 +95,25 @@ namespace pocketbase_csharp_sdk
 
                 if ((int)response.StatusCode >= 400)
                 {
-                    //TODO
-                    //var dic = GetResponseAsDictionary(responseData);
-                    //throw new ClientException(url.ToString(), statusCode: (int)response.StatusCode, response: dic);
-                    throw new ClientException(url.ToString(), statusCode: (int)response.StatusCode);
+                    var error = new ClientError(method, url.ToString(), (int)response.StatusCode);
+                    return Result.Fail(error);
                 }
+                
+                return Result.Ok();
             }
             catch (Exception ex)
             {
-                if (ex is ClientException)
+                if (ex is HttpRequestException requestException)
                 {
-                    throw;
+                    ClientError error = new ClientError(method, url.ToString(), (int)requestException.StatusCode!);
+                    return Result.Fail(error);
                 }
-                else if (ex is HttpRequestException)
-                {
-                    throw new ClientException(url: url.ToString(), originalError: ex, isAbort: true);
-                }
-                else
-                {
-                    throw new ClientException(url: url.ToString(), originalError: ex);
-                }
+
+                return Result.Fail(new Error(ex.Message));
             }
         }
 
-        public void Send(string path, HttpMethod method, IDictionary<string, string>? headers = null, IDictionary<string, object?>? query = null, IDictionary<string, object>? body = null, IEnumerable<IFile>? files = null, CancellationToken cancellationToken = default)
+        public Result Send(string path, HttpMethod method, IDictionary<string, string>? headers = null, IDictionary<string, object?>? query = null, IDictionary<string, object>? body = null, IEnumerable<IFile>? files = null, CancellationToken cancellationToken = default)
         {
             //RETURN RESULT
             
@@ -153,26 +142,21 @@ namespace pocketbase_csharp_sdk
 
                 if ((int)response.StatusCode >= 400)
                 {
-                    //TODO
-                    //var dic = GetResponseAsDictionary(responseData);
-                    //throw new ClientException(url.ToString(), statusCode: (int)response.StatusCode, response: dic);
-                    throw new ClientException(url.ToString(), statusCode: (int)response.StatusCode);
+                    var error = new ClientError(method, url.ToString(), (int)response.StatusCode);
+                    return Result.Fail(error);
                 }
+
+                return Result.Ok();
             }
             catch (Exception ex)
             {
-                if (ex is ClientException)
+                if (ex is HttpRequestException requestException)
                 {
-                    throw;
+                    ClientError error = new ClientError(method, url.ToString(), (int)requestException.StatusCode!);
+                    return Result.Fail(error);
                 }
-                else if (ex is HttpRequestException)
-                {
-                    throw new ClientException(url: url.ToString(), originalError: ex, isAbort: true);
-                }
-                else
-                {
-                    throw new ClientException(url: url.ToString(), originalError: ex);
-                }
+
+                return Result.Fail(new Error(ex.Message));
             }
         }
 
@@ -217,7 +201,6 @@ namespace pocketbase_csharp_sdk
             }
             catch (Exception ex)
             {
-
                 if (ex is HttpRequestException requestException)
                 {
                     ClientError error = new ClientError(method, url.ToString(), (int)requestException.StatusCode!);
@@ -265,7 +248,6 @@ namespace pocketbase_csharp_sdk
             }
             catch (Exception ex)
             {
-                
                 if (ex is HttpRequestException requestException)
                 {
                     ClientError error = new ClientError(method, url.ToString(), (int)requestException.StatusCode!);
@@ -276,7 +258,7 @@ namespace pocketbase_csharp_sdk
             }
         }
 
-        public Task<Stream> GetStreamAsync(string path, IDictionary<string, object?>? query = null, CancellationToken cancellationToken = default)
+        public async Task<Result<Stream>> GetStreamAsync(string path, IDictionary<string, object?>? query = null, CancellationToken cancellationToken = default)
         {
             query ??= new Dictionary<string, object?>();
 
@@ -284,22 +266,18 @@ namespace pocketbase_csharp_sdk
 
             try
             {
-                return _httpClient.GetStreamAsync(url, cancellationToken);
+                var stream = await _httpClient.GetStreamAsync(url, cancellationToken);
+                return Result.Ok(stream);
             }
             catch (Exception ex)
             {
-                if (ex is ClientException)
+                if (ex is HttpRequestException requestException)
                 {
-                    throw;
+                    ClientError error = new ClientError(HttpMethod.Get, url.ToString(), (int)requestException.StatusCode!);
+                    return Result.Fail(error);
                 }
-                else if (ex is HttpRequestException)
-                {
-                    throw new ClientException(url: url.ToString(), originalError: ex, isAbort: true);
-                }
-                else
-                {
-                    throw new ClientException(url: url.ToString(), originalError: ex);
-                }
+
+                return Result.Fail(new Error(ex.Message));
             }
         }
 
@@ -307,7 +285,7 @@ namespace pocketbase_csharp_sdk
         {
             HttpRequestMessage request;
 
-            if (files.Count() > 0)
+            if (files.Any())
             {
                 request = BuildFileRequest(method, url, headers, body, files);
             }
@@ -327,21 +305,6 @@ namespace pocketbase_csharp_sdk
             }
 
             return request;
-        }
-
-        private IDictionary<string, object?>? GetResponseAsDictionary(string response)
-        {
-            if (string.IsNullOrWhiteSpace(response))
-            {
-                return null;
-            }
-            var dic = new Dictionary<string, object?>();
-            var obj = JsonDocument.Parse(response);
-            foreach (var item in obj.RootElement.EnumerateObject())
-            {
-
-            }
-            return dic;
         }
 
         public Uri BuildUrl(string path, IDictionary<string, object?>? queryParameters = null)

@@ -17,13 +17,15 @@ namespace pocketbase_csharp_sdk.Services
         where R : RecordAuthModel<T>
         where T : IBaseAuthModel
     {
-        protected override string BasePath(string? url = null) => $"/api/collections/{this.collectionName}";
+        protected override string BasePath(string? url = null) => $"/api/collections/{this._collectionName}";
 
-        private readonly string collectionName;
+        private readonly PocketBase _client;
+        private readonly string _collectionName;
         
         public CollectionAuthService(PocketBase client, string collectionName) : base(client)
         {
-            this.collectionName = collectionName;
+            this._client = client;
+            this._collectionName = collectionName;
         }
 
         public async Task<Result<R>> AuthenticateViaOAuth2Async(string provider, string code, string codeVerifier, string redirectUrl, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default)
@@ -35,7 +37,7 @@ namespace pocketbase_csharp_sdk.Services
             body.Add("redirectUrl", redirectUrl);
 
             var url = $"{BasePath()}/auth-via-oauth2";
-            var result = await client.SendAsync<R>(url, HttpMethod.Post, headers: headers, body: body, query: query, cancellationToken: cancellationToken);
+            var result = await _client.SendAsync<R>(url, HttpMethod.Post, headers: headers, body: body, query: query, cancellationToken: cancellationToken);
 
             return SetAndReturn(result);
         }
@@ -49,27 +51,27 @@ namespace pocketbase_csharp_sdk.Services
             body.Add("redirectUrl", redirectUrl);
 
             var url = $"{BasePath()}/auth-via-oauth2";
-            var result = client.Send<R>(url, HttpMethod.Post, headers: headers, body: body, query: query, cancellationToken: cancellationToken);
+            var result = _client.Send<R>(url, HttpMethod.Post, headers: headers, body: body, query: query, cancellationToken: cancellationToken);
 
             return SetAndReturn(result);
         }
 
-        public Task RequestVerificationAsync(string email, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default)
+        public Task<Result> RequestVerificationAsync(string email, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default)
         {
             body ??= new Dictionary<string, object>();
             body.Add("email", email);
 
             var url = $"{BasePath()}/request-verification";
-            return client.SendAsync(url, HttpMethod.Post, headers: headers, query: query, body: body, cancellationToken: cancellationToken);
+            return _client.SendAsync(url, HttpMethod.Post, headers: headers, query: query, body: body, cancellationToken: cancellationToken);
         }
 
-        public void RequestVerification(string email, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default)
+        public Result RequestVerification(string email, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default)
         {
             body ??= new Dictionary<string, object>();
             body.Add("email", email);
 
             var url = $"{BasePath()}/request-verification";
-            client.Send(url, HttpMethod.Post, headers: headers, query: query, body: body, cancellationToken: cancellationToken);
+            return _client.Send(url, HttpMethod.Post, headers: headers, query: query, body: body, cancellationToken: cancellationToken);
         }
 
         public async Task<Result<R>> ConfirmVerificationAsync(string token, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default)
@@ -78,7 +80,7 @@ namespace pocketbase_csharp_sdk.Services
             body.Add("token", token);
 
             var url = $"{BasePath()}/confirm-verification";
-            var result = await client.SendAsync<R>(url, HttpMethod.Post, headers: headers, query: query, body: body, cancellationToken: cancellationToken);
+            var result = await _client.SendAsync<R>(url, HttpMethod.Post, headers: headers, query: query, body: body, cancellationToken: cancellationToken);
 
             return SetAndReturn(result);
         }
@@ -89,27 +91,27 @@ namespace pocketbase_csharp_sdk.Services
             body.Add("token", token);
 
             var url = $"{BasePath()}/confirm-verification";
-            var result = client.Send<R>(url, HttpMethod.Post, headers: headers, query: query, body: body, cancellationToken: cancellationToken);
+            var result = _client.Send<R>(url, HttpMethod.Post, headers: headers, query: query, body: body, cancellationToken: cancellationToken);
 
             return SetAndReturn(result);
         }
 
-        public Task RequestEmailChangeAsync(string newEmail, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default)
+        public Task<Result> RequestEmailChangeAsync(string newEmail, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default)
         {
             body ??= new Dictionary<string, object>();
             body.Add("newEmail", newEmail);
 
             var url = $"{BasePath()}/request-email-change";
-            return client.SendAsync(url, HttpMethod.Post, headers: headers, query: query, body: body, cancellationToken: cancellationToken);
+            return _client.SendAsync(url, HttpMethod.Post, headers: headers, query: query, body: body, cancellationToken: cancellationToken);
         }
 
-        public void RequestEmailChange(string newEmail, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default)
+        public Result RequestEmailChange(string newEmail, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default)
         {
             body ??= new Dictionary<string, object>();
             body.Add("newEmail", newEmail);
 
             var url = $"{BasePath()}/request-email-change";
-            client.Send(url, HttpMethod.Post, headers: headers, query: query, body: body, cancellationToken: cancellationToken);
+            return _client.Send(url, HttpMethod.Post, headers: headers, query: query, body: body, cancellationToken: cancellationToken);
         }
 
         public async Task<Result<R>> ConfirmEmailChangeAsync(string emailChangeToken, string userPassword, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default)
@@ -119,7 +121,7 @@ namespace pocketbase_csharp_sdk.Services
             body.Add("password", userPassword);
 
             var url = $"{BasePath()}/confirm-email-change";
-            var result = await client.SendAsync<R>(url, HttpMethod.Post, headers: headers, query: query, body: body, cancellationToken: cancellationToken);
+            var result = await _client.SendAsync<R>(url, HttpMethod.Post, headers: headers, query: query, body: body, cancellationToken: cancellationToken);
 
             return SetAndReturn(result);
         }
@@ -131,7 +133,7 @@ namespace pocketbase_csharp_sdk.Services
             body.Add("password", userPassword);
 
             var url = $"{BasePath()}/confirm-email-change";
-            var result = client.Send<R>(url, HttpMethod.Post, headers: headers, query: query, body: body, cancellationToken: cancellationToken);
+            var result = _client.Send<R>(url, HttpMethod.Post, headers: headers, query: query, body: body, cancellationToken: cancellationToken);
 
             return SetAndReturn(result);
         }
@@ -139,37 +141,37 @@ namespace pocketbase_csharp_sdk.Services
         public Task<Result<AuthMethodsList>> GetAuthenticationMethodsAsync(IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default)
         {
             var url = $"{BasePath()}/auth-methods";
-            return client.SendAsync<AuthMethodsList>(url, HttpMethod.Get, headers: headers, query: query, cancellationToken: cancellationToken);
+            return _client.SendAsync<AuthMethodsList>(url, HttpMethod.Get, headers: headers, query: query, cancellationToken: cancellationToken);
         }
 
         public Result<AuthMethodsList> GetAuthenticationMethods(IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default)
         {
             var url = $"{BasePath()}/auth-methods";
-            return client.Send<AuthMethodsList>(url, HttpMethod.Get, headers: headers, query: query, cancellationToken: cancellationToken);
+            return _client.Send<AuthMethodsList>(url, HttpMethod.Get, headers: headers, query: query, cancellationToken: cancellationToken);
         }
 
         public Task<Result<IEnumerable<ExternalAuthModel>>> GetExternalAuthenticationMethodsAsync(string userId, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default)
         {
             var url = $"{BasePath()}/records/{HttpUtility.HtmlEncode(userId)}/external-auths";
-            return client.SendAsync<IEnumerable<ExternalAuthModel>>(url, HttpMethod.Get, headers: headers, query: query, cancellationToken: cancellationToken);
+            return _client.SendAsync<IEnumerable<ExternalAuthModel>>(url, HttpMethod.Get, headers: headers, query: query, cancellationToken: cancellationToken);
         }
 
         public Result<IEnumerable<ExternalAuthModel>> GetExternalAuthenticationMethods(string userId, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default)
         {
             var url = $"{BasePath()}/records/{HttpUtility.HtmlEncode(userId)}/external-auths";
-            return client.Send<IEnumerable<ExternalAuthModel>>(url, HttpMethod.Get, headers: headers, query: query, cancellationToken: cancellationToken);
+            return _client.Send<IEnumerable<ExternalAuthModel>>(url, HttpMethod.Get, headers: headers, query: query, cancellationToken: cancellationToken);
         }
 
-        public Task UnlinkExternalAuthenticationAsync(string userId, string provider, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default)
+        public Task<Result> UnlinkExternalAuthenticationAsync(string userId, string provider, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default)
         {
             var url = $"{BasePath()}/records/{HttpUtility.HtmlEncode(userId)}/external-auths/{HttpUtility.HtmlEncode(provider)}";
-            return client.SendAsync(url, HttpMethod.Delete, headers: headers, query: query, body: body, cancellationToken: cancellationToken);
+            return _client.SendAsync(url, HttpMethod.Delete, headers: headers, query: query, body: body, cancellationToken: cancellationToken);
         }
 
-        public void UnlinkExternalAuthentication(string userId, string provider, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default)
+        public Result UnlinkExternalAuthentication(string userId, string provider, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default)
         {
             var url = $"{BasePath()}/records/{HttpUtility.HtmlEncode(userId)}/external-auths/{HttpUtility.HtmlEncode(provider)}";
-            client.Send(url, HttpMethod.Delete, headers: headers, query: query, body: body, cancellationToken: cancellationToken);
+            return _client.Send(url, HttpMethod.Delete, headers: headers, query: query, body: body, cancellationToken: cancellationToken);
         }
 
     }

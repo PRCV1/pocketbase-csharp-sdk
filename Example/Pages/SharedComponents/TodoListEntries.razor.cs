@@ -28,7 +28,12 @@ namespace Example.Pages.SharedComponents
                 return;
             }
 
-            _entries = (await PocketBase.Records.GetFullListAsync<EntryModel>("todos_entries", filter: $"todo_id.id='{Id}'")).ToList();
+            var result =
+                await PocketBase.Records.GetFullListAsync<EntryModel>("todos_entries", filter: $"todo_id.id='{Id}'");
+            if (result.IsSuccess)
+            {
+                _entries = result.Value.ToList();
+            }
         }
 
         protected void AddNewEntry()

@@ -1,22 +1,15 @@
 ﻿using pocketbase_csharp_sdk.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Web;
 
 namespace pocketbase_csharp_sdk.Services.Base
 {
     public abstract class BaseService
     {
-        protected readonly string[] itemProperties;
-        private readonly PocketBase pocketBase;
+        private readonly string[] _itemProperties;
 
-        public BaseService(PocketBase pocketBase)
+        protected BaseService()
         {
-            this.itemProperties = this.GetPropertyNames().ToArray();
-            this.pocketBase = pocketBase;
+            this._itemProperties = this.GetPropertyNames().ToArray();
         }
 
         protected abstract string BasePath(string? path = null);
@@ -27,7 +20,7 @@ namespace pocketbase_csharp_sdk.Services.Base
 
             foreach (var prop in item.GetType().GetProperties())
             {
-                if (this.itemProperties.Contains(prop.Name)) continue;
+                if (_itemProperties.Contains(prop.Name)) continue;
                 var propValue = prop.GetValue(item, null);
                 if (propValue is not null) body.Add(ToCamelCase(prop.Name), propValue);
             }

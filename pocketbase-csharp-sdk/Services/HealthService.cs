@@ -1,9 +1,4 @@
 ﻿using pocketbase_csharp_sdk.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using FluentResults;
 using pocketbase_csharp_sdk.Services.Base;
 
@@ -11,13 +6,13 @@ namespace pocketbase_csharp_sdk.Services
 {
     public class HealthService : BaseService
     {
-        private readonly PocketBase pocketBase;
+        private readonly PocketBase _pocketBase;
 
         protected override string BasePath(string? path = null) => "api/health";
 
-        public HealthService(PocketBase pocketBase) : base(pocketBase)
+        public HealthService(PocketBase pocketBase)
         {
-            this.pocketBase = pocketBase;
+            this._pocketBase = pocketBase;
         }
 
         /// <summary>
@@ -25,7 +20,7 @@ namespace pocketbase_csharp_sdk.Services
         /// </summary>
         public Task<Result<ApiHealthModel>> CheckHealthAsync()
         {
-            return pocketBase.SendAsync<ApiHealthModel>(BasePath(), HttpMethod.Get);
+            return _pocketBase.SendAsync<ApiHealthModel>(BasePath(), HttpMethod.Get);
         }
 
         /// <summary>
@@ -33,7 +28,7 @@ namespace pocketbase_csharp_sdk.Services
         /// </summary>
         public Result<ApiHealthModel> CheckHealth()
         {
-            return pocketBase.Send<ApiHealthModel>(BasePath(), HttpMethod.Get);
+            return _pocketBase.Send<ApiHealthModel>(BasePath(), HttpMethod.Get);
         }
 
     }

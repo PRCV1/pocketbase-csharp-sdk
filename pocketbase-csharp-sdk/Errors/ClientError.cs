@@ -1,6 +1,6 @@
 using FluentResults;
 
-namespace pocketbase_csharp_sdk.Services
+namespace pocketbase_csharp_sdk.Errors
 {
     public class ClientError : Error
     {

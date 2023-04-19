@@ -1,23 +1,15 @@
 ﻿using pocketbase_csharp_sdk.Models;
-using pocketbase_csharp_sdk.Models.Collection;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Web;
 using FluentResults;
 
 namespace pocketbase_csharp_sdk.Services.Base
 {
     public abstract class BaseCrudService<T> : BaseService
     {
-        private readonly PocketBase client;
+        private readonly PocketBase _client;
 
-        public BaseCrudService(PocketBase client) : base(client)
+        protected BaseCrudService(PocketBase client)
         {
-            this.client = client;
+            this._client = client;
         }
         
         public virtual Result<PagedCollectionModel<T>> List(int page = 1, int perPage = 30, string? filter = null, string? sort = null, CancellationToken cancellationToken = default)
@@ -31,7 +23,7 @@ namespace pocketbase_csharp_sdk.Services.Base
                 { "sort", sort }
             };
         
-            return client.Send<PagedCollectionModel<T>>(path, HttpMethod.Get, query: query, cancellationToken: cancellationToken);
+            return _client.Send<PagedCollectionModel<T>>(path, HttpMethod.Get, query: query, cancellationToken: cancellationToken);
         }
 
         public virtual Task<Result<PagedCollectionModel<T>>> ListAsync(int page = 1, int perPage = 30, string? filter = null, string? sort = null, CancellationToken cancellationToken = default)
@@ -45,7 +37,7 @@ namespace pocketbase_csharp_sdk.Services.Base
                 { "sort", sort }
             };
 
-            return client.SendAsync<PagedCollectionModel<T>>(path, HttpMethod.Get, query: query, cancellationToken: cancellationToken);
+            return _client.SendAsync<PagedCollectionModel<T>>(path, HttpMethod.Get, query: query, cancellationToken: cancellationToken);
         }
 
         public virtual Result<IEnumerable<T>> GetFullList(int batch = 100, string? filter = null, string? sort = null, CancellationToken cancellationToken = default)
@@ -87,13 +79,13 @@ namespace pocketbase_csharp_sdk.Services.Base
         public virtual Result<T> GetOne(string id)
         {
             string url = $"{BasePath()}/{UrlEncode(id)}";
-            return client.Send<T>(url, HttpMethod.Get);
+            return _client.Send<T>(url, HttpMethod.Get);
         }
         
         public virtual Task<Result<T>> GetOneAsync(string id)
         {
             string url = $"{BasePath()}/{UrlEncode(id)}";
-            return client.SendAsync<T>(url, HttpMethod.Get);
+            return _client.SendAsync<T>(url, HttpMethod.Get);
         }
 
     }

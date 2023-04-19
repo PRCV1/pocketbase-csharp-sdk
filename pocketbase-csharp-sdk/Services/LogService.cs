@@ -1,11 +1,5 @@
 ﻿using pocketbase_csharp_sdk.Models;
 using pocketbase_csharp_sdk.Models.Log;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Web;
 using FluentResults;
 using pocketbase_csharp_sdk.Services.Base;
 
@@ -16,11 +10,11 @@ namespace pocketbase_csharp_sdk.Services
 
         protected override string BasePath(string? path = null) => "api/logs/requests";
 
-        private readonly PocketBase client;
+        private readonly PocketBase _client;
 
-        public LogService(PocketBase client) : base(client)
+        public LogService(PocketBase client)
         {
-            this.client = client;
+            this._client = client;
         }
 
         /// <summary>
@@ -35,7 +29,7 @@ namespace pocketbase_csharp_sdk.Services
         public Task<Result<LogRequestModel>> GetRequestAsync(string id, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default)
         {
             var url = $"{BasePath()}/{UrlEncode(id)}";
-            return client.SendAsync<LogRequestModel>(url, HttpMethod.Get, headers: headers, query: query, body: body, cancellationToken: cancellationToken);
+            return _client.SendAsync<LogRequestModel>(url, HttpMethod.Get, headers: headers, query: query, body: body, cancellationToken: cancellationToken);
         }
 
         /// <summary>
@@ -50,7 +44,7 @@ namespace pocketbase_csharp_sdk.Services
         public Result<LogRequestModel> GetRequest(string id, IDictionary<string, object>? body = null, IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default)
         {
             var url = $"{BasePath()}/{UrlEncode(id)}";
-            return client.Send<LogRequestModel>(url, HttpMethod.Get, headers: headers, query: query, body: body, cancellationToken: cancellationToken); ;
+            return _client.Send<LogRequestModel>(url, HttpMethod.Get, headers: headers, query: query, body: body, cancellationToken: cancellationToken); ;
         }
 
         /// <summary>
@@ -73,7 +67,7 @@ namespace pocketbase_csharp_sdk.Services
             query.Add("filter", filter);
             query.Add("sort", sort);
 
-            return client.SendAsync<ResultList<LogRequestModel>>(BasePath(), HttpMethod.Get, headers: headers, query: query, body: body, cancellationToken: cancellationToken); ;
+            return _client.SendAsync<ResultList<LogRequestModel>>(BasePath(), HttpMethod.Get, headers: headers, query: query, body: body, cancellationToken: cancellationToken); ;
         }
 
         /// <summary>
@@ -96,7 +90,7 @@ namespace pocketbase_csharp_sdk.Services
             query.Add("filter", filter);
             query.Add("sort", sort);
 
-            return client.Send<ResultList<LogRequestModel>>(BasePath(), HttpMethod.Get, headers: headers, query: query, body: body, cancellationToken: cancellationToken);
+            return _client.Send<ResultList<LogRequestModel>>(BasePath(), HttpMethod.Get, headers: headers, query: query, body: body, cancellationToken: cancellationToken);
         }
 
         /// <summary>
@@ -109,7 +103,7 @@ namespace pocketbase_csharp_sdk.Services
         public Task<Result<IEnumerable<LogRequestStatistic>>> GetRequestsStatisticsAsync(IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default)
         {
             var url = $"{BasePath()}/stats";
-            return client.SendAsync<IEnumerable<LogRequestStatistic>>(url, HttpMethod.Get, headers: headers, query: query, cancellationToken: cancellationToken);
+            return _client.SendAsync<IEnumerable<LogRequestStatistic>>(url, HttpMethod.Get, headers: headers, query: query, cancellationToken: cancellationToken);
         }
 
         /// <summary>
@@ -122,7 +116,7 @@ namespace pocketbase_csharp_sdk.Services
         public Result<IEnumerable<LogRequestStatistic>> GetRequestsStatistics(IDictionary<string, object?>? query = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default)
         {
             var url = $"{BasePath()}/stats";
-            return client.Send<IEnumerable<LogRequestStatistic>>(url, HttpMethod.Get, headers: headers, query: query, cancellationToken: cancellationToken);
+            return _client.Send<IEnumerable<LogRequestStatistic>>(url, HttpMethod.Get, headers: headers, query: query, cancellationToken: cancellationToken);
         }
 
     }

@@ -1,10 +1,4 @@
-﻿using pocketbase_csharp_sdk.Models;
-using pocketbase_csharp_sdk.Models.Auth;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using pocketbase_csharp_sdk.Models.Auth;
 using pocketbase_csharp_sdk.Services.Base;
 
 namespace pocketbase_csharp_sdk.Services
