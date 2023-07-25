@@ -14,21 +14,23 @@ namespace pocketbase_csharp_sdk.Services
         }
 
         private readonly PocketBase _client;
+        readonly string _collectionName;
 
-        public RecordService(PocketBase client) : base(client)
+        public RecordService(PocketBase client, string collectionName) : base(client, collectionName)
         {
+            this._collectionName = collectionName;
             this._client = client;
         }
 
-        private Uri GetFileUrl(string sub, string recordId, string fileName, IDictionary<string, object?>? query = null)
+        private Uri GetFileUrl(string recordId, string fileName, IDictionary<string, object?>? query = null)
         {
-            var url = $"api/files/{sub}/{UrlEncode(recordId)}/{fileName}";
+            var url = $"api/files/{UrlEncode(_collectionName)}/{UrlEncode(recordId)}/{fileName}";
             return _client.BuildUrl(url, query);
         }
 
-        public Task<Result<Stream>> DownloadFileAsync(string collectionId, string recordId, string fileName, ThumbFormat? thumbFormat = null, CancellationToken cancellationToken = default)
+        public Task<Result<Stream>> DownloadFileAsync(string recordId, string fileName, ThumbFormat? thumbFormat = null, CancellationToken cancellationToken = default)
         {
-            var url = $"api/files/{UrlEncode(collectionId)}/{UrlEncode(recordId)}/{fileName}";
+            var url = $"api/files/{UrlEncode(_collectionName)}/{UrlEncode(recordId)}/{fileName}";
 
             //TODO find out how the specify the actual resolution to resize
             var query = new Dictionary<string, object?>()

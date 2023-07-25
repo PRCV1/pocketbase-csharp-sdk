@@ -9,7 +9,9 @@ namespace pocketbase_csharp_sdk.Json
         {
             var value = reader.GetString();
             if (!DateTime.TryParse(value, out var dt))
+            {
                 return null;
+            }
 
             return DateTime.SpecifyKind(dt, DateTimeKind.Utc); ;
         }

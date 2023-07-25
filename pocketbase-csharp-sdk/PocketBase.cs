@@ -16,6 +16,7 @@ namespace pocketbase_csharp_sdk
     {
         #region Private Fields
         private readonly JsonSerializerOptions jsonSerializerOptions = new JsonSerializerOptions(JsonSerializerDefaults.Web);
+        private Dictionary<string, RecordService> recordServices = new Dictionary<string, RecordService>();
         #endregion
 
         #region Events
@@ -33,9 +34,10 @@ namespace pocketbase_csharp_sdk
         public LogService Log { private set; get; }
         public SettingsService Settings { private set; get; }
         public CollectionService Collections { private set; get; }
-        public RecordService Records { private set; get; }
+        //public RecordService Records { private set; get; }
         public RealTimeService RealTime { private set; get; }
         public HealthService Health { private set; get; }
+        public BackupService Backup { private set; get; }
 
         private readonly string _baseUrl;
         private readonly string _language;
@@ -53,15 +55,27 @@ namespace pocketbase_csharp_sdk
             Log = new LogService(this);
             Settings = new SettingsService(this);
             Collections = new CollectionService(this);
-            Records = new RecordService(this);
+            //Records = new RecordService(this);
             RealTime = new RealTimeService(this);
             Health = new HealthService(this);
+            Backup = new BackupService(this);
         }
 
         public CollectionAuthService<T> AuthCollection<T>(string collectionName)
             where T : IBaseAuthModel
         {
             return new CollectionAuthService<T>(this, collectionName);
+        }
+
+        public RecordService Collection(string collectionName)
+        {
+            if (recordServices.ContainsKey(collectionName))
+            {
+                return recordServices[collectionName];
+            }
+            var newService = new RecordService(this, collectionName);
+            recordServices[collectionName] = newService;
+            return newService;
         }
 
         public async Task<Result> SendAsync(string path, HttpMethod method, IDictionary<string, string>? headers = null, IDictionary<string, object?>? query = null, IDictionary<string, object>? body = null, IEnumerable<IFile>? files = null, CancellationToken cancellationToken = default)

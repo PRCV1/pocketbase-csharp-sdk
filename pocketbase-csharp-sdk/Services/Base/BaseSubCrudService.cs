@@ -7,15 +7,17 @@ namespace pocketbase_csharp_sdk.Services.Base
     public abstract class BaseSubCrudService : BaseService
     {
         private readonly PocketBase _client;
+        readonly string _collectionName;
 
-        protected BaseSubCrudService(PocketBase client)
+        protected BaseSubCrudService(PocketBase client, string collectionName)
         {
+            this._collectionName = collectionName;
             this._client = client;
         }
 
-        public virtual Result<PagedCollectionModel<T>> List<T>(string sub, int page = 1, int perPage = 30, string? filter = null, string? sort = null, CancellationToken cancellationToken = default)
+        public virtual Result<PagedCollectionModel<T>> List<T>(int page = 1, int perPage = 30, string? filter = null, string? sort = null, CancellationToken cancellationToken = default)
         {
-            var path = BasePath(sub);
+            var path = BasePath(_collectionName);
             var query = new Dictionary<string, object?>()
             {
                 { "filter", filter },
@@ -27,9 +29,9 @@ namespace pocketbase_csharp_sdk.Services.Base
             return _client.Send<PagedCollectionModel<T>>(path, HttpMethod.Get, query: query, cancellationToken: cancellationToken);
         }
 
-        public virtual Task<Result<PagedCollectionModel<T>>> ListAsync<T>(string sub, int page = 1, int perPage = 30, string? filter = null, string? sort = null, CancellationToken cancellationToken = default)
+        public virtual Task<Result<PagedCollectionModel<T>>> ListAsync<T>(int page = 1, int perPage = 30, string? filter = null, string? sort = null, CancellationToken cancellationToken = default)
         {
-            var path = BasePath(sub);
+            var path = BasePath(_collectionName);
             var query = new Dictionary<string, object?>()
             {
                 { "filter", filter },
@@ -40,14 +42,14 @@ namespace pocketbase_csharp_sdk.Services.Base
             return _client.SendAsync<PagedCollectionModel<T>>(path, HttpMethod.Get, query: query, cancellationToken: cancellationToken);;
         }
 
-        public virtual Result<IEnumerable<T>> GetFullList<T>(string sub, int batch = 100, string? filter = null, string? sort = null, CancellationToken cancellationToken = default)
+        public virtual Result<IEnumerable<T>> GetFullList<T>(int batch = 100, string? filter = null, string? sort = null, CancellationToken cancellationToken = default)
         {
             List<T> result = new();
             int currentPage = 1;
             Result<PagedCollectionModel<T>> lastResponse;
             do
             {
-                lastResponse = List<T>(sub, page: currentPage, perPage: batch, filter: filter, sort: sort, cancellationToken: cancellationToken);
+                lastResponse = List<T>(page: currentPage, perPage: batch, filter: filter, sort: sort, cancellationToken: cancellationToken);
                 if (lastResponse.IsSuccess && lastResponse.Value.Items is not null)
                 {
                     result.AddRange(lastResponse.Value.Items);
@@ -58,14 +60,14 @@ namespace pocketbase_csharp_sdk.Services.Base
             return result;
         }
 
-        public virtual async Task<Result<IEnumerable<T>>> GetFullListAsync<T>(string sub, int batch = 100, string? filter = null, string? sort = null, CancellationToken cancellationToken = default)
+        public virtual async Task<Result<IEnumerable<T>>> GetFullListAsync<T>(int batch = 100, string? filter = null, string? sort = null, CancellationToken cancellationToken = default)
         {
             List<T> result = new();
             int currentPage = 1;
             Result<PagedCollectionModel<T>> lastResponse;
             do
             {
-                lastResponse = await ListAsync<T>(sub, page: currentPage, perPage: batch, filter: filter, sort: sort, cancellationToken: cancellationToken);
+                lastResponse = await ListAsync<T>(page: currentPage, perPage: batch, filter: filter, sort: sort, cancellationToken: cancellationToken);
                 if (lastResponse.IsSuccess && lastResponse.Value.Items is not null)
                 {
                     result.AddRange(lastResponse.Value.Items);
@@ -76,59 +78,59 @@ namespace pocketbase_csharp_sdk.Services.Base
             return result;
         }
 
-        public virtual Result<T> GetOne<T>(string sub, string id)
+        public virtual Result<T> GetOne<T>(string id)
         {
-            string url = $"{BasePath(sub)}/{UrlEncode(id)}";
+            string url = $"{BasePath(_collectionName)}/{UrlEncode(id)}";
             return _client.Send<T>(url, HttpMethod.Get);
         }
         
-        public virtual Task<Result<T>> GetOneAsync<T>(string sub, string id)
+        public virtual Task<Result<T>> GetOneAsync<T>(string id)
         {
-            string url = $"{BasePath(sub)}/{UrlEncode(id)}";
+            string url = $"{BasePath(_collectionName)}/{UrlEncode(id)}";
             return _client.SendAsync<T>(url, HttpMethod.Get);
         }
         
-        public Task<Result<T>> CreateAsync<T>(string sub, T item, string? expand = null, IDictionary<string, string>? headers = null, IEnumerable<IFile>? files = null, CancellationToken cancellationToken = default) where T : BaseModel
+        public Task<Result<T>> CreateAsync<T>(T item, string? expand = null, IDictionary<string, string>? headers = null, IEnumerable<IFile>? files = null, CancellationToken cancellationToken = default) where T : BaseModel
         {
             var query = new Dictionary<string, object?>()
             {
                 { "expand", expand },
             };
             var body = ConstructBody(item);
-            var url = this.BasePath(sub);
+            var url = this.BasePath(_collectionName);
             return _client.SendAsync<T>(url, HttpMethod.Post, body: body, headers: headers, query: query, files: files, cancellationToken: cancellationToken);
         }
 
-        public Result<T> Create<T>(string sub, T item, string? expand = null, IDictionary<string, string>? headers = null, IEnumerable<IFile>? files = null, CancellationToken cancellationToken = default) where T : BaseModel
+        public Result<T> Create<T>(T item, string? expand = null, IDictionary<string, string>? headers = null, IEnumerable<IFile>? files = null, CancellationToken cancellationToken = default) where T : BaseModel
         {
             var query = new Dictionary<string, object?>()
             {
                 { "expand", expand },
             };
             var body = ConstructBody(item);
-            var url = this.BasePath(sub);
+            var url = this.BasePath(_collectionName);
             return _client.Send<T>(url, HttpMethod.Post, body: body, headers: headers, query: query, files: files, cancellationToken: cancellationToken);
         }
 
-        public Task<Result<T>> UpdateAsync<T>(string sub, T item, string? expand = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default) where T : BaseModel
+        public Task<Result<T>> UpdateAsync<T>(T item, string? expand = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default) where T : BaseModel
         {
             var query = new Dictionary<string, object?>()
             {
                 { "expand", expand },
             };
             var body = ConstructBody(item);
-            var url = this.BasePath(sub) + "/" + UrlEncode(item.Id);
+            var url = this.BasePath(_collectionName) + "/" + UrlEncode(item.Id);
             return _client.SendAsync<T>(url, HttpMethod.Patch, body: body, headers: headers, query: query, cancellationToken: cancellationToken);
         }
 
-        public Result<T> Update<T>(string sub, T item, string? expand = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default) where T : BaseModel
+        public Result<T> Update<T>(T item, string? expand = null, IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default) where T : BaseModel
         {
             var query = new Dictionary<string, object?>()
             {
                 { "expand", expand },
             };
             var body = ConstructBody(item);
-            var url = this.BasePath(sub) + "/" + UrlEncode(item.Id);
+            var url = this.BasePath(_collectionName) + "/" + UrlEncode(item.Id);
             return _client.Send<T>(url, HttpMethod.Patch, body: body, headers: headers, query: query, cancellationToken: cancellationToken);
         }
 
@@ -138,11 +140,11 @@ namespace pocketbase_csharp_sdk.Services.Base
         /// <param name="sub">the topic to subscribe to</param>
         /// <param name="recordId">the id of the specific record or * for the whole collection</param>
         /// <param name="callback">callback, that is invoked every time something changes</param>
-        public async void Subscribe(string sub, string recordId, Func<SseMessage, Task> callback)
+        public async void Subscribe(string recordId, Func<SseMessage, Task> callback)
         {
             string subscribeTo = recordId != "*"
-                    ? $"{sub}/{recordId}"
-                    : sub;
+                    ? $"{_collectionName}/{recordId}"
+                    : _collectionName;
 
             try
             {
@@ -185,7 +187,7 @@ namespace pocketbase_csharp_sdk.Services.Base
         }
 
 
-        public async Task UploadFileAsync(string sub, string field, string fileName, Stream stream, CancellationToken cancellationToken = default)
+        public async Task UploadFileAsync(string field, string fileName, Stream stream, CancellationToken cancellationToken = default)
         {
             var file = new StreamFile()
             {
@@ -193,11 +195,11 @@ namespace pocketbase_csharp_sdk.Services.Base
                 FieldName = field,
                 Stream = stream
             };
-            var url = this.BasePath(sub);
+            var url = this.BasePath(_collectionName);
             await _client.SendAsync(url, HttpMethod.Post, files: new[] { file }, cancellationToken: cancellationToken);
         }
 
-        public void UploadFile(string sub, string field, string fileName, Stream stream, CancellationToken cancellationToken = default)
+        public void UploadFile(string field, string fileName, Stream stream, CancellationToken cancellationToken = default)
         {
             var file = new StreamFile()
             {
@@ -205,7 +207,7 @@ namespace pocketbase_csharp_sdk.Services.Base
                 FieldName = field,
                 Stream = stream
             };
-            var url = this.BasePath(sub);
+            var url = this.BasePath(_collectionName);
             _client.Send(url, HttpMethod.Post, files: new[] { file }, cancellationToken: cancellationToken);
         }
 
