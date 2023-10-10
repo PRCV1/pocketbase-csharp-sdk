@@ -23,7 +23,6 @@ var pbOptions = pbConfigurationSection.Get<PocketBaseOptions>();
 
 builder.Services.AddSingleton<PocketBase>(sp =>
 {
-    Console.WriteLine(pbOptions.BaseUrl);
     return new PocketBase(pbOptions.BaseUrl);
 });
 

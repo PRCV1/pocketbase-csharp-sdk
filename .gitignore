@@ -3,6 +3,10 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
+# rider settings
+.idea/
+
+
 # User-specific files
 *.rsuser
 *.suo
@@ -366,3 +370,4 @@ FodyWeavers.xsd
 /pocketbase-csharp-sdk.Tests/RealTest.cs
 /pocketbase-csharp-sdk/pocketbase-csharp-sdk.csproj
 !/Example/Options/PocketBaseOptions.cs
+!/Example/wwwroot/appsettings.development.json
