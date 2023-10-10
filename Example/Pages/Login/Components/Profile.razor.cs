@@ -21,7 +21,8 @@ namespace Example.Pages.Login.Components
             {
                 _currentUser = currentUserResult.Value;
                 var result = currentUserResult.Value;
-                var avatarStreamResult = await PocketBase.Records.DownloadFileAsync("users", PocketBase.AuthStore.Model.Id, result.Avatar);
+                var avatarStreamResult = await PocketBase.Collection("users").DownloadFileAsync(_currentUser.Id, _currentUser.Avatar);
+                
                 if (avatarStreamResult.IsSuccess)
                 {
                     _avatarAsBase64 = await GetBase64FromStream(avatarStreamResult.Value);

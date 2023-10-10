@@ -29,7 +29,7 @@ namespace Example.Pages.SharedComponents
             }
 
             var result =
-                await PocketBase.Records.GetFullListAsync<EntryModel>("todos_entries", filter: $"todo_id.id='{Id}'");
+                await PocketBase.Collection("todos_entries").GetFullListAsync<EntryModel>(filter: $"todo_id.id='{Id}'");
             if (result.IsSuccess)
             {
                 _entries = result.Value.ToList();
@@ -62,7 +62,7 @@ namespace Example.Pages.SharedComponents
             }
             foreach (var item in _entries)
             {
-                await PocketBase.Records.UpdateAsync<EntryModel>("todos_entries", item);
+                await PocketBase.Collection("todos_entries").UpdateAsync<EntryModel>(item);
             }
         }
 
