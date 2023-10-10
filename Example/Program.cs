@@ -14,6 +14,7 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 // Make the loaded config available via dependency injection
 builder.Services.AddSingleton<IConfiguration>(builder.Configuration);
 
+
 var pbConfigurationSection = builder.Configuration.GetSection(PocketBaseOptions.Position);
 
 builder.Services.Configure<PocketBaseOptions>(pbConfigurationSection);

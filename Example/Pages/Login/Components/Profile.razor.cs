@@ -21,6 +21,7 @@ namespace Example.Pages.Login.Components
             {
                 _currentUser = currentUserResult.Value;
                 var result = currentUserResult.Value;
+                
                 var avatarStreamResult = await PocketBase.Collection("users").DownloadFileAsync(_currentUser.Id, _currentUser.Avatar);
                 
                 if (avatarStreamResult.IsSuccess)

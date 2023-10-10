@@ -21,6 +21,7 @@ namespace Example.Pages.SharedComponents
             await base.OnParametersSetAsync();
         }
 
+        
         protected async Task LoadEntriesAsync()
         {
             if (string.IsNullOrWhiteSpace(Id))
