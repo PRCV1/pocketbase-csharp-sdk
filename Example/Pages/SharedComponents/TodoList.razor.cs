@@ -25,7 +25,10 @@ namespace Example.Pages.SharedComponents
         {
             _loading = true;
             
-            var result = await PocketBase.Records.GetFullListAsync<TodoModel>("todos");
+            
+            var result = await PocketBase.Collection("todos").GetFullListAsync<TodoModel>();
+            
+            
             if (result.IsSuccess)
             {
                 todos = result.Value;
