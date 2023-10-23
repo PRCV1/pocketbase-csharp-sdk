@@ -9,6 +9,7 @@ using System.Text.Json;
 using System.Web;
 using FluentResults;
 using pocketbase_csharp_sdk.Errors;
+using pocketbase_csharp_sdk.Helper;
 
 namespace pocketbase_csharp_sdk
 {
@@ -28,18 +29,18 @@ namespace pocketbase_csharp_sdk
 
 
         public AuthStore AuthStore { private set; get; }
-        public AdminService Admin { private set; get; }
-        public UserService User { private set; get; }
-        public LogService Log { private set; get; }
-        public SettingsService Settings { private set; get; }
-        public CollectionService Collections { private set; get; }
-        public RecordService Records { private set; get; }
-        public RealTimeService RealTime { private set; get; }
-        public HealthService Health { private set; get; }
+        // public AdminService Admin { private set; get; }
+        // public UserService User { private set; get; }
+        // public LogService Log { private set; get; }
+        // public SettingsService Settings { private set; get; }
+        // public CollectionService Collections { private set; get; }
+        // public RecordService Records { private set; get; }
+        // public HealthService Health { private set; get; }
 
         private readonly string _baseUrl;
         private readonly string _language;
         private readonly HttpClient _httpClient;
+        private readonly IUrlBuilder _urlBuilder;
 
         public PocketBase(string baseUrl, AuthStore? authStore = null, string language = "en-US", HttpClient? httpClient = null)
         {
@@ -48,238 +49,253 @@ namespace pocketbase_csharp_sdk
             this._httpClient = httpClient ?? new HttpClient();
 
             AuthStore = authStore ?? new AuthStore();
-            Admin = new AdminService(this);
-            User = new UserService(this);
-            Log = new LogService(this);
-            Settings = new SettingsService(this);
-            Collections = new CollectionService(this);
-            Records = new RecordService(this);
-            RealTime = new RealTimeService(this);
-            Health = new HealthService(this);
+            // Admin = new AdminService(this);
+            // User = new UserService(this);
+            // Log = new LogService(this);
+            // Settings = new SettingsService(this);
+            // Collections = new CollectionService(this);
+            // Records = new RecordService(this);
+            // Health = new HealthService(this);
+
+            _urlBuilder = new UrlBuilder(baseUrl);
         }
 
-        public CollectionAuthService<T> AuthCollection<T>(string collectionName)
-            where T : IBaseAuthModel
+        public async Task<T> SendAsync<T>(string path, HttpMethod method,
+            PbListQueryParams? queryParams = null, IDictionary<string, string>? headers = null)
         {
-            return new CollectionAuthService<T>(this, collectionName);
-        }
+            queryParams ??= new PbListQueryParams();
 
-        public async Task<Result> SendAsync(string path, HttpMethod method, IDictionary<string, string>? headers = null, IDictionary<string, object?>? query = null, IDictionary<string, object>? body = null, IEnumerable<IFile>? files = null, CancellationToken cancellationToken = default)
-        {
-            headers ??= new Dictionary<string, string>();
-            query ??= new Dictionary<string, object?>();
-            body ??= new Dictionary<string, object>();
-            files ??= new List<IFile>();
-
-            Uri url = BuildUrl(path, query);
-
-            HttpRequestMessage request = CreateRequest(url, method, headers: headers, query: query, body: body, files: files);
-
-            try
-            {
-                if (BeforeSend is not null)
-                {
-                    request = BeforeSend.Invoke(this, new RequestEventArgs(url, request));
-                }
-
-                var response = await _httpClient.SendAsync(request, cancellationToken);
-
-                if (AfterSend is not null)
-                {
-                    AfterSend.Invoke(this, new ResponseEventArgs(url, response));
-                }
-
-#if DEBUG
-                var json = await response.Content.ReadAsStringAsync(cancellationToken);
-#endif
-
-                if ((int)response.StatusCode >= 400)
-                {
-                    var error = new ClientError(method, url.ToString(), (int)response.StatusCode);
-                    return Result.Fail(error);
-                }
-                
-                return Result.Ok();
-            }
-            catch (Exception ex)
-            {
-                if (ex is HttpRequestException requestException)
-                {
-                    ClientError error = new ClientError(method, url.ToString(), (int)requestException.StatusCode!);
-                    return Result.Fail(error);
-                }
-
-                return Result.Fail(new Error(ex.Message));
-            }
-        }
-
-        public Result Send(string path, HttpMethod method, IDictionary<string, string>? headers = null, IDictionary<string, object?>? query = null, IDictionary<string, object>? body = null, IEnumerable<IFile>? files = null, CancellationToken cancellationToken = default)
-        {
-            //RETURN RESULT
+            Uri url = _urlBuilder.BuildUrl(path, queryParams);
             
-            headers ??= new Dictionary<string, string>();
-            query ??= new Dictionary<string, object?>();
-            body ??= new Dictionary<string, object>();
-            files ??= new List<IFile>();
-
-            Uri url = BuildUrl(path, query);
-
-            HttpRequestMessage request = CreateRequest(url, method, headers: headers, query: query, body: body, files: files);
-
-            try
-            {
-                if (BeforeSend is not null)
-                {
-                    request = BeforeSend.Invoke(this, new RequestEventArgs(url, request));
-                }
-
-                var response = _httpClient.Send(request, cancellationToken);
-
-                if (AfterSend is not null)
-                {
-                    AfterSend.Invoke(this, new ResponseEventArgs(url, response));
-                }
-
-                if ((int)response.StatusCode >= 400)
-                {
-                    var error = new ClientError(method, url.ToString(), (int)response.StatusCode);
-                    return Result.Fail(error);
-                }
-
-                return Result.Ok();
-            }
-            catch (Exception ex)
-            {
-                if (ex is HttpRequestException requestException)
-                {
-                    ClientError error = new ClientError(method, url.ToString(), (int)requestException.StatusCode!);
-                    return Result.Fail(error);
-                }
-
-                return Result.Fail(new Error(ex.Message));
-            }
-        }
-
-        public async Task<Result<T>> SendAsync<T>(string path, HttpMethod method, IDictionary<string, string>? headers = null, IDictionary<string, object?>? query = null, IDictionary<string, object>? body = null, IEnumerable<IFile>? files = null, CancellationToken cancellationToken = default)
-        {
-            headers ??= new Dictionary<string, string>();
-            query ??= new Dictionary<string, object?>();
-            body ??= new Dictionary<string, object>();
-            files ??= new List<IFile>();
-
-            Uri url = BuildUrl(path, query);
-
-            HttpRequestMessage request = CreateRequest(url, method, headers: headers, query: query, body: body, files: files);
-
-            try
-            {
-                if (BeforeSend is not null)
-                {
-                    request = BeforeSend.Invoke(this, new RequestEventArgs(url, request));
-                }
-
-                var response = await _httpClient.SendAsync(request, cancellationToken);
-
-                if (AfterSend is not null)
-                {
-                    AfterSend.Invoke(this, new ResponseEventArgs(url, response));
-                }
-
-#if DEBUG
-                var json = await response.Content.ReadAsStringAsync(cancellationToken);
-#endif
-                
-                if ((int)response.StatusCode >= 400)
-                {
-                    ClientError error = new ClientError(method, url.ToString(), (int)response.StatusCode);
-                    return Result.Fail(error);
-                }
-
-                var parsedResponse =
-                    await response.Content.ReadFromJsonAsync<T>(jsonSerializerOptions, cancellationToken);
-                return Result.Ok(parsedResponse!);
-            }
-            catch (Exception ex)
-            {
-                if (ex is HttpRequestException requestException)
-                {
-                    ClientError error = new ClientError(method, url.ToString(), (int)requestException.StatusCode!);
-                    return Result.Fail(error);
-                }
-
-                return Result.Fail(new Error(ex.Message));
-            }
+            return default;
         }
         
-        public Result<T> Send<T>(string path, HttpMethod method, IDictionary<string, string>? headers = null, IDictionary<string, object?>? query = null, IDictionary<string, object>? body = null, IEnumerable<IFile>? files = null, CancellationToken cancellationToken = default)
+        public Result<T> Send<T>(string path, HttpMethod method,
+            PbListQueryParams? queryParams = null, IDictionary<string, string>? headers = null)
         {
-            headers ??= new Dictionary<string, string>();
-            query ??= new Dictionary<string, object?>();
-            body ??= new Dictionary<string, object>();
-            files ??= new List<IFile>();
+            queryParams ??= new PbListQueryParams();
 
-            Uri url = BuildUrl(path, query);
-
-            HttpRequestMessage request = CreateRequest(url, method, headers: headers, query: query, body: body, files: files);
-
-            try
-            {
-                if (BeforeSend is not null)
-                {
-                    request = BeforeSend.Invoke(this, new RequestEventArgs(url, request));
-                }
-
-                var response = _httpClient.Send(request, cancellationToken);
-
-                if (AfterSend is not null)
-                {
-                    AfterSend.Invoke(this, new ResponseEventArgs(url, response));
-                }
-
-                if ((int)response.StatusCode >= 400)
-                {
-                    ClientError error = new ClientError(method, url.ToString(), (int)response.StatusCode);
-                    return Result.Fail(error);
-                }
-
-                using var stream = response.Content.ReadAsStream();
-                var parsedResponse = JsonSerializer.Deserialize<T>(stream, jsonSerializerOptions);
-                return Result.Ok(parsedResponse!);
-            }
-            catch (Exception ex)
-            {
-                if (ex is HttpRequestException requestException)
-                {
-                    ClientError error = new ClientError(method, url.ToString(), (int)requestException.StatusCode!);
-                    return Result.Fail(error);
-                }
-
-                return Result.Fail(new Error(ex.Message));
-            }
+            Uri url = _urlBuilder.BuildUrl(path, queryParams);
+            
+            return default;
         }
+        
+//         public async Task<Result> SendAsync(string path, HttpMethod method, IDictionary<string, string>? headers = null, IDictionary<string, object?>? query = null, IDictionary<string, object>? body = null, IEnumerable<IFile>? files = null, CancellationToken cancellationToken = default)
+//         {
+//             headers ??= new Dictionary<string, string>();
+//             query ??= new Dictionary<string, object?>();
+//             body ??= new Dictionary<string, object>();
+//             files ??= new List<IFile>();
+//
+//             Uri url = _urlBuilder.BuildUrl(path, query);
+//
+//             HttpRequestMessage request = CreateRequest(url, method, headers: headers, query: query, body: body, files: files);
+//
+//             try
+//             {
+//                 if (BeforeSend is not null)
+//                 {
+//                     request = BeforeSend.Invoke(this, new RequestEventArgs(url, request));
+//                 }
+//
+//                 var response = await _httpClient.SendAsync(request, cancellationToken);
+//
+//                 if (AfterSend is not null)
+//                 {
+//                     AfterSend.Invoke(this, new ResponseEventArgs(url, response));
+//                 }
+//
+// #if DEBUG
+//                 var json = await response.Content.ReadAsStringAsync(cancellationToken);
+// #endif
+//
+//                 if ((int)response.StatusCode >= 400)
+//                 {
+//                     var error = new ClientError(method, url.ToString(), (int)response.StatusCode);
+//                     return Result.Fail(error);
+//                 }
+//                 
+//                 return Result.Ok();
+//             }
+//             catch (Exception ex)
+//             {
+//                 if (ex is HttpRequestException requestException)
+//                 {
+//                     ClientError error = new ClientError(method, url.ToString(), (int)requestException.StatusCode!);
+//                     return Result.Fail(error);
+//                 }
+//
+//                 return Result.Fail(new Error(ex.Message));
+//             }
+//         }
 
-        public async Task<Result<Stream>> GetStreamAsync(string path, IDictionary<string, object?>? query = null, CancellationToken cancellationToken = default)
-        {
-            query ??= new Dictionary<string, object?>();
+        // public Result Send(string path, HttpMethod method, IDictionary<string, string>? headers = null, IDictionary<string, object?>? query = null, IDictionary<string, object>? body = null, IEnumerable<IFile>? files = null, CancellationToken cancellationToken = default)
+        // {
+        //     //RETURN RESULT
+        //     
+        //     headers ??= new Dictionary<string, string>();
+        //     query ??= new Dictionary<string, object?>();
+        //     body ??= new Dictionary<string, object>();
+        //     files ??= new List<IFile>();
+        //
+        //     Uri url = _urlBuilder.BuildUrl(path, query);
+        //
+        //     HttpRequestMessage request = CreateRequest(url, method, headers: headers, query: query, body: body, files: files);
+        //
+        //     try
+        //     {
+        //         if (BeforeSend is not null)
+        //         {
+        //             request = BeforeSend.Invoke(this, new RequestEventArgs(url, request));
+        //         }
+        //
+        //         var response = _httpClient.Send(request, cancellationToken);
+        //
+        //         if (AfterSend is not null)
+        //         {
+        //             AfterSend.Invoke(this, new ResponseEventArgs(url, response));
+        //         }
+        //
+        //         if ((int)response.StatusCode >= 400)
+        //         {
+        //             var error = new ClientError(method, url.ToString(), (int)response.StatusCode);
+        //             return Result.Fail(error);
+        //         }
+        //
+        //         return Result.Ok();
+        //     }
+        //     catch (Exception ex)
+        //     {
+        //         if (ex is HttpRequestException requestException)
+        //         {
+        //             ClientError error = new ClientError(method, url.ToString(), (int)requestException.StatusCode!);
+        //             return Result.Fail(error);
+        //         }
+        //
+        //         return Result.Fail(new Error(ex.Message));
+        //     }
+        // }
+        
+//         public async Task<Result<T>> SendAsync<T>(string path, HttpMethod method, IDictionary<string, string>? headers = null, IDictionary<string, object?>? query = null, IDictionary<string, object>? body = null, IEnumerable<IFile>? files = null, CancellationToken cancellationToken = default)
+//         {
+//             headers ??= new Dictionary<string, string>();
+//             query ??= new Dictionary<string, object?>();
+//             body ??= new Dictionary<string, object>();
+//             files ??= new List<IFile>();
+//
+//             Uri url = _urlBuilder.BuildUrl(path, query);
+//
+//             HttpRequestMessage request = CreateRequest(url, method, headers: headers, query: query, body: body, files: files);
+//
+//             try
+//             {
+//                 if (BeforeSend is not null)
+//                 {
+//                     request = BeforeSend.Invoke(this, new RequestEventArgs(url, request));
+//                 }
+//
+//                 var response = await _httpClient.SendAsync(request, cancellationToken);
+//
+//                 if (AfterSend is not null)
+//                 {
+//                     AfterSend.Invoke(this, new ResponseEventArgs(url, response));
+//                 }
+//
+// #if DEBUG
+//                 var json = await response.Content.ReadAsStringAsync(cancellationToken);
+// #endif
+//                 
+//                 if ((int)response.StatusCode >= 400)
+//                 {
+//                     ClientError error = new ClientError(method, url.ToString(), (int)response.StatusCode);
+//                     return Result.Fail(error);
+//                 }
+//
+//                 var parsedResponse =
+//                     await response.Content.ReadFromJsonAsync<T>(jsonSerializerOptions, cancellationToken);
+//                 return Result.Ok(parsedResponse!);
+//             }
+//             catch (Exception ex)
+//             {
+//                 if (ex is HttpRequestException requestException)
+//                 {
+//                     ClientError error = new ClientError(method, url.ToString(), (int)requestException.StatusCode!);
+//                     return Result.Fail(error);
+//                 }
+//
+//                 return Result.Fail(new Error(ex.Message));
+//             }
+//         }
+        
+        // public Result<T> Send<T>(string path, HttpMethod method, IDictionary<string, string>? headers = null, IDictionary<string, object?>? query = null, IDictionary<string, object>? body = null, IEnumerable<IFile>? files = null, CancellationToken cancellationToken = default)
+        // {
+        //     headers ??= new Dictionary<string, string>();
+        //     query ??= new Dictionary<string, object?>();
+        //     body ??= new Dictionary<string, object>();
+        //     files ??= new List<IFile>();
+        //
+        //     Uri url = _urlBuilder.BuildUrl(path, query);
+        //
+        //     HttpRequestMessage request = CreateRequest(url, method, headers: headers, query: query, body: body, files: files);
+        //
+        //     try
+        //     {
+        //         if (BeforeSend is not null)
+        //         {
+        //             request = BeforeSend.Invoke(this, new RequestEventArgs(url, request));
+        //         }
+        //
+        //         var response = _httpClient.Send(request, cancellationToken);
+        //
+        //         if (AfterSend is not null)
+        //         {
+        //             AfterSend.Invoke(this, new ResponseEventArgs(url, response));
+        //         }
+        //
+        //         if ((int)response.StatusCode >= 400)
+        //         {
+        //             ClientError error = new ClientError(method, url.ToString(), (int)response.StatusCode);
+        //             return Result.Fail(error);
+        //         }
+        //
+        //         using var stream = response.Content.ReadAsStream();
+        //         var parsedResponse = JsonSerializer.Deserialize<T>(stream, jsonSerializerOptions);
+        //         return Result.Ok(parsedResponse!);
+        //     }
+        //     catch (Exception ex)
+        //     {
+        //         if (ex is HttpRequestException requestException)
+        //         {
+        //             ClientError error = new ClientError(method, url.ToString(), (int)requestException.StatusCode!);
+        //             return Result.Fail(error);
+        //         }
+        //
+        //         return Result.Fail(new Error(ex.Message));
+        //     }
+        // }
 
-            Uri url = BuildUrl(path, query);
-
-            try
-            {
-                var stream = await _httpClient.GetStreamAsync(url, cancellationToken);
-                return Result.Ok(stream);
-            }
-            catch (Exception ex)
-            {
-                if (ex is HttpRequestException requestException)
-                {
-                    ClientError error = new ClientError(HttpMethod.Get, url.ToString(), (int)requestException.StatusCode!);
-                    return Result.Fail(error);
-                }
-
-                return Result.Fail(new Error(ex.Message));
-            }
-        }
+        // public async Task<Result<Stream>> GetStreamAsync(string path, IDictionary<string, object?>? query = null, CancellationToken cancellationToken = default)
+        // {
+        //     query ??= new Dictionary<string, object?>();
+        //
+        //     Uri url = _urlBuilder.BuildUrl(path, query);
+        //
+        //     try
+        //     {
+        //         var stream = await _httpClient.GetStreamAsync(url, cancellationToken);
+        //         return Result.Ok(stream);
+        //     }
+        //     catch (Exception ex)
+        //     {
+        //         if (ex is HttpRequestException requestException)
+        //         {
+        //             ClientError error = new ClientError(HttpMethod.Get, url.ToString(), (int)requestException.StatusCode!);
+        //             return Result.Fail(error);
+        //         }
+        //
+        //         return Result.Fail(new Error(ex.Message));
+        //     }
+        // }
 
         private HttpRequestMessage CreateRequest(Uri url, HttpMethod method, IDictionary<string, string> headers, IDictionary<string, object?> query, IDictionary<string, object> body, IEnumerable<IFile> files)
         {
@@ -305,82 +321,6 @@ namespace pocketbase_csharp_sdk
             }
 
             return request;
-        }
-
-        public Uri BuildUrl(string path, IDictionary<string, object?>? queryParameters = null)
-        {
-            var url = _baseUrl + (_baseUrl.EndsWith("/") ? "" : "/");
-
-            if (!string.IsNullOrWhiteSpace(path))
-            {
-                url += path.StartsWith("/") ? path.Substring(1) : path;
-            }
-
-            if (queryParameters is not null)
-            {
-                var query = NormalizeQueryParameters(queryParameters);
-
-                List<string> urlSegments = new();
-                foreach (var kvp in query)
-                {
-                    var encodedKey = HttpUtility.UrlEncode(kvp.Key);
-                    foreach (var item in kvp.Value)
-                    {
-                        var encodedValue = HttpUtility.UrlEncode(item.ToString());
-                        urlSegments.Add($"{encodedKey}={encodedValue}");
-                    }
-                }
-
-                var queryString = string.Join("&", urlSegments);
-
-                if (!string.IsNullOrWhiteSpace(queryString))
-                {
-                    url = url + "?" + queryString;
-                }
-            }
-
-            return new Uri(url, UriKind.RelativeOrAbsolute);
-        }
-
-        private IDictionary<string, IEnumerable> NormalizeQueryParameters(IDictionary<string, object?>? parameters)
-        {
-            Dictionary<string, IEnumerable> result = new();
-
-            if (parameters is null)
-            {
-                return result;
-            }
-
-            foreach (var item in parameters)
-            {
-                List<string> normalizedValue = new();
-                IEnumerable valueAsList;
-
-                if (item.Value is IEnumerable && item.Value is not string)
-                {
-                    valueAsList = (IEnumerable)item.Value;
-                }
-                else
-                {
-                    valueAsList = new List<object?>() { item.Value };
-                }
-
-                foreach (var subItem in valueAsList)
-                {
-                    if (subItem is null)
-                    {
-                        continue;
-                    }
-                    normalizedValue.Add(subItem.ToString() ?? "");
-                }
-
-                if (normalizedValue.Count > 0)
-                {
-                    result[item.Key] = normalizedValue;
-                }
-            }
-
-            return result;
         }
 
         private HttpRequestMessage BuildJsonRequest(HttpMethod method, Uri url, IDictionary<string, string>? headers = null, IDictionary<string, object>? body = null)

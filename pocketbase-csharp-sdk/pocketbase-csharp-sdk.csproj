@@ -42,4 +42,8 @@
 	  <EditorConfigFiles Remove="C:\Users\Lukas\source\repos\pocketbase-csharp-sdk\pocketbase-csharp-sdk\.editorconfig" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Folder Include="Extensions\" />
+	</ItemGroup>
+
 </Project>

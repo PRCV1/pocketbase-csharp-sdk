@@ -1,35 +1,34 @@
-﻿using pocketbase_csharp_sdk.Models;
 using FluentResults;
+using pocketbase_csharp_sdk.Models;
 using pocketbase_csharp_sdk.Services.Base;
 
 namespace pocketbase_csharp_sdk.Services
 {
-    public class HealthService : BaseService
+    public class HealthService : BaseCrudService
     {
         private readonly PocketBase _pocketBase;
 
-        protected override string BasePath(string? path = null) => "api/health";
-
-        public HealthService(PocketBase pocketBase)
+        public HealthService(PocketBase pocketBase) : base(pocketBase)
         {
-            this._pocketBase = pocketBase;
+            _pocketBase = pocketBase;
         }
 
-        /// <summary>
-        /// Returns the health status of the server.
-        /// </summary>
-        public Task<Result<ApiHealthModel>> CheckHealthAsync()
+        protected override string GetBasePath()
         {
-            return _pocketBase.SendAsync<ApiHealthModel>(BasePath(), HttpMethod.Get);
+            return "api/health";
+        }
+        
+        public async Task<Result<ApiHealthModel>> CheckHealthAsync()
+        {
+            var result = await _pocketBase.SendAsync<ApiHealthModel>(GetBasePath(), HttpMethod.Get).ConfigureAwait(false);
+            return result;
         }
 
-        /// <summary>
-        /// Returns the health status of the server.
-        /// </summary>
         public Result<ApiHealthModel> CheckHealth()
         {
-            return _pocketBase.Send<ApiHealthModel>(BasePath(), HttpMethod.Get);
+            return _pocketBase.Send<ApiHealthModel>(GetBasePath(), HttpMethod.Get);
         }
 
+        
     }
 }
