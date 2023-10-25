@@ -13,7 +13,7 @@ namespace pocketbase_csharp_sdk.Helper
             _baseUrl = baseUrl;
         }
         
-        public Uri BuildUrl(string path, PbListQueryParams queryParameters)
+        public Uri BuildUrl(string path, IPbQueryParams? queryParameters = null)
         {
             var url = _baseUrl + (_baseUrl.EndsWith("/") ? "" : "/");
 
@@ -26,18 +26,21 @@ namespace pocketbase_csharp_sdk.Helper
             {
                 url += "/";
             }
-            
-            var emptyQuery = HttpUtility.ParseQueryString("");
-            var queryDictionary = queryParameters.ToDictionary();
-            foreach (var kvp in queryDictionary)
+
+            if (queryParameters is not null)
             {
-                emptyQuery.Add(kvp.Key, kvp.Value);
+                var emptyQuery = HttpUtility.ParseQueryString("");
+                var queryDictionary = queryParameters.ToDictionary();
+                foreach (var kvp in queryDictionary)
+                {
+                    emptyQuery.Add(kvp.Key, kvp.Value);
+                }
+                
+                var fullUrl = url + emptyQuery;
+                return new Uri(fullUrl, UriKind.RelativeOrAbsolute);
             }
 
-            var fullUrl = url + emptyQuery;
-            return new Uri(fullUrl, UriKind.RelativeOrAbsolute);
-            
-            
+            return new Uri(url, UriKind.RelativeOrAbsolute);
             // if (queryParameters is not null)
             // {
             //     var query = NormalizeQueryParameters(queryParameters);

@@ -1,15 +1,10 @@
 ﻿using pocketbase_csharp_sdk.Event;
-using pocketbase_csharp_sdk.Models;
-using pocketbase_csharp_sdk.Models.Files;
-using pocketbase_csharp_sdk.Services;
 using System.Collections;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
-using System.Web;
-using FluentResults;
-using pocketbase_csharp_sdk.Errors;
 using pocketbase_csharp_sdk.Helper;
+using pocketbase_csharp_sdk.Stores;
 
 namespace pocketbase_csharp_sdk
 {
@@ -28,7 +23,7 @@ namespace pocketbase_csharp_sdk
         #endregion
 
 
-        public AuthStore AuthStore { private set; get; }
+        public BaseAuthStore AuthStore { private set; get; }
         // public AdminService Admin { private set; get; }
         // public UserService User { private set; get; }
         // public LogService Log { private set; get; }
@@ -42,7 +37,7 @@ namespace pocketbase_csharp_sdk
         private readonly HttpClient _httpClient;
         private readonly IUrlBuilder _urlBuilder;
 
-        public PocketBase(string baseUrl, AuthStore? authStore = null, string language = "en-US", HttpClient? httpClient = null)
+        public PocketBase(string baseUrl, BaseAuthStore? authStore = null, string language = "en-US", HttpClient? httpClient = null)
         {
             this._baseUrl = baseUrl;
             this._language = language;
@@ -61,21 +56,32 @@ namespace pocketbase_csharp_sdk
         }
 
         public async Task<T> SendAsync<T>(string path, HttpMethod method,
-            PbListQueryParams? queryParams = null, IDictionary<string, string>? headers = null)
+            IPbQueryParams? queryParams = null, IDictionary<string, string>? headers = null)
         {
-            queryParams ??= new PbListQueryParams();
-
             Uri url = _urlBuilder.BuildUrl(path, queryParams);
+
+            HttpRequestMessage requestMessage = CreateRequest(url, method, null, headers);
             
-            return default;
-        }
-        
-        public Result<T> Send<T>(string path, HttpMethod method,
-            PbListQueryParams? queryParams = null, IDictionary<string, string>? headers = null)
-        {
-            queryParams ??= new PbListQueryParams();
+            try
+            {
+                if (BeforeSend is not null)
+                {
+                    requestMessage = BeforeSend.Invoke(this, new RequestEventArgs(url, requestMessage));
+                }
 
-            Uri url = _urlBuilder.BuildUrl(path, queryParams);
+                var response = await _httpClient.SendAsync(requestMessage);
+
+                if (AfterSend is not null)
+                {
+                    AfterSend.Invoke(this, new ResponseEventArgs(url, response));
+                }
+                
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
             
             return default;
         }
@@ -297,17 +303,22 @@ namespace pocketbase_csharp_sdk
         //     }
         // }
 
-        private HttpRequestMessage CreateRequest(Uri url, HttpMethod method, IDictionary<string, string> headers, IDictionary<string, object?> query, IDictionary<string, object> body, IEnumerable<IFile> files)
+        private HttpRequestMessage CreateRequest(Uri url, HttpMethod method, IDictionary<string, object>? body = null,  IDictionary<string, string>? headers = null, IEnumerable? files = null)
         {
-            HttpRequestMessage request;
+            HttpRequestMessage request = new HttpRequestMessage();
 
-            if (files.Any())
+            if (files is not null) // && files.Any())
             {
-                request = BuildFileRequest(method, url, headers, body, files);
+                // request = BuildFileRequest(method, url, headers, body, files);
             }
             else
             {
                 request = BuildJsonRequest(method, url, headers, body);
+            }
+
+            if (headers is null)
+            {
+                return request;
             }
 
             if (!headers.ContainsKey("Authorization") && AuthStore.IsValid)
@@ -342,82 +353,72 @@ namespace pocketbase_csharp_sdk
             return request;
         }
 
-        private HttpRequestMessage BuildFileRequest(HttpMethod method, Uri url, IDictionary<string, string>? headers, IDictionary<string, object>? body, IEnumerable<IFile> files)
-        {
-            var request = new HttpRequestMessage(method, url);
-
-            if (headers is not null)
-            {
-                foreach (var header in headers)
-                {
-                    request.Headers.Add(header.Key, header.Value);
-                }
-            }
-
-            var form = new MultipartFormDataContent();
-            foreach (var file in files)
-            {
-                var stream = file.GetStream();
-                if (stream is null || string.IsNullOrWhiteSpace(file.FieldName) || string.IsNullOrWhiteSpace(file.FileName))
-                {
-                    continue;
-                }
-
-                var fileContent = new StreamContent(stream);
-                var mimeType = GetMimeType(file);
-                fileContent.Headers.ContentType = new MediaTypeHeaderValue(mimeType);
-                form.Add(fileContent, file.FieldName, file.FileName);
-            }
-
-
-            if (body is not null && body.Count > 0)
-            {
-                Dictionary<string, string> additionalBody = new Dictionary<string, string>();
-                foreach (var item in body)
-                {
-                    if (item.Value is IList valueAsList && item.Value is not string)
-                    {
-                        for (int i = 0; i < valueAsList.Count; i++)
-                        {
-                            var listValue = valueAsList[i]?.ToString();
-                            if (string.IsNullOrWhiteSpace(listValue))
-                            {
-                                continue;
-                            }
-                            additionalBody[$"{item.Key}{i}"] = listValue;
-                        }
-                    }
-                    else
-                    {
-                        var value = item.Value?.ToString();
-                        if (string.IsNullOrWhiteSpace(value))
-                        {
-                            continue;
-                        }
-                        additionalBody[item.Key] = value;
-                    }
-                }
-
-                foreach (var item in additionalBody)
-                {
-                    var content = new StringContent(item.Value);
-                    form.Add(content, item.Key);
-                }
-            }
-
-            request.Content = form;
-            return request;
-        }
-
-        private string GetMimeType(IFile file)
-        {
-            if (file is FilepathFile filePath)
-            {
-                var fileName = Path.GetFileName(filePath.FilePath);
-                return MimeMapping.MimeUtility.GetMimeMapping(fileName);
-            }
-            return MimeMapping.MimeUtility.UnknownMimeType;
-        }
+        // private HttpRequestMessage BuildFileRequest(HttpMethod method, Uri url, IDictionary<string, string>? headers, IDictionary<string, object>? body, IEnumerable<IFile> files)
+        // {
+        //     var request = new HttpRequestMessage(method, url);
+        //
+        //     if (headers is not null)
+        //     {
+        //         foreach (var header in headers)
+        //         {
+        //             request.Headers.Add(header.Key, header.Value);
+        //         }
+        //     }
+        //
+        //     var form = new MultipartFormDataContent();
+        //     foreach (var file in files)
+        //     {
+        //         var stream = file.GetStream();
+        //         if (stream is null || string.IsNullOrWhiteSpace(file.FieldName) || string.IsNullOrWhiteSpace(file.FileName))
+        //         {
+        //             continue;
+        //         }
+        //
+        //         var fileContent = new StreamContent(stream);
+        //         var mimeType = GetMimeType(file);
+        //         fileContent.Headers.ContentType = new MediaTypeHeaderValue(mimeType);
+        //         form.Add(fileContent, file.FieldName, file.FileName);
+        //     }
+        //
+        //
+        //     if (body is not null && body.Count > 0)
+        //     {
+        //         Dictionary<string, string> additionalBody = new Dictionary<string, string>();
+        //         foreach (var item in body)
+        //         {
+        //             if (item.Value is IList valueAsList && item.Value is not string)
+        //             {
+        //                 for (int i = 0; i < valueAsList.Count; i++)
+        //                 {
+        //                     var listValue = valueAsList[i]?.ToString();
+        //                     if (string.IsNullOrWhiteSpace(listValue))
+        //                     {
+        //                         continue;
+        //                     }
+        //                     additionalBody[$"{item.Key}{i}"] = listValue;
+        //                 }
+        //             }
+        //             else
+        //             {
+        //                 var value = item.Value?.ToString();
+        //                 if (string.IsNullOrWhiteSpace(value))
+        //                 {
+        //                     continue;
+        //                 }
+        //                 additionalBody[item.Key] = value;
+        //             }
+        //         }
+        //
+        //         foreach (var item in additionalBody)
+        //         {
+        //             var content = new StringContent(item.Value);
+        //             form.Add(content, item.Key);
+        //         }
+        //     }
+        //
+        //     request.Content = form;
+        //     return request;
+        // }
 
     }
 }

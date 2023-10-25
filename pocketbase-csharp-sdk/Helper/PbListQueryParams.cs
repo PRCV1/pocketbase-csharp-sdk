@@ -1,6 +1,6 @@
 namespace pocketbase_csharp_sdk.Helper
 {
-    public class PbListQueryParams
+    public class PbListQueryParams : IPbQueryParams
     {
         public int Page { get; set; } = 1;
         public int PerPage { get; set; } = 30;

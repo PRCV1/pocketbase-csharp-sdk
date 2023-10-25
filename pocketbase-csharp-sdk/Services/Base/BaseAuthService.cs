@@ -12,7 +12,8 @@ namespace pocketbase_csharp_sdk.Services.Base
         public async Task<T> AuthenticateWithPasswordAsync(string usernameOrEmail, string password)
         {
             var url = $"{GetBasePath() + "auth-with-password"}";
-            var response = await _pocketBase.SendAsync<T>(url, HttpMethod.Post,);
+            var response = await _pocketBase.SendAsync<T>(url, HttpMethod.Post);
+            return response;
         }
         
     }
