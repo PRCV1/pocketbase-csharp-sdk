@@ -4,6 +4,7 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
 using pocketbase_csharp_sdk.Helper;
+using pocketbase_csharp_sdk.Services;
 using pocketbase_csharp_sdk.Stores;
 
 namespace pocketbase_csharp_sdk
@@ -24,7 +25,7 @@ namespace pocketbase_csharp_sdk
 
 
         public BaseAuthStore AuthStore { private set; get; }
-        // public AdminService Admin { private set; get; }
+        public AdminService Admin { private set; get; }
         // public UserService User { private set; get; }
         // public LogService Log { private set; get; }
         // public SettingsService Settings { private set; get; }
@@ -44,7 +45,7 @@ namespace pocketbase_csharp_sdk
             this._httpClient = httpClient ?? new HttpClient();
 
             AuthStore = authStore ?? new AuthStore();
-            // Admin = new AdminService(this);
+            Admin = new AdminService(this);
             // User = new UserService(this);
             // Log = new LogService(this);
             // Settings = new SettingsService(this);
@@ -55,12 +56,12 @@ namespace pocketbase_csharp_sdk
             _urlBuilder = new UrlBuilder(baseUrl);
         }
 
-        public async Task<T> SendAsync<T>(string path, HttpMethod method,
-            IPbQueryParams? queryParams = null, IDictionary<string, string>? headers = null)
+        public async Task<T?> SendAsync<T>(string path, HttpMethod method,
+            IPbQueryParams? queryParams = null, IDictionary<string, object?>? body = null, IDictionary<string, string>? headers = null)
         {
             Uri url = _urlBuilder.BuildUrl(path, queryParams);
 
-            HttpRequestMessage requestMessage = CreateRequest(url, method, null, headers);
+            HttpRequestMessage requestMessage = CreateRequest(url, method, body, headers);
             
             try
             {
@@ -69,11 +70,23 @@ namespace pocketbase_csharp_sdk
                     requestMessage = BeforeSend.Invoke(this, new RequestEventArgs(url, requestMessage));
                 }
 
-                var response = await _httpClient.SendAsync(requestMessage);
+                var response = await _httpClient.SendAsync(requestMessage, HttpCompletionOption.ResponseHeadersRead);
 
                 if (AfterSend is not null)
                 {
                     AfterSend.Invoke(this, new ResponseEventArgs(url, response));
+                }
+                
+                if ((int)response.StatusCode >= 400)
+                {
+                    
+                }
+                else
+                {
+                    var jsonResponse = await response.Content.ReadAsStringAsync();
+                    Console.WriteLine(jsonResponse);
+                    var parsedResponse = JsonSerializer.Deserialize<T>(jsonResponse);
+                    return parsedResponse;
                 }
                 
             }
@@ -84,6 +97,40 @@ namespace pocketbase_csharp_sdk
             }
             
             return default;
+        }
+
+        public async Task SendAsync(string path, HttpMethod method,
+            IPbQueryParams? queryParams = null, IDictionary<string, object?>? body = null, IDictionary<string, string>? headers = null)
+        {
+            Uri url = _urlBuilder.BuildUrl(path, queryParams);
+
+            HttpRequestMessage requestMessage = CreateRequest(url, method, body, headers);
+            
+            try
+            {
+                if (BeforeSend is not null)
+                {
+                    requestMessage = BeforeSend.Invoke(this, new RequestEventArgs(url, requestMessage));
+                }
+
+                var response = await _httpClient.SendAsync(requestMessage, HttpCompletionOption.ResponseHeadersRead);
+
+                if (AfterSend is not null)
+                {
+                    AfterSend.Invoke(this, new ResponseEventArgs(url, response));
+                }
+                
+                if ((int)response.StatusCode >= 400)
+                {
+                    
+                }
+                
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
         }
         
 //         public async Task<Result> SendAsync(string path, HttpMethod method, IDictionary<string, string>? headers = null, IDictionary<string, object?>? query = null, IDictionary<string, object>? body = null, IEnumerable<IFile>? files = null, CancellationToken cancellationToken = default)
@@ -303,22 +350,24 @@ namespace pocketbase_csharp_sdk
         //     }
         // }
 
-        private HttpRequestMessage CreateRequest(Uri url, HttpMethod method, IDictionary<string, object>? body = null,  IDictionary<string, string>? headers = null, IEnumerable? files = null)
+        private HttpRequestMessage CreateRequest(Uri url, HttpMethod method, IDictionary<string, object?>? body = null,  IDictionary<string, string>? headers = null, IEnumerable? files = null)
         {
+            headers ??= new Dictionary<string, string>();
+            
             HttpRequestMessage request = new HttpRequestMessage();
-
+            
             if (files is not null) // && files.Any())
             {
                 // request = BuildFileRequest(method, url, headers, body, files);
             }
             else
             {
-                request = BuildJsonRequest(method, url, headers, body);
+                request = BuildJsonRequest(method, url, body, headers);
             }
 
-            if (headers is null)
+            foreach (var header in headers)
             {
-                return request;
+                request.Headers.TryAddWithoutValidation(header.Value, header.Key);
             }
 
             if (!headers.ContainsKey("Authorization") && AuthStore.IsValid)
@@ -334,7 +383,7 @@ namespace pocketbase_csharp_sdk
             return request;
         }
 
-        private HttpRequestMessage BuildJsonRequest(HttpMethod method, Uri url, IDictionary<string, string>? headers = null, IDictionary<string, object>? body = null)
+        private HttpRequestMessage BuildJsonRequest(HttpMethod method, Uri url, IDictionary<string, object?>? body = null, IDictionary<string, string>? headers = null)
         {
             var request = new HttpRequestMessage(method, url);
             if (body is not null && body.Count > 0)

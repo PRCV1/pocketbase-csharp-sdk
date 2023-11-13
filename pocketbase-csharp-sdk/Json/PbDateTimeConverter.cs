@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace pocketbase_csharp_sdk.Json
 {
-    public class DateTimeConverter : JsonConverter<DateTime?>
+    public class PbDateTimeConverter : JsonConverter<DateTime?>
     {
         public override DateTime? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {

@@ -6,14 +6,14 @@ namespace pocketbase_csharp_sdk.Models
     public abstract class PbBaseModel
     {
         [JsonPropertyName("id")]
-        public string Id { get; set; }
+        public string? Id { get; set; }
         
         [JsonPropertyName("created")]
-        [JsonConverter(typeof(DateTimeConverter))]
-        public DateTime Created { get; set; }
+        [JsonConverter(typeof(PbDateTimeConverter))]
+        public DateTime? Created { get; set; }
         
         [JsonPropertyName("updated")]
-        [JsonConverter(typeof(DateTimeConverter))]
-        public DateTime Updated { get; set; }
+        [JsonConverter(typeof(PbDateTimeConverter))]
+        public DateTime? Updated { get; set; }
     }
 }
